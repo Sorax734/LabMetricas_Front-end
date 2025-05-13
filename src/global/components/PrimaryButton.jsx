@@ -17,24 +17,6 @@ export const PrimaryButton = ({isIconOnly, startContent, tooltipPlacement, toolt
                     </div>
                 }
                 delay={0}
-                motionProps={{
-                    variants: {
-                        exit: {
-                        opacity: 0,
-                        transition: {
-                            duration: 0.1,
-                            ease: "easeIn",
-                        },
-                        },
-                        enter: {
-                        opacity: 1,
-                        transition: {
-                            duration: 0.15,
-                            ease: "easeOut",
-                        },
-                        },
-                    },
-                }}
                 >
                 <Button
                     type={isSubmit ? "submit" : "button"}
@@ -43,7 +25,7 @@ export const PrimaryButton = ({isIconOnly, startContent, tooltipPlacement, toolt
                     radius="sm"
                     variant="shadow"
                     color="primary"
-                    className={"font-medium " + (isIconOnly ? "" : "hover:-translate-y-1")}
+                    className="font-medium hover:-translate-y-1"
                     onPress={onPress}
                     startContent={isIconOnly ? "" : startContent}
                     >

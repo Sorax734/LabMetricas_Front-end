@@ -2,7 +2,7 @@ import { useTheme } from "@heroui/use-theme";
 import { MoonIcon, SunIcon } from '@heroicons/react/24/solid'
 import { TextButton } from "./TextButton";
 
-export const ThemeSwitcher = () => {
+export const ThemeSwitcher = ({isIconOnly}) => {
     const { theme, setTheme } = useTheme()
     const label = theme === "light" ? "Tema claro" : "Tema oscuro"
 
@@ -10,7 +10,7 @@ export const ThemeSwitcher = () => {
         <>
             <TextButton
                 isSubmit={false} // ¿El botón se ocupa en un form?
-                isIconOnly={true} // ¿El botón es un ícono? Si sí, ignorará el texto del botón, sino lo mostrará
+                isIconOnly={isIconOnly} // ¿El botón es un ícono? Si sí, ignorará el texto del botón, sino lo mostrará
                 isActive={false} // ¿El botón está activo? Si sí, será color azul, sino será foreground (blanco / negro)
                 label={label} // Texto del botón
                 tooltipLabel={label}  // Texto del tooltip

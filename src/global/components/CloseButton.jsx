@@ -1,10 +1,10 @@
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Button, Tooltip } from "@heroui/react";
 
-export const SecondaryButton = ({isIconOnly, startContent, tooltipPlacement, tooltipLabel, onPress, label, isSubmit}) => {
+export const CloseButton = ({tooltipPlacement, onPress}) => {
     return (
         <>
             <Tooltip
-                isDisabled={!isIconOnly}
                 showArrow
                 radius='sm'
                 color="foreground"
@@ -13,23 +13,19 @@ export const SecondaryButton = ({isIconOnly, startContent, tooltipPlacement, too
                 closeDelay={0}
                 content={ 
                     <div className="h-6 flex justify-center items-center mx-1">
-                        <p>{tooltipLabel}</p> 
+                        <p>Cerrar</p> 
                     </div>
                 }
                 delay={0}
                 >
                 <Button
-                    type={isSubmit ? "submit" : "button"}
-                    isIconOnly={isIconOnly}
-                    size="md"
+                    isIconOnly
+                    size="sm"
                     radius="sm"
-                    variant="flat"
-                    color="secondary"
-                    className="font-medium"
+                    variant="light"
                     onPress={onPress}
-                    startContent={isIconOnly ? "" : startContent}
                     >
-                    {isIconOnly ? startContent : label}
+                    <XMarkIcon className='size-5' />
                 </Button>
             </Tooltip>
         </>

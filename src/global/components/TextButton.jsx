@@ -17,24 +17,6 @@ export const TextButton = ({isIconOnly, startContent, tooltipPlacement, tooltipL
                     </div>
                 }
                 delay={0}
-                motionProps={{
-                    variants: {
-                        exit: {
-                        opacity: 0,
-                        transition: {
-                            duration: 0.1,
-                            ease: "easeIn",
-                        },
-                        },
-                        enter: {
-                        opacity: 1,
-                        transition: {
-                            duration: 0.15,
-                            ease: "easeOut",
-                        },
-                        },
-                    },
-                }}
                 >
                 <Button
                     type={isSubmit ? "submit" : "button"}
@@ -47,6 +29,7 @@ export const TextButton = ({isIconOnly, startContent, tooltipPlacement, tooltipL
                     onPress={onPress}
                     startContent={isIconOnly ? "" : startContent}
                     >
+                    {isActive && (<span className="absolute rounded-xl left-0 top-2 bottom-2 w-1 bg-primary" />)}
                     {isIconOnly ? startContent : label}
                 </Button>
             </Tooltip>

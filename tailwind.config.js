@@ -117,7 +117,7 @@ export default {
             700: '#4d4d4d',
             800: '#333333',
             900: '#1a1a1a',
-            950: '#0d0d0d',
+            950: '#1a1a1a',
             DEFAULT: "#0d0d0d", 
             foreground: "#FFFFFF",
           },		
