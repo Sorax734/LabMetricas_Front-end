@@ -12,13 +12,17 @@ export default {
       keyframes: {
         shake: {
           '0%, 100%': { transform: 'translateX(0)' },
-          '25%': { transform: 'translateX(-6px)' },
-          '50%': { transform: 'translateX(6px)' },
-          '75%': { transform: 'translateX(-4px)' },
+          '20%': { transform: 'translateX(-6px)' },
+          '40%': { transform: 'translateX(6px)' },
+          '60%': { transform: 'translateX(-3px)' },
+          '80%': { transform: 'translateX(3px)' },
         }
       },
       animation: {
-        shake: 'shake 0.4s ease-in-out',
+        shake: 'shake 0.6s ease-in-out',
+      },
+      screens: {
+        xs: '400px'
       }
     },
   },
@@ -69,8 +73,8 @@ export default {
             800: '#cccccc',
             900: '#e6e6e6',
             950: '#f2f2f2',
-            DEFAULT: "#FFFFFF", 
-            foreground: "#000000",
+            DEFAULT: "#f2f2f2", 
+            foreground: "#0d0d0d",
           },		
         }
 		  },
@@ -117,7 +121,7 @@ export default {
             700: '#4d4d4d',
             800: '#333333',
             900: '#1a1a1a',
-            950: '#1a1a1a',
+            950: '#0d0d0d',
             DEFAULT: "#0d0d0d", 
             foreground: "#FFFFFF",
           },		
