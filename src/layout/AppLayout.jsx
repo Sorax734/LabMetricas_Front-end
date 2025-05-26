@@ -1,8 +1,5 @@
-import { 
-    useDisclosure,
-} from "@heroui/react";
-
-import { AppBottomNavigation, AppDrawerNavigation, AppSidebarNavigation } from './Navigation';
+import { useDisclosure } from "@heroui/react";
+import { AppBottomNavigation, AppDrawerNavigation, AppSidebarNavigation } from './AppNavigation';
 
 export const AppLayout = ({ 
     children,
@@ -16,7 +13,7 @@ const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
     return (
         <>
             {/* SIDEBAR Y CONTENIDO PRINCIPAL */}
-            <div className="flex w-screen h-screen">
+            <div className="flex w-screen h-screen transition-colors duration-500 ease-in-out bg-background">
                 <AppSidebarNavigation
                     role={role}
                     name={name}
@@ -29,9 +26,7 @@ const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
 
                     { /* BODY */ }
                     <div className='flex-1 overflow-y-auto [scrollbar-color:#808080_transparent]'>
-                        <div className='m-8 sm:mx-12 transition-all ease-in-out duration-500'>
-                            {children}
-                        </div>
+                        {children}
                     </div>
 
                     {/* Bottom Navigation <SM */}

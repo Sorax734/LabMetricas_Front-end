@@ -36,14 +36,14 @@ export const Drawer = ({
 }) => {
 
     const x = (placement) => {
-        if (placement === "left") return -200;
-        if (placement === "right") return 200;
+        if (placement === "left") return -300;
+        if (placement === "right") return 300;
         return 0;
     }
 
     const y = (placement) => {
-        if (placement === "top") return -200;
-        if (placement === "bottom") return 200;
+        if (placement === "top") return -300;
+        if (placement === "bottom") return 300;
         return 0;
     }
 
@@ -66,27 +66,26 @@ export const Drawer = ({
                         transition: {
                             x: { type: "spring", stiffness: 300, damping: 30 },
                             y: { type: "spring", stiffness: 300, damping: 30 },
-                            opacity: { duration: 0.2 }
+                            opacity: { duration: 0.5 }
                         },
                     },
                     exit: {
                         x: x(placement),
                         y: y(placement),
-                        opacity: 0,
+                        opacity: 1,
                         transition: {
-                            duration: 0.3,
-                            ease: "easeIn"
+                            duration: 0.5,
+                            ease: "easeInOut"
                         }
                     }
                 }
             }}
         >
-            <HeroUIDrawerContent className="p-8 bg-background-950 
-            transition-all ease-out duration-500 
+            <HeroUIDrawerContent className="p-8 bg-background 
             overflow-y-auto overflow-x-hidden [scrollbar-width:none]"
             >
-                <div className='w-full flex items-start justify-between gap-4'>
-                    <p className="text-base font-bold">{title}</p>
+                <div className='w-full flex items-center justify-between gap-4'>
+                    <p className="text-lg font-bold">{title}</p>
                     <CloseButton tooltipPlacement="right" onPress={onClose}/>
                 </div>
                 {children}

@@ -35,7 +35,6 @@ export const SecondaryButton = ({
                     radius="sm"
                     variant="flat"
                     className={`
-                        !outline-none focus:bg-secondary/40 focus:text-secondary-700
                         font-medium
                         ${isSmHidden ? 'sm:hidden' : ''}
                     `}

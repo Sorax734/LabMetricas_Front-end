@@ -35,9 +35,8 @@ export const PrimaryButton = ({
                     radius="sm"
                     variant="shadow"
                     className={`
-                        !outline-none focus:bg-primary/80 focus:dark:bg-primary/60 focus:-translate-y-1
-                        font-medium
-                        ${isSmHidden ? 'sm:hidden' : 'tracking-wide hover:-translate-y-1'}
+                        font-medium 
+                        ${isSmHidden ? 'sm:hidden' : 'tracking-wide data-[hover=true]:-translate-y-1'}
                     `}
                     >
                     {isIconOnly ? startContent : label}

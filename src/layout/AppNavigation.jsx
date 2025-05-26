@@ -6,17 +6,20 @@ import { DocumentMultipleFilled, PeopleFilled, PersonFilled,} from '@fluentui/re
 import { SecondaryButton } from "../components/SecondaryButton";
 import { Drawer, DrawerBody, DrawerFooter } from "../components/Drawer";
 import { Button, Divider, Tooltip } from "@heroui/react";
+import { replace, useLocation, useNavigate } from "react-router-dom";
+import { DrawerButton } from "../components/DrawerButton";
+import { SidebarButton } from "../components/SidebarButton";
 
 const home = {
     label: "Inicio",
     icon: <HomeIcon className='size-5' />,
-    path: "/"
+    path: "/App"
 }
 
 const profile = {
     label: "Mi perfil",
     icon: <PersonFilled className='size-5' />,
-    path: "/Profile"
+    path: "/App/Profile"
 }
 
 const adminNavigation = [
@@ -25,7 +28,7 @@ const adminNavigation = [
     {
         label: "Usuarios",
         icon: <PeopleFilled className='size-5' />,
-        path: "/Users"
+        path: "/App/Users"
     }
 ]
 
@@ -35,7 +38,7 @@ const operadorNavigation = [
     {
         label: "Historial",
         icon: <ClockIcon className='size-5' />,
-        path: "/History"
+        path: "/App/History"
     }
 ]
 
@@ -45,12 +48,14 @@ const supervisorNavigation = [
     {
         label: "Documentos",
         icon: <DocumentMultipleFilled className='size-5' />,
-        path: "/Documents"
+        path: "/App/Documents"
     }
 ]
 
-export const Navigation = ({ role, type }) => {
+export const AppNavigation = ({ role, type }) => {
     const isIconOnly = useIsIconOnly()
+    const location = useLocation();
+    let navigate = useNavigate();
 
     let navigation
 
@@ -62,16 +67,43 @@ export const Navigation = ({ role, type }) => {
         default: navigation = []
     }
 
+    const getIsActive = (path) => {
+        // Caso especial para la ruta de inicio
+        if (path === home.path) {
+            return location.pathname === path;
+        }
+        
+        // Para otras rutas: match exacto o sub-rutas
+        return location.pathname === path || 
+                location.pathname.startsWith(`${path}/`);
+    };
+
     if (type === "Bottom"){
         return (
             <>
                 {navigation.map(({ label, icon, path }) => (
                     <BottomButton
-                        isActive={false}
+                        isActive={getIsActive(path)}
                         key={label}
                         label={label}
                         centerContent={icon}
-                        onPress={() => { alert("Path: " + path) }}
+                        onPress={() => {navigate(path);}}
+                    />
+                ))}
+            </>
+        );
+    } 
+
+    if (type === "Drawer"){
+        return (
+            <>
+                {navigation.map(({ label, icon, path }) => (
+                    <DrawerButton
+                        isActive={getIsActive(path)}
+                        key={label}
+                        label={label}
+                        startContent={icon}
+                        onPress={() => {navigate(path);}}
                     />
                 ))}
             </>
@@ -81,13 +113,13 @@ export const Navigation = ({ role, type }) => {
     return (
         <>
             {navigation.map(({ label, icon, path }) => (
-                <LightButton
-                    isActive={false}
-                    isIconOnly={type === "Drawer" ? false : isIconOnly}
+                <SidebarButton
+                    isActive={getIsActive(path)}
+                    isIconOnly={isIconOnly}
                     key={label}
                     label={label}
                     startContent={icon}
-                    onPress={() => { alert("Path: " + path) }}
+                    onPress={() => {navigate(path);}}
                 />
             ))}
         </>
@@ -100,11 +132,11 @@ export const AppBottomNavigation = ({
 
     return (
         <>
-            <div className="flex-shrink-0 h-16 sm:hidden rounded-t-xl
+            <div className="flex-shrink-0 h-16 sm:hidden rounded-t-xl duration-500 ease-in-out bg-background
             shadow-[0px_-20px_40px_-10px_#e6e6e6] 
             dark:shadow-[0px_-10px_40px_-10px_#1a1a1a]">
                 <div className='flex h-full w-full justify-center px-2 xs:space-x-4'>
-                    <Navigation role={role} type="Bottom"/>
+                    <AppNavigation role={role} type="Bottom"/>
                 </div>
             </div>
         </>
@@ -114,27 +146,26 @@ export const AppBottomNavigation = ({
 export const AppSidebarNavigation = ({
     role, name, email, onOpen
 }) => {
+    let navigate = useNavigate()
     const isIconOnly = useIsIconOnly()
 
     return (
         <>
-            <div className='lg:w-56 w-[72px] h-full bg-background-950 py-8 px-4 rounded-r-xl 
+            <div className='lg:w-[228px] w-[72px] h-full duration-500 ease-in-out bg-background py-8 px-4 rounded-r-xl 
             hidden sm:flex flex-col justify-between items-center 
-            transition-all ease-out duration-500 
             shadow-[20px_0px_40px_-10px_#e6e6e6] dark:shadow-[10px_0px_40px_-10px_#1a1a1a] 
             overflow-y-auto overflow-x-hidden [scrollbar-width:none]'>
                 
                 <div className='w-full'>
                     <div className='w-full flex flex-col lg:items-start items-center'>
                         <div className='w-full hidden lg:flex px-4 items-start'>
-                            <p className="text-base font-bold break-words line-clamp-1">Nombre del sistema</p>
+                            <p className="text-lg font-bold break-words line-clamp-1">Nombre del sistema</p>
                         </div>
 
                         <Tooltip
                             offset={15}
                             showArrow
                             radius='sm'
-                            color="default"
                             className="text-sm font-medium"
                             placement="right"
                             closeDelay={0}
@@ -151,7 +182,7 @@ export const AppSidebarNavigation = ({
                                 radius="sm"
                                 variant="flat"
                                 color="secondary"
-                                className="font-medium hidden sm:flex lg:hidden !outline-none focus:bg-secondary/40 focus:text-secondary-700"
+                                className="font-medium hidden sm:flex lg:hidden"
                                 onPress={onOpen}
                             >
                                 <Bars3Icon className='size-5' />
@@ -159,11 +190,11 @@ export const AppSidebarNavigation = ({
                         </Tooltip>
                     </div>
 
-                    <Divider className='lg:hidden mt-5 mb-[11px]'/>
+                    <Divider className='lg:hidden mt-6 mb-[11px]'/>
                     
                     <div className='space-y-1 flex flex-col lg:items-start items-center lg:py-8'>
                         <p className='text-xs items-start hidden lg:flex text-background-500 px-4 break-words line-clamp-1'>Páginas</p>
-                        <Navigation role={role}/>
+                        <AppNavigation role={role}/>
                     </div>
 
                     <Divider className='lg:hidden mt-[11px] mb-5'/>
@@ -180,7 +211,7 @@ export const AppSidebarNavigation = ({
                             fullWidth
                             isIconOnly={isIconOnly}
                             label="Cerrar sesión"
-                            onPress={() => alert("Presionaste el botón secundario")}
+                            onPress={() => {alert("Cerraste sesión"); navigate("/Login"), replace}}
                             startContent={<ArrowLeftStartOnRectangleIcon className='size-5' />}
                         />
                     </div>
@@ -198,11 +229,13 @@ export const AppDrawerNavigation = ({
     name, 
     email
 }) => {
+    let navigate = useNavigate()
     
     return (
         <>
             <Drawer
                 title="Nombre del sistema" 
+                backdrop="opaque"
                 isOpen={isOpen} 
                 onOpenChange={onOpenChange} 
                 onClose={onClose} 
@@ -213,7 +246,7 @@ export const AppDrawerNavigation = ({
                     <div className='space-y-1 flex -mx-4 flex-col items-start'>
                         <p className='text-xs items-start text-background-500 px-4 break-words line-clamp-1'>Páginas</p>
             
-                        <Navigation role={role} type="Drawer"/>
+                        <AppNavigation role={role} type="Drawer"/>
                     </div>
                 </DrawerBody>
                 <DrawerFooter>
@@ -226,7 +259,7 @@ export const AppDrawerNavigation = ({
                         <SecondaryButton
                             fullWidth
                             label="Cerrar sesión"
-                            onPress={() => alert("Presionaste el botón secundario")}
+                            onPress={() => {alert("Cerraste sesión"); navigate("/Login")}}
                             startContent={<ArrowLeftStartOnRectangleIcon className='size-5' />}
                         />
                     </div>

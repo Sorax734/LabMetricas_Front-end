@@ -10,11 +10,11 @@ export const Tooltip = ({
     return (
         <>
             <HeroUITooltip
+                classNames={{ content: "bg-background text-current border-0"}}
                 isDisabled={isDisabled}
-                showArrow
                 shadow="lg"
                 radius='sm'
-                color="default"
+                color="primary"
                 className="text-sm font-medium"
                 placement={tooltipPlacement}
                 closeDelay={0}

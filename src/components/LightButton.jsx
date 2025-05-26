@@ -1,6 +1,7 @@
 import { Button } from "@heroui/react";
 import { Tooltip } from "./Tooltip";
 import { Spinner } from "./Spinner";
+import { motion } from 'framer-motion'
 
 export const LightButton = ({
     isIconOnly = false,     // ¿El botón es un ícono? Si sí, ignorará el texto del botón, sino lo mostrará
@@ -21,6 +22,7 @@ export const LightButton = ({
                 tooltipContent={label}
                 isDisabled={!isIconOnly}
             >
+                
                 <Button
                     aria-label={label + " light button"}
                     fullWidth={fullWidth}
@@ -31,23 +33,21 @@ export const LightButton = ({
                     type={isSubmit ? "submit" : "button"}
                     spinner={<Spinner/>}
                     startContent={isLoading ? null : (isIconOnly ? null : startContent)}
-                    color="default"
+                    color="primary"
                     size="md"
                     radius="sm"
                     variant="light"
                     disableRipple
-                    className={`
-                        !outline-none focus:bg-default/40 
-                        hover:!bg-transparent
+                    className={`!bg-transparent
                         ${isSmHidden ? 'sm:hidden' : ''}
-                        font-medium text-sm
-                        ${isActive ? 'text-primary' : 'hover:text-primary'}
+                        font-medium text-sm text-current
+                        ${isActive ? 'text-primary' : ''}
                     `}
                     >
-                    {isActive && (<span className="absolute rounded-xl left-0 top-2 bottom-2 w-1 bg-primary" />)}
+                    
                     {isIconOnly ? startContent : label}
                 </Button>
-            </Tooltip>
+            </Tooltip> 
         </>
     );
 }

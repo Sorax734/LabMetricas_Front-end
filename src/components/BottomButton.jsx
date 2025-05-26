@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 export const BottomButton = ({
     isActive = false,
     label = "null",     // Texto del botón y del tooltip
@@ -7,17 +9,26 @@ export const BottomButton = ({
 
     return (
         <>
-            <div className='flex items-center justify-center'>
+            <div className="relative flex items-center justify-center">
+                {/* Indicador animado */}
+                {isActive && (
+                    <motion.span
+                    layoutId="bottom-layout"
+                    className="absolute -bottom-0 transform w-12 h-1 rounded-full bg-primary"
+                    transition={{ type: 'spring', stiffness: 900, damping: 60 }}
+                    />
+                )}
+
                 <button
                     aria-label={label + " bottom button"}
-                    className="w-20 h-14 outline-none focus:bg-default/40 px-4 py-2 rounded-md sm:hidden transition-all ease-in-out duration-500"
+                    className="w-20 h-16 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-sm sm:hidden"
                     type="button"
                     onClick={onPress}
                 >
                     <div 
                         className={`
-                            flex flex-col items-center gap-1
-                            ${isActive ? ' text-primary' : ''}
+                            flex flex-col items-center gap-1 duration-500 ease-in-out
+                            ${isActive ? 'text-primary' : ''}
                         `}
                     >
                         {centerContent}
