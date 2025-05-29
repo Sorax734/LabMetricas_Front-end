@@ -10,9 +10,8 @@ export const Tooltip = ({
     return (
         <>
             <HeroUITooltip
-                classNames={{ content: "bg-background text-current border-0"}}
+                classNames={{ content: "bg-background-100 border-0 text-current"}}
                 isDisabled={isDisabled}
-                shadow="lg"
                 radius='sm'
                 color="primary"
                 className="text-sm font-medium"

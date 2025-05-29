@@ -14,7 +14,7 @@ export const BottomButton = ({
                 {isActive && (
                     <motion.span
                     layoutId="bottom-layout"
-                    className="absolute -bottom-0 transform w-12 h-1 rounded-full bg-primary"
+                    className="absolute -top-0 transform w-12 h-1 rounded-full bg-primary"
                     transition={{ type: 'spring', stiffness: 900, damping: 60 }}
                     />
                 )}

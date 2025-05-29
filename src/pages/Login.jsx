@@ -1,10 +1,8 @@
 import { Form, Image, Input } from "@heroui/react";
-import { ThemeSwitcher } from "../components/ThemeSwitcher";
 import { Checkmark12Filled, Dismiss12Filled, TextAsterisk16Filled } from "@fluentui/react-icons";
 import { useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { PrimaryButton } from "../components/PrimaryButton";
-import { LightButton } from "../components/LightButton";
 import { Link, useNavigate } from "react-router-dom";
 
 export const Login = () => {

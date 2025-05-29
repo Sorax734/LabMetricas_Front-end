@@ -2,11 +2,7 @@ export const Users = () => {
 
     return (
         <>
-            <div className="w-full h-full">
-                <div className="p-8 sm:px-12">
-                    <p className="lg:text-3xl text-2xl font-bold">Usuarios</p>
-                </div>
-            </div>
+            <p className="lg:text-2xl text-lg font-bold">Usuarios</p>
         </>
     );
 }

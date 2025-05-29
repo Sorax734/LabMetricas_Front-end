@@ -1,5 +1,4 @@
 import { Button, Form, Input } from "@heroui/react";
-import { ThemeSwitcher } from "../components/ThemeSwitcher"
 import { useIsIconOnly } from "../hooks/useIsIconOnly";
 import { ArrowLeftStartOnRectangleIcon, EnvelopeIcon } from "@heroicons/react/24/solid";
 import { PrimaryButton } from "../components/PrimaryButton"
@@ -69,16 +68,8 @@ export const Profile = () => {
     return (
         <>
             <div className="w-full h-full">
-                <div className="p-8 sm:px-12 w-full h-full">
-                    <div className="flex justify-between pb-10">
-                        <div className="flex flex-col gap-1">
-                            <p className='lg:text-3xl text-2xl font-bold'>Mi perfil</p>
-                        </div>                        
-                        <div>
-                            <ThemeSwitcher isIconOnly={isIconOnly}/>
-                        </div>
-                    </div>
-                
+                <p className="lg:text-2xl text-lg font-bold">Mi perfil</p>
+                <div className="lg:py-12 py-6">
                     <Form className="gap-6" onSubmit={onSubmit}>
                         <div className="grid flex-col gap-6 items-center w-full h-full">
                             <div className="grid xs:grid-cols-2 gap-6">

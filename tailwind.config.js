@@ -32,18 +32,18 @@ export default {
 		  light: {
         colors: {
           primary: {
-            50:  '#ecf8f8',
-            100: '#daf0f1',
-            200: '#b5e2e3',
-            300: '#8fd3d6',
-            400: '#6ac5c8',
-            500: '#45b6ba',
-            600: '#379295',
-            700: '#296d70',
-            800: '#1c494a',
-            900: '#0e2425',
-            950: '#071213',
-            DEFAULT: "#3fa6a9",
+            50:   '#ecf8f8', 
+            100:  '#daf0f1', 
+            200:  '#b5e2e3', 
+            300:  '#8fd3d6', 
+            400:  '#6ac5c8', 
+            500:  '#45b6ba',
+            600:  '#379295', 
+            700:  '#296d70', 
+            800:  '#1c494a', 
+            900:  '#0e2425', 
+            950:  '#071213', 
+            DEFAULT: "#368e91",
             foreground: "#f2f2f2",
           },
           secondary: {
@@ -76,7 +76,7 @@ export default {
             DEFAULT: "#f2f2f2", 
             foreground: "#0d0d0d",
           },		
-          focus: "#3fa6a9"
+          focus: "#368e91"
         }
 		  },
 			dark: {
@@ -129,6 +129,9 @@ export default {
           focus: "#6ec6c9"
         }
 		  }
-		}
+		},
+    layout: {
+      disabledOpacity: "0.6"
+    }
 	})],
 }
