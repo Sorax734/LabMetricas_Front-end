@@ -9,6 +9,7 @@ import { useTheme } from "@heroui/use-theme"
 import { useRef, useState } from "react"
 import { CloseButton } from "../components/CloseButton"
 import { PrimaryButton } from "../components/PrimaryButton"
+import { useAuth } from "../hooks/useAuth"
 
 const home = {
     label: "Inicio",
@@ -341,7 +342,13 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
     const {onClose} = useDisclosure();
     const targetRef = useRef(null);
     const {moveProps} = useDraggable({targetRef, isDisabled: !isOpen});
-    let navigate = useNavigate()
+    let navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/Login");
+    };
 
     return (
         <>
@@ -385,7 +392,7 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
                                 color="danger"
                                 radius="sm"
                                 variant="shadow"
-                                onPress={() => navigate("/Login")}
+                                onPress={handleLogout}
                                 startContent={<PersonArrowLeftFilled className="size-5"/>}
                             >    
                                 Cerrar sesión

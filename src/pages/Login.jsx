@@ -1,23 +1,67 @@
 import { Form, Image, Input } from "@heroui/react";
 import { Checkmark12Filled, Dismiss12Filled, TextAsterisk16Filled } from "@fluentui/react-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.jsx";
 
 export const Login = () => {
     const [submitted, setSubmitted] = useState(null);
     const [isVisible, setIsVisible] = useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
-    let navigate = useNavigate();
+    const navigate = useNavigate();
+    const { login, user } = useAuth();
 
-    const onSubmit = (e) => {
+    useEffect(() => {
+        console.log("Estado actual del usuario:", user);
+        if (user && user.role) {
+            console.log("Intentando redirigir con rol:", user.role);
+            switch (user.role) {
+                case "ADMIN":
+                    navigate("/App");
+                    break;
+                case "SUPERVISOR":
+                    navigate("/App/supervisor");
+                    break;
+                case "OPERADOR":
+                    navigate("/App/operador");
+                    break;
+                default:
+                    navigate("/App");
+            }
+        }
+    }, [user, navigate]);
+
+    const onSubmit = async (e) => {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.currentTarget));
-
-        setSubmitted(data);
-        alert(JSON.stringify(data, null, 2));
-        navigate("/App")
+        try {
+            const response = await fetch("http://localhost:8001/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+                credentials: "include"
+            });
+            const result = await response.json();
+            console.log("Respuesta del backend:", result);
+            console.log("Datos del usuario recibidos:", result.data);
+            
+            if (result && result.data && result.data.roles && result.data.roles.length > 0) {
+                // Extraer el rol del array de roles
+                const userRole = result.data.roles[0].authority;
+                login({ 
+                    email: result.data.email, 
+                    role: userRole,
+                    token: result.data.token 
+                });
+            } else {
+                alert(result.message || "Credenciales incorrectas");
+            }
+        } catch (err) {
+            console.error("Error en la petición:", err);
+            alert("Error de conexión con el servidor");
+        }
     };
 
     return (

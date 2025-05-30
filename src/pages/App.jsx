@@ -1,14 +1,10 @@
 import { AppLayout } from "../layout/AppLayout"
 import { Outlet } from "react-router-dom"
+import { useAuth } from "../hooks/useAuth"
 
 function App() {
-  const user = {
-      name: "Usuario",
-      lastName: "Apellido",
-      email: "usuarioapellido@gmail.com",
-      role: "ADMIN",
-      image: "https://i.pravatar.cc/150?u=a042581f4e29026024d"
-  }
+  const { user } = useAuth();
+  if (!user) return null; // O un loader
 
   return (
     <>
