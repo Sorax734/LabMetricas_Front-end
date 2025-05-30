@@ -72,10 +72,8 @@ export const UserProfile = ({user}) => {
 
     return (
         <>
-            <Dropdown placement="bottom" className="bg-background-50 w-64 transition-colors duration-1000 ease-in-out
-                shadow-[0px_20px_100px_10px_rgba(0,0,0,0.1)]
-                dark:shadow-[0px_20px_100px_20px_rgba(255,255,255,0.05)]" 
-                offset={33} crossOffset={-92} shadow="none" radius="sm">
+            <Dropdown placement="bottom" className="bg-background-50 w-64 transition-colors duration-1000 ease-in-out"
+                offset={17} crossOffset={-92} shadow="lg" radius="sm">
                 <DropdownTrigger>
                     <Button
                         variant="light"
@@ -83,7 +81,7 @@ export const UserProfile = ({user}) => {
                         radius="sm"
                     >
                         <Image
-                            src={user.image}
+                            src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
                             className="object-cover brightness-125"
                             radius="sm"
                             width={40}
@@ -91,7 +89,7 @@ export const UserProfile = ({user}) => {
                         />
                     </Button>
                 </DropdownTrigger>
-                <DropdownMenu aria-label="User Actions" variant="light" itemClasses={{base:"mt-[6px]"}}>
+                <DropdownMenu aria-label="User Actions" variant="light" itemClasses={{base:"mt-1 mb-2"}} >
                 {/* <DropdownSection title="Tus páginas" classNames={{ heading: "text-background-500 font-normal"}}>
                         {navigation.map(({ label, icon, path }) => (
                             <DropdownItem 
@@ -155,7 +153,7 @@ export const UserProfile = ({user}) => {
             
                     <DropdownSection title="Identificado como:" classNames={{ heading: "text-background-500 font-normal"}}>
                         <DropdownItem 
-                            className="rounded-md transition-all !duration-1000 ease-in-out "
+                            className="rounded-md transition-all !duration-1000 ease-in-out -mb-2"
                             key="signed-in-as"
                             textValue="profile"
                             onPress={() => navigate("/App/Profile")}
@@ -163,7 +161,7 @@ export const UserProfile = ({user}) => {
                             {
                                 <div className="flex gap-4">
                                     <Image
-                                        src={user.image}
+                                        src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
                                         className="object-cover brightness-125"
                                         radius="sm"
                                         width={40}
@@ -216,15 +214,15 @@ export const AppLayout = ({
     return (
         <>
             {/* PANTALLA */}
-            <div className="flex flex-col w-screen h-screen transition-colors duration-1000 ease-in-out bg-background p-4 gap-4 overflow-hidden">
+            <div className="flex flex-col w-screen h-screen transition-colors duration-1000 ease-in-out bg-background sm:p-4 sm:gap-4 overflow-hidden">
                 {/* NAVBAR */}
-                <div className="flex-shrink-0 h-[72px] bg-transparent rounded-lg flex justify-between
+                <div className="flex-shrink-0 h-[72px] bg-transparent rounded-lg flex justify-between sm:z-auto z-50
                 shadow-[0px_0px_100px_10px_rgba(0,0,0,0.1)]
                 dark:shadow-[0px_0px_100px_20px_rgba(255,255,255,0.05)]">
-                    <div className="px-4 items-center w-full gap-4 hidden sm:flex">
+                    <div className="px-6 items-center w-full gap-4 hidden sm:flex">
                         <p className="text-lg font-bold">Punto de control Lab Métricas</p>
                     </div>
-                    <div className="px-4 flex justify-end items-center w-full gap-4">
+                    <div className="px-8 flex justify-end items-center w-full gap-4">
                         {/**Se necesita cambiar el input para después */}
                         <Input
                             classNames={{ input: "transition-colors !duration-1000 ease-in-out group-data-[invalid=true]:!text-current font-medium !placeholder-background-500 placeholder:!font-normal", mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "transition-colors !duration-1000 ease-in-out caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-transparent text-current" }}
@@ -298,13 +296,13 @@ export const AppLayout = ({
                             /> 
                         </div>
                     </div>
-                    <div className="flex-1 flex flex-col bg-transparent gap-4">
+                    <div className="flex-1 flex flex-col bg-transparent sm:gap-4">
                         {/* CONTENIDO */}
                         <div className="flex-1 py-4 pl-4 transition-colors duration-1000 ease-in-out bg-background rounded-lg overflow-hidden
-                        shadow-[80px_40px_100px_10px_rgba(0,0,0,0.1)] 
-                        dark:shadow-[80px_40px_100px_20px_rgba(255,255,255,0.05)]">
+                        sm:shadow-[80px_40px_100px_10px_rgba(0,0,0,0.1)] 
+                        dark:sm:shadow-[80px_40px_100px_20px_rgba(255,255,255,0.05)]">
                             <ScrollShadow className="h-full bg-transparent pr-8 py-4 pl-4
-                            [&::-webkit-scrollbar]:xs:w-2
+                            [&::-webkit-scrollbar]:sm:w-2
                             [&::-webkit-scrollbar]:w-1
                             [&::-webkit-scrollbar-track]:rounded-full
                             [&::-webkit-scrollbar-track]:bg-transparent
@@ -342,8 +340,9 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
     const {onClose} = useDisclosure();
     const targetRef = useRef(null);
     const {moveProps} = useDraggable({targetRef, isDisabled: !isOpen});
-    let navigate = useNavigate();
-    const { logout } = useAuth();
+    let navigate = useNavigate()
+    
+    const { logout } = useAuth()
 
     const handleLogout = async () => {
         await logout();
