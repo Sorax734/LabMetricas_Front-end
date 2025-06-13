@@ -1,29 +1,32 @@
 import axios from 'axios';
 
-// 1) Leer la cadena o usar '{}' por defecto
-const stored = localStorage.getItem('user') || '{}';
-
-// 2) Parsear con seguridad
-let user;
-try {
-  user = JSON.parse(stored);
-} catch (err) {
-  console.error('No se pudo parsear `user` desde localStorage:', err);
-  user = {};
-}
-
-// 3) Sacar token (si existía)
-const token = user?.token;
-
-// 4) Crear instancia Axios
 const api = axios.create({
-  baseURL: 'http://localhost:8001/api',
-  headers: {
-    'Content-Type': 'application/json',
-    // solo inyecta Authorization si realmente hay token
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  },
-  timeout: 3600000,
+    baseURL: 'http://localhost:8080/api',
+    timeout: 60000, //60 segundos
+    headers: {
+		"Content-Type": 'application/json',
+    },
 });
+
+api.interceptors.request.use((config) => {
+	const user = localStorage.getItem("user")
+	let userObject
+
+	try {
+		userObject = JSON.parse(user);
+	} catch (err) {
+		console.error('No se pudo parsear `user` desde localStorage:', err);
+	}
+
+    if (userObject.token) {
+      	config.headers.Authorization = `Bearer ${userObject.token}`;
+    }
+    return config;
+});
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => Promise.reject(error)
+);
 
 export { api };

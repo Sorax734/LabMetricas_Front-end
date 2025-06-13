@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 
 export const SidebarButton = ({
-    isDanger = false,
+    isDanger = false,       // El hover será del color primary
     isActive = false,       // (Usar solamente en sidebar) ¿El botón está activo? Si sí, será color azul, sino será foreground (blanco / negro)
     label = "null",         // Texto del botón y del tooltip
     startContent,           // Ícono
@@ -22,7 +22,7 @@ export const SidebarButton = ({
                     )}
                     <button
                         aria-label={label + " sidebar button"}
-                        className={`w-20 h-14 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-md ${isDanger ? 'hover:!text-danger' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
+                        className={`w-20 h-14 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-md ${isDanger ? 'hover:!text-primary' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
                         type="button"
                         onClick={onPress}
                     >
@@ -53,7 +53,7 @@ export const SidebarButton = ({
                 )}
                 <button
                     aria-label={label + " sidebar button"}
-                    className={`h-9 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-md -ml-4 ${isDanger ? 'hover:!text-danger-500' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
+                    className={`h-9 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-md -ml-4 ${isDanger ? 'hover:!text-primary' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
                     type="button"
                     onClick={onPress}
                 >

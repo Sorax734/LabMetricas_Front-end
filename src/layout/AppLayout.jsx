@@ -1,6 +1,6 @@
-import { AlertFilled, Dismiss12Filled, DocumentMultipleFilled, EmojiHandFilled, InfoSparkleFilled, KeyResetFilled, PeopleFilled, PersonArrowLeftFilled, PersonFilled, SearchFilled } from "@fluentui/react-icons"
+import { AlertFilled, Dismiss12Filled, DismissFilled, DocumentMultipleFilled, EmojiHandFilled, InfoSparkleFilled, KeyResetFilled, PeopleFilled, PersonArrowLeftFilled, PersonFilled, PersonSquareFilled, SearchFilled, SearchSparkleFilled } from "@fluentui/react-icons"
 import { ClockIcon, HomeIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid"
-import { useLocation, useNavigate } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useIsIconOnly } from "../hooks/useIsIconOnly"
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Image, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ScrollShadow, useDisclosure, useDraggable } from "@heroui/react"
 import { SidebarButton } from "../components/SidebarButton"
@@ -55,8 +55,9 @@ const supervisorNavigation = [
 
 export const UserProfile = ({user}) => {
     const { theme, setTheme } = useTheme();
-    const tema = `Cambiar a tema ${theme !== 'dark' ? 'oscuro' : 'claro'}`
     const [isOpen, setIsOpen] = useState(false);
+
+    const tema = `Cambiar a tema ${theme !== 'dark' ? 'oscuro' : 'claro'}`
 
     let navigate = useNavigate()
 
@@ -72,37 +73,18 @@ export const UserProfile = ({user}) => {
 
     return (
         <>
-            <Dropdown placement="bottom" className="bg-background-50 w-64 transition-colors duration-1000 ease-in-out"
-                offset={17} crossOffset={-92} shadow="lg" radius="sm">
+            <Dropdown placement="bottom" className="bg-background w-52 transition-colors duration-1000 ease-in-out"
+                shadow="lg" radius="sm">
                 <DropdownTrigger>
                     <Button
-                        variant="light"
+                        className="bg-background-100 transition-background !duration-1000 ease-in-out"
                         isIconOnly
                         radius="sm"
                     >
-                        <Image
-                            src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
-                            className="object-cover brightness-125"
-                            radius="sm"
-                            width={40}
-                            height={40}
-                        />
+                        <PersonFilled className="size-5"/>
                     </Button>
                 </DropdownTrigger>
                 <DropdownMenu aria-label="User Actions" variant="light" itemClasses={{base:"mt-1 mb-2"}} >
-                {/* <DropdownSection title="Tus páginas" classNames={{ heading: "text-background-500 font-normal"}}>
-                        {navigation.map(({ label, icon, path }) => (
-                            <DropdownItem 
-                                className="rounded-md transition-all !duration-1000 ease-in-out "
-                                key={path}
-                                startContent={icon}
-                                onPress={() => navigate(path)}
-                            >
-                                {label}
-                            </DropdownItem>
-                        ))}
-                    </DropdownSection>
-    */}
                     <DropdownSection title="Opciones" classNames={{ heading: "text-background-500 font-normal"}}>
                         <DropdownItem 
                             className="rounded-md transition-all !duration-1000 ease-in-out "
@@ -143,7 +125,7 @@ export const UserProfile = ({user}) => {
                         <DropdownItem 
                             className="rounded-md transition-all !duration-1000 ease-in-out "
                             key="logout"
-                            color="danger"
+                            color="primary"
                             startContent={<PersonArrowLeftFilled className="size-5"/>}
                             onPress={() => setIsOpen(true)}
                         >
@@ -159,17 +141,18 @@ export const UserProfile = ({user}) => {
                             onPress={() => navigate("/App/Profile")}
                         >
                             {
-                                <div className="flex gap-4">
-                                    <Image
-                                        src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
-                                        className="object-cover brightness-125"
+                                <div className="flex gap-2">
+                                    <Button
+                                        className="!bg-background-100 transition-background !duration-1000 ease-in-out"
+                                        isIconOnly
                                         radius="sm"
-                                        width={40}
-                                        height={40}
-                                    />
+                                        onPress={() => navigate("/App/Profile")}
+                                    >
+                                        <PersonFilled className="size-5"/>
+                                    </Button>
                                     <div>
-                                        <p className="text-base font-medium">{user.name}</p>
-                                        <p className="text-xs text-background-500">{user.email}</p>
+                                        <p className="text-base font-medium break-all line-clamp-1">Jose</p>
+                                        <p className="text-xs text-background-500 break-all line-clamp-1">{user.email}</p>
                                     </div>
                                 </div>
                             }
@@ -182,14 +165,13 @@ export const UserProfile = ({user}) => {
     );
 }
 
-export const AppLayout = ({ 
-    children,
-    user
-}) => {
+export const AppLayout = () => {
     let navigate = useNavigate()
+    const { user } = useAuth()
     const isIconOnly = useIsIconOnly()
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
 
     let navigation
 
@@ -216,17 +198,16 @@ export const AppLayout = ({
             {/* PANTALLA */}
             <div className="flex flex-col w-screen h-screen transition-colors duration-1000 ease-in-out bg-background sm:p-4 sm:gap-4 overflow-hidden">
                 {/* NAVBAR */}
-                <div className="flex-shrink-0 h-[72px] bg-transparent rounded-lg flex justify-between sm:z-auto z-50
+                <div className="flex-shrink-0 h-[72px] bg-transparent rounded-lg flex justify-between sm:z-auto z-50 px-2
                 shadow-[0px_0px_100px_10px_rgba(0,0,0,0.1)]
                 dark:shadow-[0px_0px_100px_20px_rgba(255,255,255,0.05)]">
                     <div className="px-6 items-center w-full gap-4 hidden sm:flex">
                         <p className="text-lg font-bold">Punto de control Lab Métricas</p>
                     </div>
-                    <div className="px-8 flex justify-end items-center w-full gap-4">
-                        {/**Se necesita cambiar el input para después */}
+                    <div className="px-4 sm:px-8 flex justify-end items-center w-full sm:gap-4 gap-2">
                         <Input
                             classNames={{ input: "transition-colors !duration-1000 ease-in-out group-data-[invalid=true]:!text-current font-medium !placeholder-background-500 placeholder:!font-normal", mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "transition-colors !duration-1000 ease-in-out caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-transparent text-current" }}
-                            className="w-1 grow sm:max-w-xs"
+                            className="grow sm:max-w-80"
                             color="primary"
                             name="search"
                             labelPlacement="inside"
@@ -235,8 +216,12 @@ export const AppLayout = ({
                             size="md"
                             variant="bordered"
                             maxLength={100}
-                            placeholder="Buscar usuarios por nombre..."
-                            endContent={<SearchFilled className='size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger' />}
+                            value={searchValue}
+                            onValueChange={(val) => {
+                                setSearchValue(val);
+                            }}
+                            placeholder="Buscar resultados mediante nombre"
+                            endContent={<SearchFilled className='size-5 group-data-[focus=true]:text-primary' />}
                         />
                         <UserProfile user={user}/>
                     </div>
@@ -296,20 +281,22 @@ export const AppLayout = ({
                             /> 
                         </div>
                     </div>
-                    <div className="flex-1 flex flex-col bg-transparent sm:gap-4">
+                    <div className="flex-1 flex flex-col bg-transparent sm:gap-4 min-w-0">
                         {/* CONTENIDO */}
-                        <div className="flex-1 py-4 pl-4 transition-colors duration-1000 ease-in-out bg-background rounded-lg overflow-hidden
+                        <div className="flex-1 sm:py-2 lg:pt-4 sm:pl-4 py-0 pl-0 transition-colors duration-1000 ease-in-out bg-background rounded-lg overflow-y-hidden
                         sm:shadow-[80px_40px_100px_10px_rgba(0,0,0,0.1)] 
                         dark:sm:shadow-[80px_40px_100px_20px_rgba(255,255,255,0.05)]">
-                            <ScrollShadow className="h-full bg-transparent pr-8 py-4 pl-4
+                            <ScrollShadow className="h-full bg-transparent sm:pr-8 pr-4 sm:py-4 pt-4 pl-4
                             [&::-webkit-scrollbar]:sm:w-2
+                            [&::-webkit-scrollbar]:sm:h-2
+                            [&::-webkit-scrollbar]:h-1
                             [&::-webkit-scrollbar]:w-1
                             [&::-webkit-scrollbar-track]:rounded-full
                             [&::-webkit-scrollbar-track]:bg-transparent
                             [&::-webkit-scrollbar-thumb]:rounded-full
-                            [&::-webkit-scrollbar-thumb]:bg-background-300">
-                                <div className="w-full flex flex-col">
-                                    {children}
+                            [&::-webkit-scrollbar-thumb]:bg-primary">
+                                <div className="w-full h-full flex flex-col">
+                                    <Outlet context={{ searchValue, setSearchValue }} />
                                 </div>
                             </ScrollShadow>
                         </div>
@@ -361,7 +348,7 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
                 size="md"
                 backdrop="opaque"
                 classNames={{
-                    backdrop: "bg-gradient-to-b from-secondary/20 to-primary/20 dark:bg-gradient-to-b from-secondary/10 to-primary/10",
+                    backdrop: "bg-gradient-to-b from-secondary/20 to-primary/20 dark:from-secondary/5 dark:to-primary/5",
                 }}
             >
                 <ModalContent>
@@ -377,25 +364,20 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
                             <p className="text-center">Está a punto de cerrar sesión, sin embargo, puede ingresar de nuevo sin problema.</p>
                         </ModalBody>
                         <ModalFooter className="flex justify-center py-6">
-                            <Button 
-                                className="!text-current"
-                                variant="light"
+                            <Button
+                                className="bg-background-100 transition-background !duration-1000 ease-in-out"
                                 radius="sm"
+                                startContent={<DismissFilled className="size-5"/>}
                                 onPress={onClose}
-                                startContent={<Dismiss12Filled className="size-5 !text-current"/>}>
+                            >
                                 Cancelar
                             </Button>
 
-                            <Button
-                                className="font-medium tracking-wide data-[hover=true]:-translate-y-1"
-                                color="danger"
-                                radius="sm"
-                                variant="shadow"
-                                onPress={handleLogout}
+                            <PrimaryButton
+                                label="Cerrar sesión"
                                 startContent={<PersonArrowLeftFilled className="size-5"/>}
-                            >    
-                                Cerrar sesión
-                            </Button>
+                                onPress={handleLogout}
+                            />
                         </ModalFooter>
                         </>
                     )}

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 
 export const BottomButton = ({
-    isActive = false,
+    isActive = false,   // (Usar solamente en bottom) ¿El botón está activo? Si sí, será color azul, sino será foreground (blanco / negro)
     label = "null",     // Texto del botón y del tooltip
     centerContent,      // Ícono
     onPress             // Función a ejecutar cuando se presione el botón
@@ -14,7 +14,7 @@ export const BottomButton = ({
                 {isActive && (
                     <motion.span
                     layoutId="bottom-layout"
-                    className="absolute -top-0 transform w-12 h-1 rounded-full bg-primary"
+                    className="absolute -bottom-0 transform w-12 h-1 rounded-full bg-primary"
                     transition={{ type: 'spring', stiffness: 900, damping: 60 }}
                     />
                 )}

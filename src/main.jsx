@@ -1,75 +1,104 @@
 import './index.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { HeroUIProvider } from '@heroui/react'
-import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom';
+import { HeroUIProvider, ToastProvider } from '@heroui/react'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth.jsx';
 import { useAuth } from './hooks/useAuth.jsx';
 
 import { LandingPage } from './pages/LandingPage.jsx';
 import { Login } from './pages/Login.jsx';
 
-import App from './pages/App.jsx';
+import { AppLayout } from './layout/AppLayout.jsx';
 import { Home } from './pages/Home.jsx';
 import { Profile } from './pages/Profile.jsx';
 import { Users } from './pages/Users.jsx';
-import HomeAdmin from './pages/HomeAdmin.jsx';
-import HomeSupervisor from './pages/HomeSupervisor.jsx';
-import HomeOperador from './pages/HomeOperador.jsx';
+import { DismissFilled } from '@fluentui/react-icons';
 
-function ProtectedRoute({ children, allowedRoles }) {
-	const { user } = useAuth();
+function ProtectedRoute({ allowedRoles = [], children }) {
+	const { user } = useAuth()
+	
 	if (!user) {
-		return <Login />;
+		return <Navigate to="/Login" replace/>
 	}
-	if (allowedRoles && !allowedRoles.includes(user.role)) {
-		// Redirigir a la home de su rol
-		switch (user.role) {
-			case 'ADMIN': return <HomeAdmin />;
-			case 'SUPERVISOR': return <HomeSupervisor />;
-			case 'OPERADOR': return <HomeOperador />;
-			default: return <Home />;
-		}
+	
+	if (allowedRoles.length === 0) {
+		return children
 	}
-	return children;
+
+	if (!allowedRoles.includes(user.role)) {
+		return <Navigate to="/App" replace />
+	}
+
+	return children
 }
 
 createRoot(document.getElementById('root')).render(
-	<BrowserRouter>
-		<StrictMode>
+	<StrictMode>
+		<BrowserRouter>
 			<AuthProvider>
 				<HeroUIProvider locale="es-MX">
+					<ToastProvider
+						placement="top-center"
+						toastOffset={0}
+						maxVisibleToasts={2}
+						toastProps={{
+							variant: "flat",
+							radius: "sm",
+							closeIcon: <DismissFilled className='size-5'/>,
+							shouldShowTimeoutProgress: true,
+							classNames: {
+								title: "pr-6",
+								description: "pr-6",
+								closeButton: "opacity-100 absolute right-4 top-1/2 -translate-y-1/2 ml-4",
+								progressIndicator: "h-1 rounded-full opacity-100",
+								base: "transition-colors !duration-1000 ease-in-out"
+							},
+						}}
+					/>
 					<Routes>
 						<Route path='/' element={ <Outlet/> } >
 							<Route index element={ <LandingPage/> } />
 							<Route path='Login' element={ <Login/> } />
-							<Route path='App' element={ <App/> }>
-								<Route index element={
-									<ProtectedRoute allowedRoles={['ADMIN']}>
-										<HomeAdmin />
+
+							<Route
+								path='App'
+								element={
+									<ProtectedRoute allowedRoles={[]}>
+										<AppLayout />
 									</ProtectedRoute>
-								}/>
-								<Route path='Profile' element={ <Profile/> }/>
-								<Route path='Users' element={
-									<ProtectedRoute allowedRoles={['ADMIN']}>
-										<Users />
-									</ProtectedRoute>
-								}/>
-								<Route path='supervisor' element={
-									<ProtectedRoute allowedRoles={['SUPERVISOR']}>
-										<HomeSupervisor />
-									</ProtectedRoute>
-								}/>
-								<Route path='operador' element={
-									<ProtectedRoute allowedRoles={['OPERADOR']}>
-										<HomeOperador />
-									</ProtectedRoute>
-								}/>
+								}
+							>
+								<Route
+									index
+									element={
+										<ProtectedRoute allowedRoles={[]}>
+											<Home />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path='Profile'
+									element={
+										<ProtectedRoute allowedRoles={[]}>
+											<Profile />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path='Users'
+									element={
+										<ProtectedRoute allowedRoles={['ADMIN']}>
+											<Users />
+										</ProtectedRoute>
+									}
+								/>
 							</Route>
 						</Route>
+						<Route path="*" element={<h2>Página no encontrada (404)</h2>} />
 					</Routes>
 				</HeroUIProvider>
 			</AuthProvider>
-		</StrictMode>
-	</BrowserRouter>
+		</BrowserRouter>
+	</StrictMode>
 )

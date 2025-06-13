@@ -5,7 +5,6 @@ export const Spinner = () => {
     return (
         <>
             <HeroUISpinner
-                variant='simple'
                 size='sm' 
                 color='current'
             />

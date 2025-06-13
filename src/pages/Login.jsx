@@ -1,5 +1,5 @@
-import { Form, Image, Input } from "@heroui/react";
-import { Checkmark12Filled, Dismiss12Filled, TextAsterisk16Filled } from "@fluentui/react-icons";
+import { addToast, Form, Input } from "@heroui/react";
+import { Checkmark12Filled, Dismiss12Filled, DismissCircleFilled, EmojiHandFilled, TextAsterisk16Filled } from "@fluentui/react-icons";
 import { useState, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { PrimaryButton } from "../components/PrimaryButton";
@@ -7,62 +7,74 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 
 export const Login = () => {
-    const [submitted, setSubmitted] = useState(null);
+    const { login, user } = useAuth();
     const [isVisible, setIsVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
     const toggleVisibility = () => setIsVisible(!isVisible);
     const navigate = useNavigate();
-    const { login, user } = useAuth();
 
     useEffect(() => {
-        console.log("Estado actual del usuario:", user);
+        console.log("Estado actual del usuario:", user)
         if (user && user.role) {
-            console.log("Intentando redirigir con rol:", user.role);
-            switch (user.role) {
-                case "ADMIN":
-                    navigate("/App");
-                    break;
-                case "SUPERVISOR":
-                    navigate("/App/supervisor");
-                    break;
-                case "OPERADOR":
-                    navigate("/App/operador");
-                    break;
-                default:
-                    navigate("/App");
-            }
+            console.log("Intentando redirigir con rol:", user.role)
+            navigate("/App")
+
+            addToast({
+                title: "Bienvenido de vuelta usuario",
+                description: "Su sesión se ha iniciado correctamente",
+                color: "primary",
+                icon: <EmojiHandFilled className='size-5' />
+            })
         }
     }, [user, navigate]);
 
     const onSubmit = async (e) => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.currentTarget));
+        e.preventDefault()
+        const data = Object.fromEntries(new FormData(e.currentTarget))
+        
         try {
-            const response = await fetch("http://localhost:8001/api/auth/login", {
+            setIsLoading(true);
+
+            const response = await fetch("http://localhost:8080/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
                 credentials: "include"
             });
-            const result = await response.json();
-            console.log("Respuesta del backend:", result);
-            console.log("Datos del usuario recibidos:", result.data);
+            const result = await response.json()
+            console.log("Respuesta del backend:", result)
+            console.log("Datos del usuario recibidos:", result.data)
             
             if (result && result.data && result.data.roles && result.data.roles.length > 0) {
                 // Extraer el rol del array de roles
-                const userRole = result.data.roles[0].authority;
+                const userRole = result.data.roles[0].authority
                 login({ 
                     email: result.data.email, 
                     role: userRole,
                     token: result.data.token 
                 });
+                setIsLoading(false);
             } else {
-                alert(result.message || "Credenciales incorrectas");
+                addToast({
+                    title: "Credenciales incorrectas",
+                    description: result.message,
+                    color: "danger",
+                    icon: <DismissCircleFilled className='size-5' />
+                })
+                setIsLoading(false);
             }
         } catch (err) {
-            console.error("Error en la petición:", err);
-            alert("Error de conexión con el servidor");
+            console.log(err)
+            addToast({
+                title: "Error de conexión con el servidor",
+                description: "Lo sentimos, ocurrió un error al realizar la petición al servidor",
+                color: "danger",
+                icon: <DismissCircleFilled className='size-5' />
+            })
+            setIsLoading(false);
         }
-    };
+    }
 
     return (
         <>
@@ -149,6 +161,7 @@ export const Login = () => {
                                 />
 
                                 <PrimaryButton
+                                    isLoading={isLoading}
                                     isSubmit={true} 
                                     label="Iniciar sesión"
                                 />
