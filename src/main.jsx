@@ -9,11 +9,14 @@ import { useAuth } from './hooks/useAuth.jsx';
 import { LandingPage } from './pages/LandingPage.jsx';
 import { Login } from './pages/Login.jsx';
 
-import { AppLayout } from './layout/AppLayout.jsx';
+import { AppLayout } from './layouts/AppLayout.jsx';
 import { Home } from './pages/Home.jsx';
 import { Profile } from './pages/Profile.jsx';
 import { Users } from './pages/Users.jsx';
 import { DismissFilled } from '@fluentui/react-icons';
+import { MaintenanceCalibration } from './pages/MaintenanceCalibration.jsx';
+import { Logs } from './pages/Logs.jsx';
+import { Equipments } from './pages/Equipments.jsx';
 
 function ProtectedRoute({ allowedRoles = [], children }) {
 	const { user } = useAuth()
@@ -86,10 +89,34 @@ createRoot(document.getElementById('root')).render(
 									}
 								/>
 								<Route
+									path='Equipments'
+									element={
+										<ProtectedRoute allowedRoles={[]}>
+											<Equipments />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
 									path='Users'
 									element={
 										<ProtectedRoute allowedRoles={['ADMIN']}>
 											<Users />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path='Logs'
+									element={
+										<ProtectedRoute allowedRoles={['ADMIN']}>
+											<Logs />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path='Maintenance-Calibration'
+									element={
+										<ProtectedRoute allowedRoles={[]}>
+											<MaintenanceCalibration />
 										</ProtectedRoute>
 									}
 								/>

@@ -50,7 +50,7 @@ export const Login = () => {
                 // Extraer el rol del array de roles
                 const userRole = result.data.roles[0].authority
                 login({ 
-                    email: result.data.email, 
+                    email: result.data.user.email, 
                     role: userRole,
                     token: result.data.token 
                 });

@@ -2,7 +2,6 @@ import { motion } from 'framer-motion'
 
 export const BottomButton = ({
     isActive = false,   // (Usar solamente en bottom) ¿El botón está activo? Si sí, será color azul, sino será foreground (blanco / negro)
-    label = "null",     // Texto del botón y del tooltip
     centerContent,      // Ícono
     onPress             // Función a ejecutar cuando se presione el botón
 }) => {
@@ -20,8 +19,7 @@ export const BottomButton = ({
                 )}
 
                 <button
-                    aria-label={label + " bottom button"}
-                    className="w-20 h-16 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-sm sm:hidden"
+                    className="w-12 h-12 outline-none focus-visible:bg-background-100 rounded-sm sm:hidden"
                     type="button"
                     onClick={onPress}
                 >
@@ -32,7 +30,6 @@ export const BottomButton = ({
                         `}
                     >
                         {centerContent}
-                        <p className='text-xs font-medium'>{label}</p>
                     </div>
                 </button>
             </div>

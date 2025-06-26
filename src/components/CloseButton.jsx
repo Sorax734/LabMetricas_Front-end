@@ -1,4 +1,4 @@
-import { DismissCircleFilled } from "@fluentui/react-icons";
+import { DismissFilled } from "@fluentui/react-icons";
 
 export const CloseButton = ({ 
     onPress     // Función a ejecutar cuando se presione el botón
@@ -12,7 +12,7 @@ export const CloseButton = ({
                 type="button"
                 onClick={onPress}
             >
-                <DismissCircleFilled className='size-5' />
+                <DismissFilled className='size-5' />
             </button>
         </>
     );

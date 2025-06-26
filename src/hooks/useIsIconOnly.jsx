@@ -21,3 +21,49 @@ export const useIsIconOnly = () => {
 
     return isIconOnly;
 };
+
+export const useIsIconOnlySmall = () => {
+    const [isIconOnlySmall, setIsIconOnlySmall] = useState(() => {
+        // matchMedia con min-width: 640px (tailwind 'sm')
+        const mq = window.matchMedia('(min-width: 400px)');
+        // si mq.matches es true (>=640px) → no icon-only → invertimos
+        return !mq.matches;
+    });
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 400px)');
+
+        const handleChange = (e) => {
+        // e.matches === true cuando >=640px → isIconOnly = false
+        setIsIconOnlySmall(!e.matches);
+        };
+
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
+
+    return isIconOnlySmall;
+};
+
+export const useIsIconOnlyMedium = () => {
+    const [isIconOnlySmall, setIsIconOnlySmall] = useState(() => {
+        // matchMedia con min-width: 640px (tailwind 'sm')
+        const mq = window.matchMedia('(min-width: 768px)');
+        // si mq.matches es true (>=640px) → no icon-only → invertimos
+        return !mq.matches;
+    });
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+
+        const handleChange = (e) => {
+        // e.matches === true cuando >=640px → isIconOnly = false
+        setIsIconOnlySmall(!e.matches);
+        };
+
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
+
+    return isIconOnlySmall;
+};

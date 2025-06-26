@@ -1,14 +1,13 @@
-import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Input, Pagination, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, user, Alert, Chip } from "@heroui/react"
+import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Input, Pagination, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, user, Alert, Chip, Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter, useDisclosure } from "@heroui/react"
 import { getUsers } from "../service/user"
-import { Spinner } from "../components/Spinner"
 import { PrimaryButton } from "../components/PrimaryButton"
-import { SecondaryButton } from "../components/SecondaryButton"
 import React, { useEffect, useState, useTransition } from "react"
-import { useIsIconOnly } from "../hooks/useIsIconOnly"
-import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DataFunnelFilled, DismissCircleFilled, EmojiSadFilled, FilterFilled, InfoFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonDeleteFilled, PersonDesktopFilled, PersonEditFilled, PersonInfoFilled, PersonSubtractFilled, PersonWrenchFilled, SearchFilled, TextSortAscendingFilled, TextSortDescendingFilled } from "@fluentui/react-icons"
+import { useIsIconOnly, useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
+import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronCircleLeftFilled, ChevronDownFilled, ChevronLeftFilled, ChevronRightFilled, CircleFilled, CircleMultipleSubtractCheckmarkFilled, DataFunnelFilled, DismissCircleFilled, EditFilled, EditRegular, EmojiSadFilled, FilterFilled, InfoFilled, MoreCircleFilled, MoreHorizontalFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonDeleteFilled, PersonDesktopFilled, PersonEditFilled, PersonInfoFilled, PersonSubtractFilled, PersonWrenchFilled, SearchFilled, SubtractCircleFilled, TextSortAscendingFilled, TextSortDescendingFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
-import { Tooltip } from "../components/Tooltip"
+import { CloseButton } from "../components/CloseButton"
+import { UsersDrawer } from "../components/users/UsersDrawer"
 
 export const Users = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -17,10 +16,13 @@ export const Users = () => {
     const [users, setUsers] = useState([])
     const [errors, setErrors] = useState([])
 
+    const isIconOnlyMedium = useIsIconOnlyMedium()
     const [isPending, startTransition] = useTransition()
     const {searchValue /*, setSearchValue */} = useOutletContext()
+    const {isOpen, onOpen, onOpenChange} = useDisclosure()
 
     const [selectedUser, setSelectedUser] = useState({})
+    const [action, setAction] = useState("")
 
     useEffect(() => {
         const fetchData = async () => {
@@ -29,11 +31,12 @@ export const Users = () => {
 
                 const response = await getUsers()
                 const data = response.data
-                
+                console.log(data)
                 if (data) {
                     const dataCount = data.map((item, index) => ({
                         ...item,
                         n: index + 1,
+                        role: item.roleId === 1 ? "ADMIN" : (item.roleId === 2 ? "SUPERVISOR" : "OPERADOR"),
                         status: item.status ? "activo" : "inactivo"
                     }))
                     
@@ -62,18 +65,7 @@ export const Users = () => {
         }
         fetchData()
     }, [refreshTrigger])
-    
-    const INITIAL_VISIBLE_COLUMNS = ["n", "name", "role", "status", "email", "actions"]
 
-    const columns = [
-        {name: "N", uid: "n", sortable: true},
-        {name: "Correo", uid: "email", sortable: true},
-        {name: "Nombre", uid: "name", sortable: true},
-        {name: "Cargo", uid: "role", sortable: true},
-        {name: "Status", uid: "status"},
-        {name: "Acciones", uid: "actions"},
-    ]
-    
     const statusOptions = [
         {name: "Activo", uid: "activo"},
         {name: "Inactivo", uid: "inactivo"},
@@ -84,8 +76,6 @@ export const Users = () => {
     }
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]))
-
-    const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS))
 
     const [statusFilter, setStatusFilter] = React.useState("all")
 
@@ -103,12 +93,6 @@ export const Users = () => {
     }, [searchValue, statusFilter])
 
     const hasSearchFilter = Boolean(searchValue)
-
-    const headerColumns = React.useMemo(() => {
-        if (visibleColumns === "all") return columns
-        
-        return columns.filter((column) => Array.from(visibleColumns).includes(column.uid))
-    }, [visibleColumns])
     
     const filteredItems = React.useMemo(() => {
         let filteredUsers = [...users]
@@ -189,30 +173,20 @@ export const Users = () => {
 
         return endContent
     }
-    
-    const handleCreateUser = () => {
-        addToast({
-            title: "handleCreateUser",
-            color: "primary"
-        })
-    }
 
     const handleReadUser = (user) => {
+        setAction("")
         setSelectedUser(user)
-        addToast({
-            title: "handleReadUser",
-            description: JSON.stringify(user, null, 2),
-            color: "primary"
-        })
+    }
+
+    const handleCreateUser = () => {
+        setAction("create")
+        setSelectedUser(null)
     }
 
     const handleUpdateUser = (user) => {
+        setAction("update")
         setSelectedUser(user)
-        addToast({
-            title: "handleUpdateUser",
-            description: JSON.stringify(user, null, 2),
-            color: "primary"
-        })
     }
 
     const handleChangeStatusUser = (user) => {
@@ -223,79 +197,6 @@ export const Users = () => {
             color: "primary"
         })
     }
-
-    const renderCell = React.useCallback((user, columnKey) => {
-        const cellValue = user[columnKey]
-
-        switch (columnKey) {
-            case "n": 
-                return (
-                    <p className="font-medium">{cellValue}</p>
-                )
-            case "role": 
-                return (
-                    capitalize(cellValue)
-                )
-            case "status":
-                return (
-                    <Tooltip
-                        tooltipContent="Cambiar status"
-                        tooltipPlacement="top"
-                    >
-                        <Button
-                            {...(cellValue === "activo" && { color: "primary", variant: "light" })}
-                            className={cellValue === "activo" ? "text-sm font-medium" : "bg-transparent data-[hover=true]:bg-background-300/20 text-background-700 text-sm font-medium"}
-                            size="sm"
-                            radius="sm"
-                            startContent={cellValue === "activo" ? <PersonAvailableFilled className="size-5"/> : <PersonSubtractFilled className="size-5"/>}
-                            onPress={() => handleChangeStatusUser(user)}
-                        >
-                            {capitalize(cellValue)}
-                        </Button>
-                    </Tooltip>
-                )
-            case "actions":
-                return (
-                    <div className="flex justify-center lg:gap-2">
-                        <Tooltip
-                            tooltipContent="Más detalles"
-                            tooltipPlacement="top"
-                        >
-                            <Button
-                                isIconOnly
-                                className="text-sm"
-                                color="primary"
-                                variant="light"
-                                size="sm"
-                                radius="sm"
-                                onPress={() => handleReadUser(user)}
-                            >
-                                <InfoFilled className="size-5"/>
-                            </Button>
-                        </Tooltip>
-
-                        <Tooltip
-                            tooltipContent="Actualizar usuario"
-                            tooltipPlacement="top"
-                        >
-                            <Button
-                                isIconOnly
-                                className="text-sm"
-                                color="primary"
-                                variant="light"
-                                size="sm"
-                                radius="sm"
-                                onPress={() => handleUpdateUser(user)}
-                            >
-                                <PersonEditFilled className="size-5"/>
-                            </Button>
-                        </Tooltip>                        
-                    </div>
-                )
-            default:
-                return cellValue
-        }
-    }, [])
     
     const topContent = React.useMemo(() => {
         const sortOptions = [
@@ -310,9 +211,9 @@ export const Users = () => {
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
         return (
-            <div className="flex justify-between md:pb-2 lg:pb-4 gap-4 items-center px-2">
+            <div className="flex justify-between gap-4 items-center">
                 <div className="flex flex-col">
-                    <p className="lg:text-2xl text-lg font-bold">Usuarios</p>
+                    <p className="text-lg font-bold">Usuarios</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
                         ? "Sin resultados"
@@ -322,47 +223,18 @@ export const Users = () => {
                     </span>
                 </div>
 
-                <div className="flex sm:gap-4 gap-2">
-                    <Select
-                        disallowEmptySelection
-                        closeOnSelect={false}
-                        className="w-32 flex-none hidden md:flex"
-                        aria-label="Select para eliminar o agregar columnas"
-                        renderValue={() => <p className="font-medium">Columnas</p>}
-                        size="md"
-                        radius="sm"
-                        selectionMode="multiple"
-                        defaultSelectedKeys={visibleColumns}
-                        onSelectionChange={setVisibleColumns}
-                        selectorIcon={<ChevronDownFilled className="size-5"/>}
-                        classNames={{
-                            trigger: "border-0 shadow-none !bg-background-100 transition-colors duration-1000 ease-in-out",
-                            popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg", 
-                        }}
-                        listboxProps={{
-                            itemClasses: {
-                                base: "!bg-transparent hover:!text-background-950/60 transition-colors duration-1000 ease-in-out",
-                            }
-                        }}
-                    >
-                        {columns.map((column) => (
-                            <SelectItem key={column.uid} value={column.uid}>
-                                {capitalize(column.name === "N" ? "número" : column.name)}
-                            </SelectItem>
-                        ))}
-                    </Select>
-
+                <div className="flex gap-2 sm:gap-4">
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-background-100 transition-background !duration-1000 ease-in-out"
+                                className="bg-transparent transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
                                 <OptionsFilled className="size-5"/>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="bg-background transition-colors duration-1000 ease-in-out w-32">
+                        <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
                             <div className="p-1 flex flex-col items-start w-full h-full">
                                 <p className="text-xs text-background-500 pt-1 pb-1">Opciones</p>
                                 
@@ -377,7 +249,7 @@ export const Users = () => {
                                             Ordenar
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="bg-background transition-colors duration-1000 ease-in-out w-32">
+                                    <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
                                         <div className="p-1 flex flex-col items-start w-full h-full">
                                             <p className="text-xs text-background-500 pt-1 pb-1">Ordenar por:</p>
                                             
@@ -414,7 +286,7 @@ export const Users = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -441,7 +313,7 @@ export const Users = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -462,7 +334,7 @@ export const Users = () => {
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<PersonAddFilled className="size-5"/>}
-                        onPress={() => handleCreateUser()}
+                        onPress={() => {handleCreateUser(); onOpen()}}
                     />
                 </div>
             </div>
@@ -471,7 +343,6 @@ export const Users = () => {
         filteredItems,
         searchValue,
         statusFilter,
-        visibleColumns,
         onSearchChange,
         rowsPerPage,
         onRowsPerPageChange,
@@ -484,10 +355,11 @@ export const Users = () => {
     const bottomContent = React.useMemo(() => {
         if (filteredItems.length > 0){
             return (
-                <div className="flex justify-between px-2">
+                <div className="flex justify-end px-2">
                     <Pagination
                         showControls
                         showShadow
+                        className="-m-0 px-0 pt-0 pb-2.5"
                         aria-label="Pagination tabla"
                         radius="sm"
                         variant="light"
@@ -504,9 +376,10 @@ export const Users = () => {
 
     const classNames = React.useMemo(
         () => ({
-            th: "px-2 font-medium text-sm text-current bg-background-100 hover:!text-background-950/60 transition-colors duration-1000 ease-in-out",
+            thead: "[&>tr]:first:shadow-none [&>tr:last-child]:hidden [&>tr]:first:shadow-[0px_0px_5px_0px_rgba(0,0,0,0.05)] [&>tr]:first:dark:shadow-[0px_0px_5px_0px_rgba(255,255,255,0.05)]",
+            th: "bg-transparent",
             td: [
-            "px-1 py-2",
+                "px-1 py-2",
                 // changing the rows border radius
                 // first
                 "group-data-[first=true]/tr:first:before:rounded-none",
@@ -517,21 +390,18 @@ export const Users = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "overflow-y-auto overflow-x-auto pt-0 pb-3 pl-0 md:pr-2 pr-0 transition-colors duration-1000 bg-background [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-0 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
         }), [],
     )
-
+    
     return (
         <>
             {isLoading ? (
-                <div className="px-2 w-full h-full">
-                    <div className="flex flex-col">
-                        <p className="lg:text-2xl text-lg font-bold">Usuarios</p>
-                        <span className="text-background-500 text-xs">Cargando usuarios</span>
-                    </div>
+                <div className="w-full h-full">
+                    <p className="text-lg font-bold">Usuarios</p>
                     
                     <div className="w-full pt-[62px] flex justify-center">
                         <SpinnerH
@@ -543,14 +413,13 @@ export const Users = () => {
                     </div>
                 </div>
             ) : ( errors.length > 0 ? (
-                <div className="px-2 w-full h-full">
-                    <div className="flex flex-col">
-                        <p className="lg:text-2xl text-lg font-bold">Usuarios</p>
-                        <span className="text-background-500 text-xs">Error al cargar los usuarios</span>
-                    </div>
+                <div className="w-full h-full">
+                    <p className="text-lg font-bold">Usuarios</p>
+
                     <div className="space-y-4 pt-4">
                         {errors.map((msg, i) => (
                         <motion.div
+                            key={i} 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: i * 0.05 }}
@@ -568,159 +437,217 @@ export const Users = () => {
                     </div>
                 </div>
             ) : ( users.length > 0 && (
-                <>
-                    <Table
-                        isHeaderSticky
-                        className="hidden md:flex"
-                        radius="sm"
-                        shadow="none"
-                        aria-label="Tabla de usuarios en pantallas medianas o superiores"
-                        topContentPlacement="outside"
-                        bottomContentPlacement="inside"
-                        topContent={topContent}
-                        bottomContent={bottomContent}
-                        classNames={classNames}
-                        selectedKeys={selectedKeys}
-                        onSelectionChange={setSelectedKeys}
-                        sortDescriptor={sortDescriptor}
-                        onSortChange={setSortDescriptor}
-                    >
-                        <TableHeader columns={headerColumns} className="bg-transparent">
-                            {(column) => (
-                                <TableColumn
-                                    key={column.uid}
-                                    align={column.uid === "actions" || column.uid === "n" || column.uid === "status" ? "center" : "start"}
-                                    allowsSorting={column.sortable}
-                                >
-                                    {column.name}
-                                </TableColumn>
-                            )}
-                        </TableHeader>
+                <Table
+                    isHeaderSticky
+                    radius="none"
+                    shadow="none"
+                    aria-label="Tabla de usuarios"
+                    topContentPlacement="outside"
+                    bottomContentPlacement="inside"
+                    hideHeader={isIconOnlyMedium}
+                    topContent={topContent}
+                    bottomContent={bottomContent}
+                    classNames={classNames}
+                    selectedKeys={selectedKeys}
+                    onSelectionChange={setSelectedKeys}
+                    sortDescriptor={sortDescriptor}
+                    onSortChange={setSortDescriptor}>
 
-                        <TableBody
-                            className="bg-transparent" 
-                            items={paginatedSortedItems}
-                            emptyContent={ filteredItems.length > 0 ? 
-                                <SpinnerH 
-                                    classNames={{ label: "pt-2 text-sm font-medium" }} 
-                                    color="current" 
-                                    size="md" 
-                                    label="Espere un poco por favor" 
-                                /> : 
-                                "No se encontraron coincidencias"
-                            }>
-                            {(item) => (
-                                <TableRow aria-label={item.n} key={item.n}>
-                                    {(columnKey) => 
-                                    <TableCell>
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
-                                        >
-                                            {renderCell(item, columnKey)}
-                                        </motion.div>
-                                    </TableCell>}
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                    <TableHeader className="bg-transparent">
+                        <TableColumn key="card" hideHeader={isIconOnlyMedium} className="bg-background transition-colors !duration-1000 ease-in-out">
+                            <Card shadow="none" className="w-full bg-transparent p-0" radius="sm">
+                                <CardBody className="p-0">
+                                    <div className="flex w-full items-center justify-between gap-4 text-sm font-medium">
+                                        <div className="w-6 flex-shrink-0 ml-4">
+                                            #
+                                        </div>
+                                        
+                                        <div className="flex-1 min-w-0 max-w-[25%]">
+                                            Nombre
+                                        </div>
+                                        
+                                        <div className="w-20 flex-shrink-0">
+                                            Cargo
+                                        </div>
+                                        
+                                        <div className="flex-1 min-w-0 max-w-[30%] truncate">
+                                            Correo electrónico
+                                        </div>
+                                        
+                                        <div className="w-[68px] flex-shrink-0 mr-4">
+                                            Status
+                                        </div>
+                                        
+                                        <div className="flex-shrink-0 flex text-center w-16">
+                                            Acciones
+                                        </div>
+                                    </div>
+                                </CardBody>
+                            </Card>
+                        </TableColumn>
+                    </TableHeader>
 
-                    <Table
-                        hideHeader
-                        className="md:hidden"
-                        shadow="none"
-                        aria-label="Tabla de usuarios en pantallas pequeñas o inferiores"
-                        topContentPlacement="outside"
-                        bottomContentPlacement="inside"
-                        topContent={topContent}
-                        bottomContent={bottomContent}
-                        classNames={classNames}
-                        selectedKeys={selectedKeys}
-                        onSelectionChange={setSelectedKeys}
-                        sortDescriptor={sortDescriptor}
-                        onSortChange={setSortDescriptor}
-                    >
-                        <TableHeader className="bg-transparent">
-                            <TableColumn key="card" hideHeader />
-                        </TableHeader>
-
-                        <TableBody
-                            className="bg-transparent" 
-                            items={paginatedSortedItems}
-                            emptyContent={ filteredItems.length > 0 ? 
-                                <SpinnerH 
-                                    classNames={{ label: "pt-2 text-sm font-medium" }} 
-                                    color="current" 
-                                    size="md" 
-                                    label="Espere un poco por favor" 
-                                /> : 
-                                "No se encontraron coincidencias"
-                            }>
-                            {(item) => (
-                                <TableRow aria-label={item.n} key={item.n}>
-                                    <TableCell>
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
-                                        >
-                                            <Card shadow="sm" isPressable onPress={() => handleReadUser(item)} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100" radius="sm">
-                                                <CardBody>
-                                                    <div className={`absolute top-0 bottom-0 left-0 w-1 ${item.status === "activo" ? "bg-primary" : "bg-background-700"} rounded-full`}></div>
-                                                    
-                                                    <div className="w-full h-full flex justify-between">
-                                                        <div>
-                                                            <div className="xs:flex xs:items-center xs:gap-2">
-                                                                <div className="flex gap-1 pb-1 items-end">
-                                                                    <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
-                                                                </div>
-                                                                <div className={`flex gap-1 text-xs items-start ${item.status === "activo" ? "text-primary" : "text-background-700"}`}>
-                                                                    <p className="text-background-950">{capitalize(item.role)}</p>
-                                                                    <p>{item.status}</p>
-                                                                    <p className="text-xs text-background-500 pb-[2px]">#{item.n}</p>
-                                                                </div>
+                    <TableBody
+                        className="bg-transparent" 
+                        items={paginatedSortedItems}
+                        emptyContent={filteredItems.length > 0 ? 
+                            <SpinnerH 
+                                classNames={{ label: "pt-2 text-sm font-medium" }} 
+                                color="current" 
+                                size="md" 
+                                label="Espere un poco por favor" 
+                            /> : 
+                            "No se encontraron coincidencias"
+                        }>
+                        {(item) => (
+                            <TableRow aria-label={item.n} key={item.n} className="hover:-translate-y-1 transition-all duration-250 ease-in-out">
+                                <TableCell className="px-0 py-1">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
+                                    >
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); onOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
+                                        shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
+                                        dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
+                                            <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
+                                                <div className={`absolute top-0 bottom-0 left-0 w-1 md:h-8 sm:h-12 h-14 self-center ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                <div className="md:hidden w-full h-full flex justify-between">
+                                                    <div>
+                                                        <div className="xs:flex xs:items-center xs:gap-2">
+                                                            <div className="flex gap-1 pb-1 items-end">
+                                                                <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
                                                             </div>
-                                                            <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">{item.email}</p>
+                                                            <div className={`flex gap-1 text-xs items-start ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
+                                                                <p className="text-background-950">{capitalize(item.role)}</p>
+                                                                <p>{item.status}</p>
+                                                                <p className="text-xs text-background-500 pb-[2px]">#{item.n}</p>
+                                                            </div>
                                                         </div>
-
-                                                        <div className="flex gap-2 items-center pl-2">
-                                                            <Tooltip
-                                                                tooltipContent="Cambiar status"
-                                                                tooltipPlacement="top"
-                                                            >
-                                                                <Button
-                                                                    { ...(item.status === "activo" && { color: "secondary", variant: "flat" }) }
-                                                                    className={ item.status === "activo" ? "" : "bg-background-300/20 text-background-700"}
-                                                                    isIconOnly
-                                                                    as="a"
-                                                                    size="md"
-                                                                    radius="sm"
-                                                                    onPress={() => handleChangeStatusUser(item)}
-                                                                >
-                                                                    {item.status === "activo" ? <PersonAvailableFilled className="size-5"/> : <PersonSubtractFilled className="size-5"/>}
-                                                                </Button>
-                                                            </Tooltip>
-
-                                                            <SecondaryButton
-                                                                label="Actualizar usuario"
-                                                                tooltipPlacement="top"
-                                                                startContent={<PersonEditFilled className="size-5"/>}
-                                                                isIconOnly={true}
-                                                                onPress={() => handleUpdateUser(item)}
-                                                            />
-                                                        </div>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">{item.email}</p>
                                                     </div>
-                                                </CardBody>
-                                            </Card>
-                                        </motion.div>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </> )
+                                                    <div className="flex items-center pl-2">
+                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                            <DropdownTrigger>
+                                                                <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
+                                                                    <MoreVerticalFilled className="size-5"/>
+                                                                </Button>
+                                                            </DropdownTrigger>
+                                                            <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
+                                                                <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                        key="handleReadUser"
+                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        onPress={() => {handleReadUser(item); onOpen()}}
+                                                                    >
+                                                                        Ver más detalles
+                                                                    </DropdownItem>
+
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                        key="handleUpdateUser"
+                                                                        startContent={<PersonEditFilled className="size-5"/>}
+                                                                        onPress={() => {handleUpdateUser(item); onOpen()}}
+                                                                    >
+                                                                        Actualizar usuario
+                                                                    </DropdownItem>
+
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        key="handleChangeStatusUser"
+                                                                        startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
+                                                                        onPress={() => handleChangeStatusUser(item)}
+                                                                    >
+                                                                        {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
+                                                                    </DropdownItem>
+                                                                </DropdownSection>
+                                                            </DropdownMenu>
+                                                        </Dropdown>
+                                                    </div>
+                                                </div>
+
+                                                <div className="hidden md:flex w-full h-full items-center justify-between gap-4">
+                                                    <div className="w-6 flex-shrink-0 ml-4">
+                                                        <p className={`text-sm truncate ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
+                                                            {item.n}
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    <div className="flex-1 min-w-0 max-w-[25%]">
+                                                        <p className="text-sm truncate">
+                                                            {item.name}
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    <div className="w-20 flex-shrink-0">
+                                                        <p className="text-sm truncate">
+                                                            {capitalize(item.role)}
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    <div className="flex-1 min-w-0 max-w-[30%]">
+                                                        <p className="text-sm truncate">
+                                                            {item.email}
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    <div className="w-[68px] flex-shrink-0 mr-4 flex items-center gap-1">
+                                                        <CircleFilled className={`size-2 ${item.status === "activo" ? "text-primary" : "text-background-500"}`} />
+                                                        <p className={`text-sm ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>{capitalize(item.status)}</p>
+                                                    </div>
+                                                    
+                                                    <div className="flex justify-center flex-shrink-0 w-16">
+                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                            <DropdownTrigger>
+                                                                <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
+                                                                    <MoreVerticalFilled className="size-5"/>
+                                                                </Button>
+                                                            </DropdownTrigger>
+                                                            <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
+                                                                <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                        key="handleReadUser"
+                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        onPress={() => {handleReadUser(item); onOpen()}}
+                                                                    >
+                                                                        Ver más detalles
+                                                                    </DropdownItem>
+
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                        key="handleUpdateUser"
+                                                                        startContent={<PersonEditFilled className="size-5"/>}
+                                                                        onPress={() => {handleUpdateUser(item); onOpen()}}
+                                                                    >
+                                                                        Actualizar usuario
+                                                                    </DropdownItem>
+
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        key="handleChangeStatusUser"
+                                                                        startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
+                                                                        onPress={() => handleChangeStatusUser(item)}
+                                                                    >
+                                                                        {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
+                                                                    </DropdownItem>
+                                                                </DropdownSection>
+                                                            </DropdownMenu>
+                                                        </Dropdown>
+                                                    </div>
+                                                </div>
+                                            </CardBody>
+                                        </Card>
+                                    </motion.div>
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>)
             ))}
+
+            <UsersDrawer isOpen={isOpen} onOpenChange={onOpenChange} data={selectedUser} action={action}/>
         </>
     )
 }

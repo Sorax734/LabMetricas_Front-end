@@ -16,13 +16,13 @@ export const SidebarButton = ({
                     {isActive && (
                         <motion.span
                         layoutId="drawer-layout"
-                        className="absolute left-4 mt-3 transform w-1 h-8 rounded-full bg-primary"
+                        className={`absolute left-4 ${label.length > 16 ? "mt-5" : "mt-3"} transform w-1 h-8 rounded-full bg-primary`}
                         transition={{ type: 'spring', stiffness: 900, damping: 60 }}
                         />
                     )}
                     <button
                         aria-label={label + " sidebar button"}
-                        className={`w-20 h-14 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-md ${isDanger ? 'hover:!text-primary' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
+                        className={`min-w-20 min-h-14 w-auto h-auto outline-none focus-visible:bg-background-100 px-4 py-2 rounded-md ${isDanger ? 'hover:!text-primary' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
                         type="button"
                         onClick={onPress}
                     >
@@ -47,24 +47,24 @@ export const SidebarButton = ({
                 {isActive && (
                     <motion.span
                     layoutId="drawer-layout"
-                    className="absolute left-4 mt-1 transform w-1 h-7 rounded-full bg-primary"
+                    className={`absolute left-4 ${label.length > 23 ? "mt-[14px]" : "mt-1"} transform w-1 h-7 rounded-full bg-primary`}
                     transition={{ type: 'spring', stiffness: 900, damping: 60 }}
                     />
                 )}
                 <button
                     aria-label={label + " sidebar button"}
-                    className={`h-9 outline-none focus-visible:bg-background-100 px-4 py-2 rounded-md -ml-4 ${isDanger ? 'hover:!text-primary' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
+                    className={`min-h-9 h-auto outline-none focus-visible:bg-background-100 px-4 py-2 rounded-r-md -ml-4 ${isDanger ? 'hover:!text-primary' : 'hover:!text-background-950/60'} transition-colors duration-1000 ease-in-out`}
                     type="button"
                     onClick={onPress}
                 >
                     <div 
                         className={`
-                            flex items-center gap-2
+                            flex items-center justify-start gap-2
                             ${isActive ? 'text-primary' : ''}
                         `}
                     >
                         {startContent}
-                        <p className='text-sm font-medium'>{label}</p>
+                        <p className='text-sm font-medium text-start'>{label}</p>
                     </div>
                 </button>
             </div>
