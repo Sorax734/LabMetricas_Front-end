@@ -1,11 +1,17 @@
-import { Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Form, Input, InputOtp, Select, SelectItem } from "@heroui/react"
+import { Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Form, Input, InputOtp, Select, SelectItem, useDisclosure } from "@heroui/react"
 import { CloseButton } from "../CloseButton"
-import { ArrowCircleRightFilled, ArrowRightFilled, CheckmarkFilled, ChevronDownFilled, DismissFilled, TextAsteriskFilled } from "@fluentui/react-icons"
+import { ArrowCircleRightFilled, ArrowHookUpRightFilled, ArrowRightFilled, CheckmarkFilled, ChevronDownFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, TextAsteriskFilled } from "@fluentui/react-icons"
 import { useEffect, useState } from "react"
 import { onlyLetters, required, validEmail, validPhone, validRoleId } from "../../validators/validators"
 import { PrimaryButton } from "../PrimaryButton"
+import { UsersModal } from "./UsersModal"
+import { SecondaryButton } from "../SecondaryButton"
+import { UsersChangeStatusModal } from "./UsersChangeStatusModal"
 
 export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
+    const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
+    const {isOpen: isModalCSOpen, onOpen: onModalCSOpen, onOpenChange: onModalCSOpenChange} = useDisclosure()
+    
     const [user, setUser] = useState({
         id: data?.id || "",
         name: data?.name || "",
@@ -81,33 +87,23 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
     const onSubmit = (e) => {
         e.preventDefault()
 
-        const chars = "0123456789abcdefghakshSNUAI2425NYfijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        const passwordLength = 12
-        let password = ""
-
-        for (let i = 0; i <= passwordLength; i++) {
-            let randomNumber = Math.floor(Math.random() * chars.length);
-            password += chars.substring(randomNumber, randomNumber + 1);
-        }
-
         const formEntries = Object.fromEntries(new FormData(e.currentTarget))
-
         
-        let data
+        let formData
 
         if(action !== "create"){
-            data = {
+            formData = {
                 id: user?.id,
                 ...formEntries
             }
         } else {
-            data = {
-                password: password,
+            formData = {
                 ...formEntries
             }
         }
 
-        alert(JSON.stringify(data, null, 2))
+        setUser(formData)
+        onModalOpen()
     }
 
     return (
@@ -118,6 +114,7 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
                 radius="sm"
                 isOpen={isOpen} 
                 onOpenChange={onOpenChange}
+                classNames={{wrapper: "!h-[100dvh]", backdrop: "bg-black/30"}}
                 motionProps={{ 
                     variants: {
                         enter: {
@@ -149,7 +146,7 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
                             </div>
                             <p className="text-sm font-normal">{description}</p>
                         </DrawerHeader>
-                        <DrawerBody className="[&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary">
+                        <DrawerBody className="h-full flex flex-col justify-between [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary">
                             <Form onSubmit={onSubmit} id="user-form" className="gap-6 flex flex-col">
                                 <Input
                                     label={
@@ -339,27 +336,39 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
                                     )}
                                 />
                             </Form>
-                        </DrawerBody>
-                        <DrawerFooter className="flex justify-end py-8">
+
                             {(action === 'create' || action === 'update') && (
-                                <Button
-                                    className="tracking-wide font-medium data-[hover=true]:-translate-y-1"
-                                    form="user-form"
-                                    radius="sm"
-                                    variant="shadow"
-                                    color="primary"
-                                    type="submit"
-                                    endContent={<ArrowRightFilled className="size-5"/>}
-                                    isDisabled={user.name === "" || user.email === "" || user.position === "" || user.roleId === "" || userErrors.name.length > 0 || userErrors.email.length > 0 || userErrors.position.length > 0 || userErrors.roleId.length > 0 || userErrors.phone.length > 0}
-                                >
-                                    Siguiente
-                                </Button>
+                                <div className="w-full flex justify-end py-8 gap-4">
+                                    {action === "update" && (
+                                        <SecondaryButton
+                                            label={data.status === "activo" ? "Inhabilitar" : "Habilitar"}
+                                            startContent={data.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
+                                            onPress={onModalCSOpen}
+                                        />
+                                    )}
+
+                                    <Button
+                                        className="tracking-wide font-medium data-[hover=true]:-translate-y-1"
+                                        form="user-form"
+                                        radius="sm"
+                                        variant="shadow"
+                                        color="primary"
+                                        type="submit"
+                                        startContent={<ArrowHookUpRightFilled className="size-5"/>}
+                                        isDisabled={user.name === "" || user.email === "" || user.position === "" || user.roleId === "" || userErrors.name.length > 0 || userErrors.email.length > 0 || userErrors.position.length > 0 || userErrors.roleId.length > 0 || userErrors.phone.length > 0}
+                                    >
+                                        Siguiente
+                                    </Button>
+                                </div>
                             )}
-                        </DrawerFooter>
+                        </DrawerBody>
                         </>
                     )}
                 </DrawerContent>
             </Drawer>
+
+            <UsersChangeStatusModal isOpen={isModalCSOpen} onOpenChange={onModalCSOpenChange} data={data}/>
+            <UsersModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={user} initialData={data} action={action}/>
         </>
     )
 }

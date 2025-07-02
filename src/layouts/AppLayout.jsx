@@ -256,7 +256,7 @@ export const AppLayout = () => {
                 ) : ( 
                     <>
                         {/* PANTALLA */}
-                        <div className="flex flex-col w-screen h-screen bg-background transition-colors duration-1000 ease-in-out sm:p-4 sm:gap-4 overflow-hidden">
+                        <div className="flex flex-col w-screen h-dvh bg-background transition-colors duration-1000 ease-in-out sm:p-4 sm:gap-4 overflow-hidden">
                             {/* NAVBAR */}
                             <div className="flex-shrink-0 h-[72px] bg-background rounded-lg transition-colors duration-1000 ease-in-out flex sm:z-auto z-50
                             sm:shadow-[0px_0px_100px_10px_rgba(0,0,0,0.1)]

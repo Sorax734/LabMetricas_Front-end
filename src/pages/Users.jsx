@@ -1,13 +1,14 @@
-import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Input, Pagination, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, user, Alert, Chip, Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter, useDisclosure } from "@heroui/react"
+import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Input, Pagination, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, user, Alert, Chip, Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter, useDisclosure, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDraggable } from "@heroui/react"
 import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
-import React, { useEffect, useState, useTransition } from "react"
+import React, { useEffect, useRef, useState, useTransition } from "react"
 import { useIsIconOnly, useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronCircleLeftFilled, ChevronDownFilled, ChevronLeftFilled, ChevronRightFilled, CircleFilled, CircleMultipleSubtractCheckmarkFilled, DataFunnelFilled, DismissCircleFilled, EditFilled, EditRegular, EmojiSadFilled, FilterFilled, InfoFilled, MoreCircleFilled, MoreHorizontalFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonDeleteFilled, PersonDesktopFilled, PersonEditFilled, PersonInfoFilled, PersonSubtractFilled, PersonWrenchFilled, SearchFilled, SubtractCircleFilled, TextSortAscendingFilled, TextSortDescendingFilled } from "@fluentui/react-icons"
+import { ArrowRightFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronCircleLeftFilled, ChevronDownFilled, ChevronLeftFilled, ChevronRightFilled, CircleFilled, CircleMultipleSubtractCheckmarkFilled, DataFunnelFilled, DismissCircleFilled, DismissFilled, EditFilled, EditRegular, EmojiSadFilled, FilterFilled, InfoFilled, MoreCircleFilled, MoreHorizontalFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonDeleteFilled, PersonDesktopFilled, PersonEditFilled, PersonInfoFilled, PersonSubtractFilled, PersonWrenchFilled, SearchFilled, SubtractCircleFilled, TextSortAscendingFilled, TextSortDescendingFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
 import { CloseButton } from "../components/CloseButton"
 import { UsersDrawer } from "../components/users/UsersDrawer"
+import { UsersChangeStatusModal } from "../components/users/UsersChangeStatusModal"
 
 export const Users = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -19,10 +20,14 @@ export const Users = () => {
     const isIconOnlyMedium = useIsIconOnlyMedium()
     const [isPending, startTransition] = useTransition()
     const {searchValue /*, setSearchValue */} = useOutletContext()
-    const {isOpen, onOpen, onOpenChange} = useDisclosure()
+    const {isOpen: isDrawerOpen, onOpen: onDrawerOpen, onOpenChange: onDrawerOpenChange} = useDisclosure()
+    const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
 
     const [selectedUser, setSelectedUser] = useState({})
     const [action, setAction] = useState("")
+
+    const targetRef = useRef(null)
+    const {moveProps} = useDraggable({targetRef, isDisabled: !isModalOpen})
 
     useEffect(() => {
         const fetchData = async () => {
@@ -191,11 +196,7 @@ export const Users = () => {
 
     const handleChangeStatusUser = (user) => {
         setSelectedUser(user)
-        addToast({
-            title: "handleChangeStatusUser",
-            description: JSON.stringify(user, null, 2),
-            color: "primary"
-        })
+        onModalOpen()
     }
     
     const topContent = React.useMemo(() => {
@@ -334,7 +335,7 @@ export const Users = () => {
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<PersonAddFilled className="size-5"/>}
-                        onPress={() => {handleCreateUser(); onOpen()}}
+                        onPress={() => {handleCreateUser(); onDrawerOpen()}}
                     />
                 </div>
             </div>
@@ -359,7 +360,7 @@ export const Users = () => {
                     <Pagination
                         showControls
                         showShadow
-                        className="-m-0 px-0 pt-0 pb-2.5"
+                        className="-m-0 px-0 pt-2 pb-2.5"
                         aria-label="Pagination tabla"
                         radius="sm"
                         variant="light"
@@ -390,7 +391,7 @@ export const Users = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-0 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-0 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -507,11 +508,11 @@ export const Users = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
-                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); onOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); onDrawerOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
                                         shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
                                         dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-0 bottom-0 left-0 w-1 md:h-8 sm:h-12 h-14 self-center ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-12 h-14 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
                                                         <div className="xs:flex xs:items-center xs:gap-2">
@@ -539,7 +540,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadUser"
                                                                         startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); onOpen()}}
+                                                                        onPress={() => {handleReadUser(item); onDrawerOpen()}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
@@ -548,7 +549,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateUser(item); onOpen()}}
+                                                                        onPress={() => {handleUpdateUser(item); onDrawerOpen()}}
                                                                     >
                                                                         Actualizar usuario
                                                                     </DropdownItem>
@@ -610,7 +611,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadUser"
                                                                         startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); onOpen()}}
+                                                                        onPress={() => {handleReadUser(item); onDrawerOpen()}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
@@ -619,7 +620,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateUser(item); onOpen()}}
+                                                                        onPress={() => {handleUpdateUser(item); onDrawerOpen()}}
                                                                     >
                                                                         Actualizar usuario
                                                                     </DropdownItem>
@@ -646,8 +647,9 @@ export const Users = () => {
                     </TableBody>
                 </Table>)
             ))}
-
-            <UsersDrawer isOpen={isOpen} onOpenChange={onOpenChange} data={selectedUser} action={action}/>
+            
+            <UsersChangeStatusModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={selectedUser}/>
+            <UsersDrawer isOpen={isDrawerOpen} onOpenChange={onDrawerOpenChange} data={selectedUser} action={action}/>
         </>
     )
 }
