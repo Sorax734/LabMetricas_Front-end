@@ -102,10 +102,11 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => 
             const response = await getUsers()
             const users = response.data
 
-            const exists = users.some(
+            const exists = users.find(
                 (u) => u.email.trim().toLowerCase() === formData.email.trim().toLowerCase()
             )
-            if (exists) {
+            
+            if (exists && (action === "create" || exists.id !== formData.id)) {
                 setUserErrors((prev) => ({
                     ...prev,
                     email: ["El correo electrónico ingresado ya está en uso."],
