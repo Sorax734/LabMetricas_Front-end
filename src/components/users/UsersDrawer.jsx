@@ -1,17 +1,20 @@
-import { Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Form, Input, InputOtp, Select, SelectItem, useDisclosure } from "@heroui/react"
+import { addToast, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Form, Input, InputOtp, Select, SelectItem, useDisclosure } from "@heroui/react"
 import { CloseButton } from "../CloseButton"
-import { ArrowCircleRightFilled, ArrowHookUpRightFilled, ArrowRightFilled, CheckmarkFilled, ChevronDownFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, TextAsteriskFilled } from "@fluentui/react-icons"
+import { ArrowCircleRightFilled, ArrowHookUpRightFilled, ArrowRightFilled, CheckmarkFilled, ChevronDownFilled, DismissCircleFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, TextAsteriskFilled } from "@fluentui/react-icons"
 import { useEffect, useState } from "react"
 import { onlyLetters, required, validEmail, validPhone, validRoleId } from "../../validators/validators"
 import { PrimaryButton } from "../PrimaryButton"
 import { UsersModal } from "./UsersModal"
 import { SecondaryButton } from "../SecondaryButton"
 import { UsersChangeStatusModal } from "./UsersChangeStatusModal"
+import { getUsers } from "../../service/user"
 
-export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
+export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => {
     const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
     const {isOpen: isModalCSOpen, onOpen: onModalCSOpen, onOpenChange: onModalCSOpenChange} = useDisclosure()
     
+    const [isLoading, setIsLoading] = useState(false)
+
     const [user, setUser] = useState({
         id: data?.id || "",
         name: data?.name || "",
@@ -84,24 +87,44 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
             break
     }
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault()
 
         const formEntries = Object.fromEntries(new FormData(e.currentTarget))
         
-        let formData
+        const formData = action !== "create"
+            ? { id: user.id, ...formEntries }
+            : { ...formEntries };
 
-        if(action !== "create"){
-            formData = {
-                id: user?.id,
-                ...formEntries
+        try {
+            setIsLoading(true)
+
+            const response = await getUsers()
+            const users = response.data
+
+            const exists = users.some(
+                (u) => u.email.trim().toLowerCase() === formData.email.trim().toLowerCase()
+            )
+            if (exists) {
+                setUserErrors((prev) => ({
+                    ...prev,
+                    email: ["El correo electrónico ingresado ya está en uso."],
+                }))
+                return
             }
-        } else {
-            formData = {
-                ...formEntries
-            }
+        } catch (error) {
+            addToast({
+                title: `No se pudo verificar el correo. Intenta de nuevo.`,
+                description: error.response.data.message,
+                color: "danger",
+                icon: <DismissCircleFilled className="size-5"/>
+            })
+            return
+        } finally {
+            setIsLoading(false)
         }
 
+        setUserErrors({ name: [], email: [], position: [], phone: [], roleId: [] });
         setUser(formData)
         onModalOpen()
     }
@@ -354,7 +377,8 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
                                         variant="shadow"
                                         color="primary"
                                         type="submit"
-                                        startContent={<ArrowHookUpRightFilled className="size-5"/>}
+                                        startContent={!isLoading && <ArrowHookUpRightFilled className="size-5"/>}
+                                        isLoading={isLoading}
                                         isDisabled={user.name === "" || user.email === "" || user.position === "" || user.roleId === "" || userErrors.name.length > 0 || userErrors.email.length > 0 || userErrors.position.length > 0 || userErrors.roleId.length > 0 || userErrors.phone.length > 0}
                                     >
                                         Siguiente
@@ -367,8 +391,8 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action}) => {
                 </DrawerContent>
             </Drawer>
 
-            <UsersChangeStatusModal isOpen={isModalCSOpen} onOpenChange={onModalCSOpenChange} data={data}/>
-            <UsersModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={user} initialData={data} action={action}/>
+            <UsersChangeStatusModal isOpen={isModalCSOpen} onOpenChange={onModalCSOpenChange} data={data} onRefresh={onRefresh}/>
+            <UsersModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={user} initialData={data} action={action} onRefresh={onRefresh} closeDrawer={() => onOpenChange(false)}/>
         </>
     )
 }

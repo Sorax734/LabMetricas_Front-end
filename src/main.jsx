@@ -42,8 +42,8 @@ createRoot(document.getElementById('root')).render(
 			<AuthProvider>
 				<HeroUIProvider locale="es-MX">
 					<ToastProvider
-						placement="top-center"
-						toastOffset={0}
+						placement="bottom-left"
+						toastOffset={60}
 						maxVisibleToasts={2}
 						toastProps={{
 							variant: "flat",
@@ -55,7 +55,7 @@ createRoot(document.getElementById('root')).render(
 								description: "pr-6",
 								closeButton: "opacity-100 absolute right-4 top-1/2 -translate-y-1/2 ml-4",
 								progressIndicator: "h-1 rounded-full opacity-100",
-								base: "transition-colors !duration-1000 ease-in-out"
+								base: "transition-colors !duration-1000 ease-in-out bg-background",
 							},
 						}}
 					/>

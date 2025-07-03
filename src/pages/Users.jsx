@@ -13,6 +13,7 @@ import { UsersChangeStatusModal } from "../components/users/UsersChangeStatusMod
 export const Users = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
+    const triggerRefresh = () => setRefreshTrigger(prev => !prev)
 
     const [users, setUsers] = useState([])
     const [errors, setErrors] = useState([])
@@ -20,8 +21,8 @@ export const Users = () => {
     const isIconOnlyMedium = useIsIconOnlyMedium()
     const [isPending, startTransition] = useTransition()
     const {searchValue /*, setSearchValue */} = useOutletContext()
-    const {isOpen: isDrawerOpen, onOpen: onDrawerOpen, onOpenChange: onDrawerOpenChange} = useDisclosure()
-    const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const [selectedUser, setSelectedUser] = useState({})
     const [action, setAction] = useState("")
@@ -36,7 +37,7 @@ export const Users = () => {
 
                 const response = await getUsers()
                 const data = response.data
-                console.log(data)
+
                 if (data) {
                     const dataCount = data.map((item, index) => ({
                         ...item,
@@ -47,6 +48,13 @@ export const Users = () => {
                     
                     startTransition(() => {
                         setUsers(dataCount)
+
+                        setSelectedUser(prev => {
+                            if (!prev) return null
+                            const updated = dataCount.find(u => u.id === prev.id)
+                            return updated ?? prev
+                        })
+
                         setIsLoading(false)
                     })
                 } else {
@@ -196,7 +204,7 @@ export const Users = () => {
 
     const handleChangeStatusUser = (user) => {
         setSelectedUser(user)
-        onModalOpen()
+        setIsModalOpen(true)
     }
     
     const topContent = React.useMemo(() => {
@@ -335,7 +343,7 @@ export const Users = () => {
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<PersonAddFilled className="size-5"/>}
-                        onPress={() => {handleCreateUser(); onDrawerOpen()}}
+                        onPress={() => {handleCreateUser(); setIsDrawerOpen(true)}}
                     />
                 </div>
             </div>
@@ -508,7 +516,7 @@ export const Users = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
-                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); onDrawerOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
                                         shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
                                         dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
@@ -540,7 +548,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadUser"
                                                                         startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); onDrawerOpen()}}
+                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
@@ -549,7 +557,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateUser(item); onDrawerOpen()}}
+                                                                        onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar usuario
                                                                     </DropdownItem>
@@ -611,7 +619,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadUser"
                                                                         startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); onDrawerOpen()}}
+                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
@@ -620,7 +628,7 @@ export const Users = () => {
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateUser(item); onDrawerOpen()}}
+                                                                        onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar usuario
                                                                     </DropdownItem>
@@ -648,8 +656,8 @@ export const Users = () => {
                 </Table>)
             ))}
             
-            <UsersChangeStatusModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={selectedUser}/>
-            <UsersDrawer isOpen={isDrawerOpen} onOpenChange={onDrawerOpenChange} data={selectedUser} action={action}/>
+            <UsersChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedUser} onRefresh={triggerRefresh}/>
+            <UsersDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} data={selectedUser} action={action} onRefresh={triggerRefresh}/>
         </>
     )
 }

@@ -1,11 +1,12 @@
-import { Button, Card, CardBody, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Tab, Tabs, useDraggable } from "@heroui/react"
+import { addToast, Button, Card, CardBody, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Tab, Tabs, useDraggable } from "@heroui/react"
 import { useRef, useState } from "react"
 import { CloseButton } from "../CloseButton"
-import { ArrowHookUpLeftFilled, ArrowHookUpRightFilled, DismissFilled, PersonAddFilled, PersonEditFilled } from "@fluentui/react-icons"
+import { ArrowHookUpLeftFilled, ArrowHookUpRightFilled, CheckmarkCircleFilled, DismissCircleFilled, DismissFilled, PersonAddFilled, PersonEditFilled } from "@fluentui/react-icons"
 import { PrimaryButton } from "../PrimaryButton"
 import { Tooltip } from "../Tooltip"
+import { createUser, updateUser } from "../../service/user"
 
-export const UsersModal = ({isOpen, onOpenChange, data, initialData, action}) => {
+export const UsersModal = ({isOpen, onOpenChange, data, initialData, action, onRefresh, closeDrawer}) => {
     const targetRef = useRef(null)
     const {moveProps} = useDraggable({targetRef, isDisabled: !isOpen})
 
@@ -13,6 +14,45 @@ export const UsersModal = ({isOpen, onOpenChange, data, initialData, action}) =>
     const description = action === "create"
     ? "Una vez registrado, el usuario recibirá por correo electrónico su contraseña y podrá acceder a la aplicación con sus credenciales."
     : "Por favor, verifique que todos los datos sean correctos antes de continuar."
+
+    const [isLoading, setIsLoading] = useState(false)
+
+    const handleSubmit = async () => {
+        const verb = action === "create" ? "registró" : "actualizó"
+
+        try {
+            setIsLoading(true)
+            
+            const response = action === "create"
+                ? await createUser(data)
+                : await updateUser(data)
+
+            const success = response.type === "SUCCESS"
+            
+            addToast({
+                title: success
+                    ? `Se ${verb} a ${data.name}`
+                    : `No se ${verb} a ${data.name}`,
+                description: `con correo electrónico: ${data.email}`,
+                color: success ? "primary" : "danger",
+                icon: success
+                    ? <CheckmarkCircleFilled className="size-5"/>
+                    : <DismissCircleFilled className="size-5"/>
+            })
+
+            if (success){ closeDrawer(); onRefresh()}
+        } catch (error){
+            addToast({
+                title: `No se ${verb} a ${data.name}`,
+                description: error.response.data.message,
+                color: "danger",
+                icon: <DismissCircleFilled className="size-5"/>
+            })
+        } finally {
+            setIsLoading(false)
+            onOpenChange(false)
+        }
+    }
 
     const userDetails = (user) => {
         return (
@@ -91,6 +131,8 @@ export const UsersModal = ({isOpen, onOpenChange, data, initialData, action}) =>
                             <PrimaryButton
                                 label={action === "create" ? "Registrar" : "Actualizar"}
                                 startContent={action === "create" ? <PersonAddFilled className="size-5"/> : <PersonEditFilled className="size-5"/>}
+                                onPress={handleSubmit}
+                                isLoading={isLoading}
                             />
                         </ModalFooter>
                         </>
