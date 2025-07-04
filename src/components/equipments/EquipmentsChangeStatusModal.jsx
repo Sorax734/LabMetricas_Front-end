@@ -1,23 +1,23 @@
-import { CheckmarkCircleFilled, DismissCircleFilled, PersonAvailableFilled, PersonSubtractFilled } from "@fluentui/react-icons";
+import { CheckmarkCircleFilled, DismissCircleFilled, SubtractCircleFilled } from "@fluentui/react-icons";
 import { ChangeStatusModal } from "../ChangeStatusModal"
 import { PrimaryButton } from "../PrimaryButton";
 import { useState } from "react";
 import { addToast } from "@heroui/react";
-import { changeStatus } from "../../service/user";
+import { changeStatus } from "../../service/equipment";
 
-export const UsersChangeStatusModal = ({isOpen, onOpenChange, data, onRefresh}) => {
+export const EquipmentsChangeStatusModal = ({isOpen, onOpenChange, data, onRefresh}) => {
     const [isLoading, setIsLoading] = useState(false)
 
     const onChangeStatus = async () => {
         try {
             setIsLoading(true)
 
-            const response = await changeStatus(data.email)
+            const response = await changeStatus(data.id)
 
             if (response.type === "SUCCESS"){
                 addToast({
-                    title: `Se ${data.status === "activo" ? "inhabilitó" : "habilitó"} a ${data.name}`,
-                    description: `con correo electrónico: ${data.email}`,
+                    title: `Se ${data.status === "activo" ? "inhabilitó" : "habilitó"} al equipo: ${data.name}`,
+                    description: `con código: ${data.code}`,
                     color: "primary",
                     icon: <CheckmarkCircleFilled className='size-5' />
                 })
@@ -47,12 +47,12 @@ export const UsersChangeStatusModal = ({isOpen, onOpenChange, data, onRefresh}) 
             <ChangeStatusModal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
-                title={`¿Desea ${data.status === "activo" ? "inhabilitar" : "habilitar"} al usuario: ${data.name}?`}
-                description={data.status === "activo" ? "Al inhabilitar el usuario, se restringirá su acceso a la aplicación de forma temporal, pero podrá ser habilitado nuevamente en cualquier momento." : "Al habilitar el usuario, se restablecerá su acceso a la aplicación con normalidad."}
+                title={`¿Desea ${data.status === "activo" ? "inhabilitar" : "habilitar"} al equipo: ${data.name}?`}
+                description={data.status === "activo" ? "Al inhabilitar el equipo, no estará disponible, pero podrá ser habilitado nuevamente en cualquier momento." : "Al habilitar el equipo, se restablecerá su disponibilidad con normalidad."}
             >
                 <PrimaryButton
                     label={data.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                    startContent={data.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
+                    startContent={data.status === "activo" ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
                     isLoading={isLoading}
                     onPress={onChangeStatus}
                 />

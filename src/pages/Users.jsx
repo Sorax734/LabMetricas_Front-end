@@ -1,12 +1,11 @@
-import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Input, Pagination, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, user, Alert, Chip, Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter, useDisclosure, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDraggable } from "@heroui/react"
+import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react"
 import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
-import React, { useEffect, useRef, useState, useTransition } from "react"
-import { useIsIconOnly, useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { ArrowRightFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronCircleLeftFilled, ChevronDownFilled, ChevronLeftFilled, ChevronRightFilled, CircleFilled, CircleMultipleSubtractCheckmarkFilled, DataFunnelFilled, DismissCircleFilled, DismissFilled, EditFilled, EditRegular, EmojiSadFilled, FilterFilled, InfoFilled, MoreCircleFilled, MoreHorizontalFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonDeleteFilled, PersonDesktopFilled, PersonEditFilled, PersonInfoFilled, PersonSubtractFilled, PersonWrenchFilled, SearchFilled, SubtractCircleFilled, TextSortAscendingFilled, TextSortDescendingFilled } from "@fluentui/react-icons"
+import React, { useEffect, useState, useTransition } from "react"
+import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
+import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
-import { CloseButton } from "../components/CloseButton"
 import { UsersDrawer } from "../components/users/UsersDrawer"
 import { UsersChangeStatusModal } from "../components/users/UsersChangeStatusModal"
 
@@ -19,16 +18,17 @@ export const Users = () => {
     const [errors, setErrors] = useState([])
 
     const isIconOnlyMedium = useIsIconOnlyMedium()
-    const [isPending, startTransition] = useTransition()
-    const {searchValue /*, setSearchValue */} = useOutletContext()
+    const [, startTransition] = useTransition()
+    const {searchValue, setSearchValue} = useOutletContext()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const [selectedUser, setSelectedUser] = useState({})
     const [action, setAction] = useState("")
 
-    const targetRef = useRef(null)
-    const {moveProps} = useDraggable({targetRef, isDisabled: !isModalOpen})
+    useEffect(() => {
+        setSearchValue("")
+    }, [])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -156,13 +156,9 @@ export const Users = () => {
     }, [])
     
     const onSearchChange = React.useCallback((value) => {
-        if (value) {
-            setFilterValue(value)
-            setPage(1)
-        } else {
-            setFilterValue("")
-        }
-    }, [])
+        setSearchValue(value)
+        setPage(1)
+    }, [setSearchValue])
 
     const handleSort = (key) => {
         setSortDescriptor((prev) => ({
@@ -178,13 +174,11 @@ export const Users = () => {
     }
 
     const endContent = (key) => {
-        const endContent = sortDescriptor.column === key
+        return sortDescriptor.column === key
             ? sortDescriptor.direction === "ascending"
-                ? <ArrowSortUpLinesFilled className="size-5" />
-                : <ArrowSortDownLinesFilled className="size-5" />
-            : null     
-
-        return endContent
+                ? <ArrowSortUpLinesFilled className="size-5"/>
+                : <ArrowSortDownLinesFilled className="size-5"/>
+            : null
     }
 
     const handleReadUser = (user) => {
@@ -212,7 +206,8 @@ export const Users = () => {
             { key: "n", label: "Número" },
             { key: "email", label: "Correo" },
             { key: "name", label: "Nombre" },
-            { key: "role", label: "Cargo" },
+            { key: "role", label: "Rol" },
+            { key: "position", label: "Puesto" },
         ]
 
         const totalFiltered = filteredItems.length
@@ -466,7 +461,7 @@ export const Users = () => {
                         <TableColumn key="card" hideHeader={isIconOnlyMedium} className="bg-background transition-colors !duration-1000 ease-in-out">
                             <Card shadow="none" className="w-full bg-transparent p-0" radius="sm">
                                 <CardBody className="p-0">
-                                    <div className="flex w-full items-center justify-between gap-4 text-sm font-medium">
+                                    <div className="flex w-full items-center justify-between gap-2 text-sm font-medium">
                                         <div className="w-6 flex-shrink-0 ml-4">
                                             #
                                         </div>
@@ -475,12 +470,16 @@ export const Users = () => {
                                             Nombre
                                         </div>
                                         
-                                        <div className="w-20 flex-shrink-0">
-                                            Cargo
-                                        </div>
-                                        
                                         <div className="flex-1 min-w-0 max-w-[30%] truncate">
                                             Correo electrónico
+                                        </div>
+                                        
+                                        <div className="w-20 flex-shrink-0">
+                                            Rol
+                                        </div>
+                                        
+                                        <div className="w-36 flex-shrink-0">
+                                            Puesto
                                         </div>
                                         
                                         <div className="w-[68px] flex-shrink-0 mr-4">
@@ -545,21 +544,21 @@ export const Users = () => {
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                        key="handleReadUser"
-                                                                        startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
-                                                                    >
-                                                                        Ver más detalles
-                                                                    </DropdownItem>
-
-                                                                    <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
                                                                         onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar usuario
+                                                                    </DropdownItem>
+
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                        key="handleReadUser"
+                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
+                                                                    >
+                                                                        Ver más detalles
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
@@ -576,7 +575,7 @@ export const Users = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="hidden md:flex w-full h-full items-center justify-between gap-4">
+                                                <div className="hidden md:flex w-full h-full items-center justify-between gap-2">
                                                     <div className="w-6 flex-shrink-0 ml-4">
                                                         <p className={`text-sm truncate ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
                                                             {item.n}
@@ -589,18 +588,24 @@ export const Users = () => {
                                                         </p>
                                                     </div>
                                                     
+                                                    <div className="flex-1 min-w-0 max-w-[30%]">
+                                                        <p className="text-sm truncate">
+                                                            {item.email}
+                                                        </p>
+                                                    </div>
+
                                                     <div className="w-20 flex-shrink-0">
                                                         <p className="text-sm truncate">
                                                             {capitalize(item.role)}
                                                         </p>
                                                     </div>
                                                     
-                                                    <div className="flex-1 min-w-0 max-w-[30%]">
+                                                    <div className="w-36 flex-shrink-0">
                                                         <p className="text-sm truncate">
-                                                            {item.email}
+                                                            {item.position}
                                                         </p>
                                                     </div>
-                                                    
+
                                                     <div className="w-[68px] flex-shrink-0 mr-4 flex items-center gap-1">
                                                         <CircleFilled className={`size-2 ${item.status === "activo" ? "text-primary" : "text-background-500"}`} />
                                                         <p className={`text-sm ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>{capitalize(item.status)}</p>
@@ -616,21 +621,21 @@ export const Users = () => {
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                        key="handleReadUser"
-                                                                        startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
-                                                                    >
-                                                                        Ver más detalles
-                                                                    </DropdownItem>
-
-                                                                    <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
                                                                         onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar usuario
+                                                                    </DropdownItem>
+
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                        key="handleReadUser"
+                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
+                                                                    >
+                                                                        Ver más detalles
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 

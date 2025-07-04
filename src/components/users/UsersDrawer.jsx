@@ -1,9 +1,8 @@
-import { addToast, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Form, Input, InputOtp, Select, SelectItem, useDisclosure } from "@heroui/react"
+import { addToast, Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Form, Input, InputOtp, Select, SelectItem, useDisclosure } from "@heroui/react"
 import { CloseButton } from "../CloseButton"
-import { ArrowCircleRightFilled, ArrowHookUpRightFilled, ArrowRightFilled, CheckmarkFilled, ChevronDownFilled, DismissCircleFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, TextAsteriskFilled } from "@fluentui/react-icons"
+import { ArrowHookUpRightFilled, CheckmarkFilled, ChevronDownFilled, DismissCircleFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, TextAsteriskFilled } from "@fluentui/react-icons"
 import { useEffect, useState } from "react"
 import { onlyLetters, required, validEmail, validPhone, validRoleId } from "../../validators/validators"
-import { PrimaryButton } from "../PrimaryButton"
 import { UsersModal } from "./UsersModal"
 import { SecondaryButton } from "../SecondaryButton"
 import { UsersChangeStatusModal } from "./UsersChangeStatusModal"
@@ -50,6 +49,11 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => 
             roleId: [],
         })
     }, [data]);
+
+    const resetForm = () => {
+        setUser({ id:"", name:"", email:"", position:"", phone:"", roleId:"" })
+        setUserErrors({ name:[], email:[], position:[], phone:[], roleId:[] })
+    }
 
     const validators = {
         name: [required, onlyLetters],
@@ -111,6 +115,12 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => 
                     ...prev,
                     email: ["El correo electrónico ingresado ya está en uso."],
                 }))
+                addToast({
+                    title: "El correo electrónico ingresado ya está en uso.",
+                    description: "Por favor, ingrese uno distinto.",
+                    color: "danger",
+                    icon: <DismissCircleFilled className="size-5"/>
+                })
                 return
             }
         } catch (error) {
@@ -393,7 +403,7 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => 
             </Drawer>
 
             <UsersChangeStatusModal isOpen={isModalCSOpen} onOpenChange={onModalCSOpenChange} data={data} onRefresh={onRefresh}/>
-            <UsersModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={user} initialData={data} action={action} onRefresh={onRefresh} closeDrawer={() => onOpenChange(false)}/>
+            <UsersModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={user} initialData={data} action={action} onRefresh={onRefresh} closeDrawer={() => {onOpenChange(false); resetForm()}}/>
         </>
     )
 }
