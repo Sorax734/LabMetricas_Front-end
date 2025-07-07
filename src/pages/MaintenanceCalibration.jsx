@@ -8,10 +8,10 @@ import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
 import { getMaintenances } from "../service/maintenanceCalibration"
 import { MaintenancesCalibrationsChangeStatusModal } from "../components/maintenancesCalibrations/maintenancesCalibrationsChangeStatusModal"
-import { MaintenancesCalibrationsDrawer } from "../components/maintenancesCalibrations/maintenancesCalibrationsDrawer"
 import { getEquipments } from "../service/equipment"
 import { getMaintenanceTypes } from "../service/maintenanceType"
 import { getScheduledMaintenances } from "../service/scheduledMaintenance"
+import { MaintenancesCalibrationsDrawer } from "../components/maintenancesCalibrations/MaintenancesCalibrationsDrawer"
 
 export const MaintenanceCalibration = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -227,6 +227,11 @@ export const MaintenanceCalibration = () => {
     const topContent = React.useMemo(() => {
         const sortOptions = [
             { key: "n", label: "Número" },
+            { key: "code", label: "Código" },
+            { key: "description", label: "Descripción" },
+            { key: "equipmentName", label: "Equipo" },
+            { key: "responsibleUserName", label: "Responsable" },
+            { key: "priority", label: "Prioridad" },
         ]
 
         const totalFiltered = filteredItems.length
@@ -236,7 +241,7 @@ export const MaintenanceCalibration = () => {
         return (
             <div className="flex justify-between gap-4 items-center">
                 <div className="flex flex-col">
-                    <p className="text-lg font-bold">Mantenimientos y calibración</p>
+                    <p className="text-lg font-bold">Mantenimiento y calibración</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
                         ? "Sin resultados"
@@ -272,7 +277,7 @@ export const MaintenanceCalibration = () => {
                                             Ordenar
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
+                                    <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-36">
                                         <div className="p-1 flex flex-col items-start w-full h-full">
                                             <p className="text-xs text-background-500 pt-1 pb-1">Ordenar por:</p>
                                             

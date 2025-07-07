@@ -228,6 +228,7 @@ export const Equipments = () => {
             { key: "n", label: "Número" },
             { key: "name", label: "Nombre" },
             { key: "assignedToName", label: "Asignado a:" },
+            { key: "serialNumber", label: "N. de serie" },
             { key: "code", label: "Código" },
             { key: "categoryName", label: "Categoría" },
         ]

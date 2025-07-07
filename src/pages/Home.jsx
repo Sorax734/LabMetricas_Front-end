@@ -67,6 +67,34 @@ export const Home = () => {
     const [selected, setSelected] = useState({})
     const [action, setAction] = useState("")
 
+    const hasSearchFilter = Boolean(searchValue)
+
+    useEffect(() => {
+        setSearchValue("")
+    }, [])
+
+    const [filteredMaintenanceProviders, filteredCategories, filteredMaintenanceTypes] = React.useMemo(() => {
+        let providersFilt = [...maintenanceProviders]
+        let catsFilt = [...categories]
+        let typesFilt = [...maintenanceTypes]
+    
+        if (hasSearchFilter) {
+            providersFilt = providersFilt.filter((item) =>
+                item.name.toLowerCase().includes(searchValue.toLowerCase()),
+            )
+            
+            catsFilt = catsFilt.filter((item) =>
+                item.name.toLowerCase().includes(searchValue.toLowerCase()),
+            )
+            
+            typesFilt = typesFilt.filter((item) =>
+                item.name.toLowerCase().includes(searchValue.toLowerCase()),
+            )
+        }
+
+        return [providersFilt, catsFilt, typesFilt];
+    }, [maintenanceProviders, categories, maintenanceTypes, searchValue]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -311,7 +339,7 @@ export const Home = () => {
                             <Button startContent={iconsMap[selectedOptionValue]} onPress={handleCreate} color="primary" variant="shadow" className="font-medium tracking-wide" size="md" radius="sm">
                                 {labelsMap[selectedOptionValue]}
                             </Button>
-                            <Dropdown placement="bottom-end" className="bg-background-100 w-52 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm">
+                            <Dropdown placement="bottom-end" className="bg-background-100 w-52 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" >
                                 <DropdownTrigger>
                                     <Button isIconOnly color="primary" variant="shadow" size="md" radius="sm">
                                         <ChevronDownFilled className="text-background"/>
@@ -324,6 +352,7 @@ export const Home = () => {
                                     selectedKeys={selectedOption}
                                     selectionMode="single"
                                     onSelectionChange={setSelectedOption}
+                                    itemClasses={{base:"mb-1"}}
                                 >
                                     <DropdownItem 
                                         key="category" 
@@ -353,7 +382,7 @@ export const Home = () => {
                     
                     <p className="font-bold text-2xl pb-8">¡Hola, {userName}!</p>
                         
-                    <div className="grid grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4 gap-4 pb-12">
+                    <div className="grid grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4 gap-4 pb-4">
                         {cards.map((c, i) => (
                             <motion.div
                                 key={c.title}
@@ -392,7 +421,7 @@ export const Home = () => {
                                 </motion.div>
                             </div>
                                 
-                            {categories.map((item) => (
+                            {filteredCategories.map((item) => (
                                 <motion.div
                                     key={item.id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -477,7 +506,7 @@ export const Home = () => {
                                 </motion.div>
                             </div>
 
-                            {maintenanceTypes.map((item) => (
+                            {filteredMaintenanceTypes.map((item) => (
                                 <motion.div
                                     key={item.id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -562,7 +591,7 @@ export const Home = () => {
                                 </motion.div>
                             </div>
 
-                            {maintenanceProviders.map((item) => (
+                            {filteredMaintenanceProviders.map((item) => (
                                 <motion.div
                                     key={item.id}
                                     initial={{ opacity: 0, y: 20 }}

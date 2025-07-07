@@ -287,8 +287,9 @@ export const AppLayout = () => {
                                         onValueChange={(val) => {
                                             setSearchValue(val)
                                         }}
-                                        placeholder="Buscar resultados por nombre"
-                                        endContent={<SearchFilled className='size-5 group-data-[focus=true]:text-primary' />}
+                                        isClearable
+                                        placeholder={location.pathname === "/App/Maintenance-Calibration" ? "Buscar resultados por código" : "Buscar resultados por nombre"}
+                                        endContent={<div className="w-full h-full flex items-center justify-center"><DismissFilled className='size-5 group-data-[focus=true]:text-primary' /></div>}
                                     />
                                     <UserProfile user={profile}/>
                                 </div>
@@ -419,7 +420,7 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
                 hideCloseButton
                 className="bg-background"
                 size="md"
-                backdrop="opaque"
+                backdrop="blur"
             >
                 <ModalContent>
                     {(onClose) => (
