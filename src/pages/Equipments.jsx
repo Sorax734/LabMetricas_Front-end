@@ -3,7 +3,7 @@ import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, SubtractCircleFilled } from "@fluentui/react-icons"
+import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, SettingsFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, SubtractCircleFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
 import { getEquipments } from "../service/equipment"
@@ -25,7 +25,7 @@ export const Equipments = () => {
 
     const isIconOnlyMedium = useIsIconOnlyMedium()
     const [, startTransition] = useTransition()
-    const {searchValue, setSearchValue} = useOutletContext()
+    const {searchValue, setSearchValue, userName} = useOutletContext()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -227,6 +227,9 @@ export const Equipments = () => {
         const sortOptions = [
             { key: "n", label: "Número" },
             { key: "name", label: "Nombre" },
+            { key: "assignedToName", label: "Asignado a:" },
+            { key: "code", label: "Código" },
+            { key: "categoryName", label: "Categoría" },
         ]
 
         const totalFiltered = filteredItems.length
@@ -356,7 +359,7 @@ export const Equipments = () => {
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
-                        startContent={<AddCircleFilled className="size-5"/>}
+                        startContent={<SettingsFilled className="size-5"/>}
                         onPress={() => {handleCreateEquipment(); setIsDrawerOpen(true)}}
                     />
                 </div>
@@ -494,6 +497,10 @@ export const Equipments = () => {
                                         </div>
                                         
                                         <div className="w-36 flex-shrink-0">
+                                            Número de serie
+                                        </div>
+                                        
+                                        <div className="w-36 flex-shrink-0">
                                             Código
                                         </div>
                                         
@@ -538,7 +545,7 @@ export const Equipments = () => {
                                         shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
                                         dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-12 h-14 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-12 h-20 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
                                                         <div className="xs:flex xs:items-center xs:gap-2">
@@ -552,6 +559,8 @@ export const Equipments = () => {
                                                             </div>
                                                         </div>
                                                         <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">Asignado a: {item.assignedToName}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">Categoría: {item.categoryName}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">Número de serie: {item.serialNumber}</p>
                                                     </div>
                                                     <div className="flex items-center pl-2">
                                                         <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
@@ -610,6 +619,12 @@ export const Equipments = () => {
                                                     <div className="flex-1 min-w-0 max-w-[30%]">
                                                         <p className="text-sm truncate">
                                                             {item.assignedToName}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="w-36 flex-shrink-0">
+                                                        <p className="text-sm truncate">
+                                                            {item.serialNumber}
                                                         </p>
                                                     </div>
 

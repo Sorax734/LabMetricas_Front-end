@@ -17,6 +17,7 @@ import { DismissFilled } from '@fluentui/react-icons';
 import { MaintenanceCalibration } from './pages/MaintenanceCalibration.jsx';
 import { Logs } from './pages/Logs.jsx';
 import { Equipments } from './pages/Equipments.jsx';
+import { Customers } from './pages/Customers.jsx';
 
 function ProtectedRoute({ allowedRoles = [], children }) {
 	const { user } = useAuth()
@@ -109,6 +110,14 @@ createRoot(document.getElementById('root')).render(
 									element={
 										<ProtectedRoute allowedRoles={['ADMIN']}>
 											<Logs />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path='Customers'
+									element={
+										<ProtectedRoute allowedRoles={['ADMIN']}>
+											<Customers />
 										</ProtectedRoute>
 									}
 								/>

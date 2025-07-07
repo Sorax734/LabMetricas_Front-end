@@ -1,23 +1,23 @@
 import { api } from "./config/api";
 
-export const getMaintenanceProviders = async () => {
+export const getCustomers = async () => {
     try {
-        const response = await api.get('/maintenance-providers')
+        const response = await api.get('/customers')
 
-        if (response.status >= 200 && response.status < 300) {
+		if (response.status >= 200 && response.status < 300) {
             return response.data
         }
 
         throw new Error(`Código de estado inesperado: ${response.status}`)
     } catch (error) {
-        console.error("[getMaintenanceProviders] error:", error);
+        console.error("[getCustomers] error:", error);
         throw error
     }
 }
 
-export const createMaintenanceProvider = async (maintenanceProvider) => {
+export const createCustomer = async (customer) => {
 	try {
-		const response = await api.post('/maintenance-providers', maintenanceProvider)
+		const response = await api.post('/customers', customer)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -25,14 +25,14 @@ export const createMaintenanceProvider = async (maintenanceProvider) => {
 
 		throw new Error(`Código de estado inesperado: ${response.status}`)
 	} catch (error) {
-		console.error("[createMaintenanceProvider] error:", error);
+		console.error("[createCustomer] error:", error);
 		throw error
 	}
 }
 
-export const updateMaintenanceProvider = async (maintenanceProvider) => {
+export const updateCustomer = async (customer, email) => {
 	try {
-		const response = await api.put(`/maintenance-providers/${maintenanceProvider.id}`, maintenanceProvider)
+		const response = await api.put(`/customers/${email}`, customer)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -40,14 +40,14 @@ export const updateMaintenanceProvider = async (maintenanceProvider) => {
 
 		throw new Error(`Código de estado inesperado: ${response.status}`)
 	} catch (error) {
-		console.error("[updateMaintenanceProvider] error:", error);
+		console.error("[updateCustomer] error:", error);
 		throw error
 	}
 }
 
-export const changeStatus = async (maintenanceProvider) => {
+export const changeStatus = async (email) => {
 	try {
-		const response = await api.patch(`/maintenance-providers/${maintenanceProvider.id}/toggle-status`)
+		const response = await api.patch(`/customers/${email}/toggle-status`)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data

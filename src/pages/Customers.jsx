@@ -1,20 +1,20 @@
 import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react"
-import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
 import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
-import { UsersDrawer } from "../components/users/UsersDrawer"
-import { UsersChangeStatusModal } from "../components/users/UsersChangeStatusModal"
+import { getCustomers } from "../service/customer"
+import { CustomersChangeStatusModal } from "../components/customers/CustomersChangeStatusModal"
+import { CustomersDrawer } from "../components/customers/CustomersDrawer"
 
-export const Users = () => {
+export const Customers = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
 
-    const [users, setUsers] = useState([])
+    const [customers, setCustomers] = useState([])
     const [errors, setErrors] = useState([])
 
     const isIconOnlyMedium = useIsIconOnlyMedium()
@@ -23,7 +23,7 @@ export const Users = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const [selectedUser, setSelectedUser] = useState({})
+    const [selectedCustomer, setSelectedCustomer] = useState({})
     const [action, setAction] = useState("")
 
     useEffect(() => {
@@ -35,21 +35,20 @@ export const Users = () => {
             try {
                 setIsLoading(true)
 
-                const response = await getUsers()
+                const response = await getCustomers()
                 const data = response.data
 
                 if (data) {
                     const dataCount = data.map((item, index) => ({
                         ...item,
                         n: index + 1,
-                        role: item.roleId === 1 ? "ADMIN" : (item.roleId === 2 ? "SUPERVISOR" : "OPERADOR"),
                         status: item.status ? "activo" : "inactivo"
                     }))
                     
                     startTransition(() => {
-                        setUsers(dataCount)
+                        setCustomers(dataCount)
 
-                        setSelectedUser(prev => {
+                        setSelectedCustomer(prev => {
                             if (!prev) return null
                             const updated = dataCount.find(u => u.id === prev.id)
                             return updated ?? prev
@@ -108,21 +107,21 @@ export const Users = () => {
     const hasSearchFilter = Boolean(searchValue)
     
     const filteredItems = React.useMemo(() => {
-        let filteredUsers = [...users]
+        let filteredCustomers = [...customers]
     
         if (hasSearchFilter) {
-            filteredUsers = filteredUsers.filter((user) =>
-                user.name.toLowerCase().includes(searchValue.toLowerCase()),
+            filteredCustomers = filteredCustomers.filter((customer) =>
+                customer.name.toLowerCase().includes(searchValue.toLowerCase()),
             )
         }
         if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-            filteredUsers = filteredUsers.filter((user) =>
-                Array.from(statusFilter).includes(user.status),
+            filteredCustomers = filteredCustomers.filter((customer) =>
+                Array.from(statusFilter).includes(customer.status),
             )
         }
     
-        return filteredUsers
-    }, [users, searchValue, statusFilter])
+        return filteredCustomers
+    }, [customers, searchValue, statusFilter])
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage)
     
@@ -144,8 +143,8 @@ export const Users = () => {
     }, [sortDescriptor, items])
 
     const paginatedSortedItems = React.useMemo(() => {
-        return sortedItems.map((user, idx) => ({
-            ...user,
+        return sortedItems.map((customer, idx) => ({
+            ...customer,
             pageIndex: idx,    // idx va de 0 a (rowsPerPage - 1)
         }))
     }, [sortedItems])
@@ -181,23 +180,23 @@ export const Users = () => {
             : null
     }
 
-    const handleReadUser = (user) => {
+    const handleReadCustomer = (customer) => {
         setAction("")
-        setSelectedUser(user)
+        setSelectedCustomer(customer)
     }
 
-    const handleCreateUser = () => {
+    const handleCreateCustomer = () => {
         setAction("create")
-        setSelectedUser(null)
+        setSelectedCustomer(null)
     }
 
-    const handleUpdateUser = (user) => {
+    const handleUpdateCustomer = (customer) => {
         setAction("update")
-        setSelectedUser(user)
+        setSelectedCustomer(customer)
     }
 
-    const handleChangeStatusUser = (user) => {
-        setSelectedUser(user)
+    const handleChangeStatusCustomer = (customer) => {
+        setSelectedCustomer(customer)
         setIsModalOpen(true)
     }
     
@@ -206,8 +205,7 @@ export const Users = () => {
             { key: "n", label: "Número" },
             { key: "email", label: "Correo" },
             { key: "name", label: "Nombre" },
-            { key: "role", label: "Rol" },
-            { key: "position", label: "Puesto" },
+            { key: "nif", label: "NIF" },
         ]
 
         const totalFiltered = filteredItems.length
@@ -217,7 +215,7 @@ export const Users = () => {
         return (
             <div className="flex justify-between gap-4 items-center">
                 <div className="flex flex-col">
-                    <p className="text-lg font-bold">Usuarios</p>
+                    <p className="text-lg font-bold">Clientes</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
                         ? "Sin resultados"
@@ -338,7 +336,7 @@ export const Users = () => {
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<PersonAddFilled className="size-5"/>}
-                        onPress={() => {handleCreateUser(); setIsDrawerOpen(true)}}
+                        onPress={() => {handleCreateCustomer(); setIsDrawerOpen(true)}}
                     />
                 </div>
             </div>
@@ -351,7 +349,7 @@ export const Users = () => {
         rowsPerPage,
         onRowsPerPageChange,
         page,
-        users.length,
+        customers.length,
         hasSearchFilter,
         sortDescriptor
     ])
@@ -405,7 +403,7 @@ export const Users = () => {
         <>
             {isLoading ? (
                 <div className="w-full h-full">
-                    <p className="text-lg font-bold">Usuarios</p>
+                    <p className="text-lg font-bold">Clientes</p>
                     
                     <div className="w-full pt-[62px] flex justify-center">
                         <SpinnerH
@@ -418,7 +416,7 @@ export const Users = () => {
                 </div>
             ) : ( errors.length > 0 ? (
                 <div className="w-full h-full">
-                    <p className="text-lg font-bold">Usuarios</p>
+                    <p className="text-lg font-bold">Clientes</p>
 
                     <div className="space-y-4 pt-4">
                         {errors.map((msg, i) => (
@@ -440,12 +438,12 @@ export const Users = () => {
                         ))}
                     </div>
                 </div>
-            ) : ( users.length > 0 && (
+            ) : ( customers.length > 0 && (
                 <Table
                     isHeaderSticky
                     radius="none"
                     shadow="none"
-                    aria-label="Tabla de usuarios"
+                    aria-label="Tabla de clientes"
                     topContentPlacement="outside"
                     bottomContentPlacement="inside"
                     hideHeader={isIconOnlyMedium}
@@ -474,12 +472,8 @@ export const Users = () => {
                                             Correo electrónico
                                         </div>
                                         
-                                        <div className="w-20 flex-shrink-0">
-                                            Rol
-                                        </div>
-                                        
-                                        <div className="w-36 flex-shrink-0">
-                                            Puesto
+                                        <div className="w-48 flex-shrink-0">
+                                            NIF
                                         </div>
                                         
                                         <div className="w-[68px] flex-shrink-0 mr-4">
@@ -515,7 +509,7 @@ export const Users = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
-                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
                                         shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
                                         dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
@@ -527,7 +521,7 @@ export const Users = () => {
                                                                 <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
                                                             </div>
                                                             <div className={`flex gap-1 text-xs items-start ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
-                                                                <p className="text-background-950">{capitalize(item.role)}</p>
+                                                                <p className="text-background-950">{item.nif}</p>
                                                                 <p>{item.status}</p>
                                                                 <p className="text-xs text-background-500 pb-[2px]">#{item.n}</p>
                                                             </div>
@@ -545,27 +539,27 @@ export const Users = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                        key="handleUpdateUser"
+                                                                        key="handleUpdateCustomer"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
+                                                                        onPress={() => {handleUpdateCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar usuario
+                                                                        Actualizar cliente
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                        key="handleReadUser"
+                                                                        key="handleReadCustomer"
                                                                         startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
+                                                                        onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                        key="handleChangeStatusUser"
+                                                                        key="handleChangeStatusCustomer"
                                                                         startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
-                                                                        onPress={() => handleChangeStatusUser(item)}
+                                                                        onPress={() => handleChangeStatusCustomer(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
                                                                     </DropdownItem>
@@ -594,15 +588,9 @@ export const Users = () => {
                                                         </p>
                                                     </div>
 
-                                                    <div className="w-20 flex-shrink-0">
+                                                    <div className="w-48 flex-shrink-0">
                                                         <p className="text-sm truncate">
-                                                            {capitalize(item.role)}
-                                                        </p>
-                                                    </div>
-                                                    
-                                                    <div className="w-36 flex-shrink-0">
-                                                        <p className="text-sm truncate">
-                                                            {item.position}
+                                                            {item.nif}
                                                         </p>
                                                     </div>
 
@@ -622,27 +610,27 @@ export const Users = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                        key="handleUpdateUser"
+                                                                        key="handleUpdateCustomer"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
+                                                                        onPress={() => {handleUpdateCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar usuario
+                                                                        Actualizar cliente
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                        key="handleReadUser"
+                                                                        key="handleReadCustomer"
                                                                         startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
+                                                                        onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                        key="handleChangeStatusUser"
+                                                                        key="handleChangeStatusCustomer"
                                                                         startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
-                                                                        onPress={() => handleChangeStatusUser(item)}
+                                                                        onPress={() => handleChangeStatusCustomer(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
                                                                     </DropdownItem>
@@ -661,8 +649,8 @@ export const Users = () => {
                 </Table>)
             ))}
             
-            <UsersChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedUser} onRefresh={triggerRefresh}/>
-            <UsersDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} data={selectedUser} action={action} onRefresh={triggerRefresh}/>
+            <CustomersChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedCustomer} onRefresh={triggerRefresh}/>
+            <CustomersDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} data={selectedCustomer} action={action} onRefresh={triggerRefresh}/>
         </>
     )
 }

@@ -1,8 +1,8 @@
 import { api } from "./config/api";
 
-export const getMaintenances = async () => {
+export const getMaintenanceTypes = async () => {
 	try {
-		const response = await api.get('/maintenance/list')
+		const response = await api.get('/maintenance/types')
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -10,14 +10,29 @@ export const getMaintenances = async () => {
 
 		throw new Error(`Código de estado inesperado: ${response.status}`)
 	} catch (error) {
-		console.error("[getMaintenances] error:", error);
+		console.error("[getMaintenanceTypes] error:", error);
+		throw error
+	}
+}
+/*
+export const createMaintenanceType = async (maintenanceType) => {
+	try {
+		const response = await api.post('/maintenance-Types', maintenanceType)
+
+		if (response.status >= 200 && response.status < 300) {
+			return response.data
+		}
+
+		throw new Error(`Código de estado inesperado: ${response.status}`)
+	} catch (error) {
+		console.error("[createMaintenanceType] error:", error);
 		throw error
 	}
 }
 
-export const createMaintenance = async (maintenance) => {
+export const updateMaintenanceType = async (maintenanceType) => {
 	try {
-		const response = await api.post('/maintenance/create', maintenance)
+		const response = await api.put(`/maintenance-Types/${maintenanceType.id}`, maintenanceType)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -25,29 +40,14 @@ export const createMaintenance = async (maintenance) => {
 
 		throw new Error(`Código de estado inesperado: ${response.status}`)
 	} catch (error) {
-		console.error("[createMaintenance] error:", error);
-		throw error
-	}
-}
-
-export const updateMaintenance = async (maintenance) => {
-	try {
-		const response = await api.put(`/maintenancesdfsfsf/${maintenance.id}`, maintenance)
-
-		if (response.status >= 200 && response.status < 300) {
-			return response.data
-		}
-
-		throw new Error(`Código de estado inesperado: ${response.status}`)
-	} catch (error) {
-		console.error("[updateMaintenance] error:", error);
+		console.error("[updateMaintenanceType] error:", error);
 		throw error
 	}
 }
 
 export const changeStatus = async (id) => {
 	try {
-		const response = await api.put(`/maintenance/update-status/${id}`)
+		const response = await api.patch(`/maintenance-Types/${id}/toggle-status`)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -59,3 +59,4 @@ export const changeStatus = async (id) => {
 		throw error
 	}
 }
+*/

@@ -4,6 +4,12 @@ export function required(value) {
     }
 }
 
+export function noSpaces(value) {
+    if (/\s/.test(value)) {
+        return "El campo no puede contener espacios.";
+    }
+}
+
 export function onlyLetters(value) {
     if (value !== null && !value.match(/^\p{L}+(?:\s\p{L}+)*$/u)){
         return "No se permiten números, símbolos, ni espacios al inicio o final."

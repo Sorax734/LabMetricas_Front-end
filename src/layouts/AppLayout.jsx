@@ -1,4 +1,4 @@
-import { AlertFilled, BuildingPeopleFilled, ClockBillFilled, DatabaseSearchFilled, DataLineFilled, Dismiss12Filled, DismissCircleFilled, DismissFilled, DockFilled, DocumentBulletListClockFilled, DocumentMultipleFilled, DocumentTextClockFilled, DoorArrowLeftFilled, EmojiHandFilled, InfoFilled, InfoSparkleFilled, KeyMultipleFilled, KeyResetFilled, PeopleFilled, PeopleListFilled, PeopleSettingsFilled, PeopleStarFilled, PersonArrowLeftFilled, PersonBriefcaseFilled, PersonFilled, PersonHeartFilled, PersonSearchFilled, PersonSettingsFilled, PersonSquareFilled, PersonWrenchFilled, ScriptFilled, SearchFilled, SearchSparkleFilled, SettingsCogMultipleFilled, SettingsFilled, WeatherMoonFilled, WeatherSunnyFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
+import { AlertFilled, BuildingPeopleFilled, ClockBillFilled, DatabaseSearchFilled, DataLineFilled, Dismiss12Filled, DismissCircleFilled, DismissFilled, DockFilled, DocumentBulletListClockFilled, DocumentMultipleFilled, DocumentTextClockFilled, DoorArrowLeftFilled, EmojiHandFilled, InfoFilled, InfoSparkleFilled, KeyMultipleFilled, KeyResetFilled, PeopleFilled, PeopleListFilled, PeopleSettingsFilled, PeopleStarFilled, PeopleToolboxFilled, PersonArrowLeftFilled, PersonBriefcaseFilled, PersonFilled, PersonHeartFilled, PersonSearchFilled, PersonSettingsFilled, PersonSquareFilled, PersonWrenchFilled, ScriptFilled, SearchFilled, SearchSparkleFilled, SettingsCogMultipleFilled, SettingsFilled, WeatherMoonFilled, WeatherSunnyFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
 import { ClockIcon, HomeIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid"
 import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useIsIconOnly } from "../hooks/useIsIconOnly"
@@ -25,6 +25,11 @@ const adminNavigation = [
         label: "Usuarios",
         icon: <PeopleFilled className='sm:size-5 size-6' />,
         path: "/App/Users"
+    },
+    {
+        label: "Clientes",
+        icon: <PeopleToolboxFilled className='sm:size-5 size-6' />,
+        path: "/App/Customers"
     },
     {
         label: "Equipos",
@@ -356,7 +361,7 @@ export const AppLayout = () => {
                                         [&::-webkit-scrollbar-thumb]:rounded-full
                                         [&::-webkit-scrollbar-thumb]:bg-primary">
                                             <div className="w-full h-full flex flex-col pr-4 xs:pr-6">
-                                                <Outlet context={{ searchValue, setSearchValue }} />
+                                                <Outlet context={{ searchValue, setSearchValue, userName: profile.name }} />
                                             </div>
                                         </ScrollShadow>
                                     </div>
