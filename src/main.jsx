@@ -122,7 +122,7 @@ createRoot(document.getElementById('root')).render(
 									}
 								/>
 								<Route
-									path='Maintenance-Calibration'
+									path='Services'
 									element={
 										<ProtectedRoute allowedRoles={[]}>
 											<MaintenanceCalibration />

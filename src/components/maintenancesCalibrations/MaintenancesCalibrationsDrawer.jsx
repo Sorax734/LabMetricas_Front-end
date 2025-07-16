@@ -77,7 +77,7 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
             monthlyFrequency: [],
             nextMaintenance: [],
         })
-    }, [data]);
+    }, [data, action]);
 
     const resetForm = () => {
         setMaintenance({ id:"", equipmentId:"", maintenanceTypeId:"", responsibleUserId:"", description:"", priority:"" })
@@ -116,16 +116,16 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
 
     switch (action) {
         case "create":
-            title = isScheduled ? "Registrar mantenimiento / calibración programado" : "Solicitar mantenimiento / calibración"
-            description = "Ingrese la información solicitada para poder registrar el mantenimiento / calibración."
+            title = isScheduled ? "Registrar servicio programado" : "Solicitar servicio"
+            description = "Ingrese la información solicitada para poder registrar el servicio."
             break
         case "update":
-            title = isScheduled ? "Actualizar mantenimiento / calibración programado" : "Actualizar solicitud de mantenimiento / calibración"
+            title = isScheduled ? "Actualizar servicio programado" : "Actualizar solicitud de servicio"
             description = "Edite la información necesaria y guarde los cambios para actualizar el registro."
             break
         default:
-            title = "Detalles del mantenimiento / calibración"
-            description = "Revise la información completa del mantenimiento / calibración. Esta vista es solo de lectura."
+            title = "Detalles del servicio"
+            description = "Revise la información completa del servicio. Esta vista es solo de lectura."
             break
     }
 
@@ -243,12 +243,12 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
 
                                 <div className="w-full flex justify-between">
                                     <div className="flex items-center gap-1">
-                                        <p className="font-medium text-sm pl-0.5">Tipo de mantenimiento</p>
+                                        <p className="font-medium text-sm pl-0.5">Tipo de servicio</p>
                                         <TextAsteriskFilled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                     </div>
                                 </div>
                                 <Select
-                                    aria-label="Tipo de mantenimiento"
+                                    aria-label="Tipo de servicio"
                                     className="w-full -mt-4"
                                     name="maintenanceTypeId"
                                     classNames={{value: "text-background-500 !font-normal", trigger: "bg-background-100 data-[hover=true]:!bg-background-100 border-transparent", popoverContent: "bg-background-100 rounded-lg", selectorIcon: "!text-background-500"}}
@@ -261,7 +261,7 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
                                     disallowEmptySelection
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     labelPlacement="outside"
-                                    placeholder="Selecciona un tipo de mantenimiento"
+                                    placeholder="Selecciona un tipo de servicio"
                                     radius="sm"
                                     selectedKeys={new Set([`${maintenance.maintenanceTypeId}`])}
                                     onSelectionChange={(keys) => {
@@ -285,12 +285,12 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
 
                                 <div className="w-full flex justify-between">
                                     <div className="flex items-center gap-1">
-                                        <p className="font-medium text-sm pl-0.5">Responsable de mantenimiento</p>
+                                        <p className="font-medium text-sm pl-0.5">Responsable del servicio</p>
                                         <TextAsteriskFilled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                     </div>
                                 </div>
                                 <Select
-                                    aria-label="Responsable de mantenimiento"
+                                    aria-label="Responsable de servicio"
                                     className="w-full -mt-4"
                                     name="responsibleUserId"
                                     classNames={{value: "text-background-500 !font-normal", trigger: "bg-background-100 data-[hover=true]:!bg-background-100 border-transparent", popoverContent: "bg-background-100 rounded-lg", selectorIcon: "!text-background-500"}}
@@ -303,7 +303,7 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
                                     disallowEmptySelection
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     labelPlacement="outside"
-                                    placeholder="Selecciona un responsable de mantenimiento"
+                                    placeholder="Selecciona un responsable de servicio"
                                     radius="sm"
                                     selectedKeys={new Set([`${maintenance.responsibleUserId}`])}
                                     onSelectionChange={(keys) => {

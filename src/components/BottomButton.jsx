@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 
 export const BottomButton = ({
     isActive = false,   // (Usar solamente en bottom) ¿El botón está activo? Si sí, será color azul, sino será foreground (blanco / negro)
+    label = "null",     // Texto del botón y del tooltip
     centerContent,      // Ícono
     onPress             // Función a ejecutar cuando se presione el botón
 }) => {
@@ -30,6 +31,7 @@ export const BottomButton = ({
                         `}
                     >
                         {centerContent}
+                        <p className='text-xs font-medium'>{label}</p>
                     </div>
                 </button>
             </div>

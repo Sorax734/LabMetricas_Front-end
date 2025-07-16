@@ -40,7 +40,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
             email: [],
             nif: [],
         })
-    }, [data]);
+    }, [data, action]);
 
     const resetForm = () => {
         setCustomer({ id:"", name:"", email:"", nif:"" })

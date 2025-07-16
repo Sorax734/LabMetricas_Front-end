@@ -48,7 +48,7 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => 
             phone: [],
             roleId: [],
         })
-    }, [data]);
+    }, [data, action]);
 
     const resetForm = () => {
         setUser({ id:"", name:"", email:"", position:"", phone:"", roleId:"" })

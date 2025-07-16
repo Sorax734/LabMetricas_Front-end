@@ -2,7 +2,7 @@ import { api } from "./config/api";
 
 export const getMaintenanceTypes = async () => {
 	try {
-		const response = await api.get('/maintenance/types')
+		const response = await api.get('/maintenance-types')
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -14,10 +14,10 @@ export const getMaintenanceTypes = async () => {
 		throw error
 	}
 }
-/*
+
 export const createMaintenanceType = async (maintenanceType) => {
 	try {
-		const response = await api.post('/maintenance-Types', maintenanceType)
+		const response = await api.post('/maintenance-types', maintenanceType)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -32,7 +32,7 @@ export const createMaintenanceType = async (maintenanceType) => {
 
 export const updateMaintenanceType = async (maintenanceType) => {
 	try {
-		const response = await api.put(`/maintenance-Types/${maintenanceType.id}`, maintenanceType)
+		const response = await api.put("/maintenance-types", maintenanceType)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -45,9 +45,9 @@ export const updateMaintenanceType = async (maintenanceType) => {
 	}
 }
 
-export const changeStatus = async (id) => {
+export const changeStatus = async (maintenanceType) => {
 	try {
-		const response = await api.patch(`/maintenance-Types/${id}/toggle-status`)
+		const response = await api.delete(`/maintenance-types/${maintenanceType.id}`)
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data
@@ -59,4 +59,3 @@ export const changeStatus = async (id) => {
 		throw error
 	}
 }
-*/

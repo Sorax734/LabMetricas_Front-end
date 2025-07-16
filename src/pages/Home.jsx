@@ -3,12 +3,12 @@ import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useRef, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, CheckmarkFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, DismissFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PeopleFilled, PeopleToolboxFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled, PersonWrenchFilled, SettingsCogMultipleFilled, SettingsFilled, SubtractCircleFilled, TagAddFilled, TagEditFilled, TagFilled, TextAsteriskFilled, WrenchFilled, WrenchScrewdriverFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
-import { motion } from "framer-motion"
+import { AddCircleFilled, AlertFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, CheckmarkFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, DismissFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PeopleFilled, PeopleToolboxFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled, PersonWrenchFilled, SettingsCogMultipleFilled, SettingsFilled, SubtractCircleFilled, TagAddFilled, TagEditFilled, TagFilled, TextAsteriskFilled, WrenchFilled, WrenchScrewdriverFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
+import { delay, motion } from "framer-motion"
 import { useNavigate, useOutletContext } from "react-router-dom"
 import { UsersDrawer } from "../components/users/UsersDrawer"
 import { createCategory, getCategories, updateCategory, changeStatus as changeStatusCategory } from "../service/category"
-import { getMaintenanceTypes } from "../service/maintenanceType"
+import { createMaintenanceType, getMaintenanceTypes, updateMaintenanceType, changeStatus as changeStatusMaintenanceType } from "../service/maintenanceType"
 import { createMaintenanceProvider, getMaintenanceProviders, updateMaintenanceProvider, changeStatus as changeStatusMaintenanceProvider } from "../service/maintenanceProvider"
 import { getEquipments } from "../service/equipment"
 import { getMaintenances } from "../service/maintenanceCalibration"
@@ -215,6 +215,21 @@ export const Home = () => {
         fetchData()
     }, [refreshTrigger])
 
+    const notis = [
+        {
+            title: "Tiene pendiente el servicio con código: 11072025-CALI-001-P por realizar para el día 12 de julio de 2025 al equipo: Thermal Imaging Camera.",
+            description: "María Rodríguez le ha asignado a usted como responsable de este servicio."
+        },
+        {
+            title: "Carlos López le ha asignado a usted como responsable de un nuevo servicio.",
+            description: "Código del nuevo servicio: 12062025-CALI-002-P para el día 18 de julio de 2025 al equipo: Safety Shower Station."
+        },
+        {
+            title: "Tiene pendiente el servicio con código: 19082025-CALI-001-NP por realizar para el día 26 de agosto de 2025 al equipo: CNC Milling Machine.",
+            description: "Roberto Díaz le ha asignado a usted como responsable de este servicio."
+        },
+    ]
+
     const handleRead = (item, entity) => {
         setAction("read")
         setModalEntity(entity)
@@ -243,9 +258,7 @@ export const Home = () => {
     
     const lengthCard = (onPress, onButtonPress, title, itemsLength, icon, startContent, buttonLabel) => {
         return (
-            <Card shadow="none" radius="sm" isPressable onPress={onPress} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-            shadow-[0px_0px_10px_0px_rgba(0,0,0,0.1)]
-            dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.1)]">
+            <Card shadow="none" radius="sm" isPressable onPress={onPress} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
                 <CardBody className="px-4 py-2">
                     <div className="p-2">
                         <div className="flex flex-col items-center">
@@ -267,14 +280,12 @@ export const Home = () => {
 
     const miniCard = (title, itemsLength, icon) => {
         return (
-            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-            shadow-[0px_0px_10px_0px_rgba(0,0,0,0.1)]
-            dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.1)]">
+            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
                 <CardBody className="px-4 py-2">
                     <div className="p-2">
                         <div className="flex justify-between">
                             <div className="flex flex-col justify-center">
-                                <p className="text-base font-bold">{title}</p>
+                                <p className="text-sm">{title}</p>
                             </div>
                             <div className="flex flex-col items-end justify-center">
                                 <div className="flex items-center gap-2">
@@ -292,10 +303,10 @@ export const Home = () => {
     return (
         <>
             {isLoading ? (
-                <div className="w-full h-full">
-                    <p className="text-lg font-bold">Inicio</p>
-                    
-                    <div className="w-full pt-[62px] flex justify-center">
+                <div className="relative w-full h-full">
+                    <p className="text-lg font-bold hidden sm:block">Inicio</p>
+
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
                             classNames={{ label: "pt-2 text-sm font-medium" }}
                             color="current"
@@ -304,9 +315,10 @@ export const Home = () => {
                         />
                     </div>
                 </div>
+
             ) : ( errors.length > 0 ? (
                 <div className="w-full h-full">
-                    <p className="text-lg font-bold">Inicio</p>
+                    <p className="text-lg font-bold hidden sm:flex">Inicio</p>
 
                     <div className="space-y-4 pt-4">
                         {errors.map((msg, i) => (
@@ -330,59 +342,65 @@ export const Home = () => {
                 </div>
             ) : ( categories.length > 0 && maintenanceTypes.length > 0 && maintenanceProviders.length > 0 && (
                 <div className="w-full h-full flex flex-col">
-                    <div className="flex justify-between gap-4 pb-4 sm:pb-4">
-                        <div className="flex flex-col">
-                            <p className="text-lg font-bold">Inicio</p>
-                            <span className="text-background-500 text-xs line-clamp-2">Mostrando categorías, tipos y proveedores</span>
-                        </div>
-                        <ButtonGroup variant="flat">
-                            <Button startContent={iconsMap[selectedOptionValue]} onPress={handleCreate} color="primary" variant="shadow" className="font-medium tracking-wide" size="md" radius="sm">
-                                {labelsMap[selectedOptionValue]}
-                            </Button>
-                            <Dropdown placement="bottom-end" className="bg-background-100 w-52 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" >
-                                <DropdownTrigger>
-                                    <Button isIconOnly color="primary" variant="shadow" size="md" radius="sm">
-                                        <ChevronDownFilled className="text-background"/>
-                                    </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu
-                                    disallowEmptySelection
-                                    variant="light"
-                                    aria-label="Registrar"
-                                    selectedKeys={selectedOption}
-                                    selectionMode="single"
-                                    onSelectionChange={setSelectedOption}
-                                    itemClasses={{base:"mb-1"}}
-                                >
-                                    <DropdownItem 
-                                        key="category" 
-                                        className="rounded-md transition-all !duration-1000 ease-in-out"
-                                        startContent={iconsMap["category"]}
-                                    >
-                                        {labelsMap["category"]}
-                                    </DropdownItem>
-                                    <DropdownItem 
-                                        key="type" 
-                                        className="rounded-md transition-all !duration-1000 ease-in-out"
-                                        startContent={iconsMap["type"]}
-                                    >
-                                        {labelsMap["type"]}
-                                    </DropdownItem>
-                                    <DropdownItem 
-                                        key="provider" 
-                                        className="rounded-md transition-all !duration-1000 ease-in-out"
-                                        startContent={iconsMap["provider"]}
-                                    >
-                                        {labelsMap["provider"]}
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                        </ButtonGroup>
-                    </div>
                     
-                    <p className="font-bold text-2xl pb-8">¡Hola, {userName}!</p>
-                        
-                    <div className="grid grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4 gap-4 pb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-7 pb-4 sm:py-0">
+                        <div className="w-full">
+                            <div className="flex flex-col">
+                                <p className="text-lg font-bold hidden sm:flex">Inicio</p>
+                                <span className="text-background-500 text-sm line-clamp-2 hidden sm:flex">Mostrando categorías, tipos y proveedores</span>
+                            </div>
+                        </div>
+                        <div className="w-full row-start-2 sm:row-start-2 sm:col-span-2 -mt-4 sm:-mt-0">
+                            <p className="font-bold text-2xl pb-0 sm:pb-6 text-center sm:text-start">¡Hola, {userName}!</p>
+                        </div>
+                        <div className="w-full flex row-start-3 sm:row-start-1 sm:col-start-2 sm:justify-end justify-center pb-10 sm:pb-0">
+                            <ButtonGroup variant="flat">
+                                <Button startContent={iconsMap[selectedOptionValue]} onPress={handleCreate} color="primary" variant="shadow" className="font-medium tracking-wide" size="md" radius="sm">
+                                    {labelsMap[selectedOptionValue]}
+                                </Button>
+                                <Dropdown placement="bottom-end" className="bg-background-100 w-52 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" >
+                                    <DropdownTrigger>
+                                        <Button isIconOnly color="primary" variant="shadow" size="md" radius="sm">
+                                            <ChevronDownFilled className="text-background"/>
+                                        </Button>
+                                    </DropdownTrigger>
+                                    <DropdownMenu
+                                        disallowEmptySelection
+                                        variant="light"
+                                        aria-label="Registrar"
+                                        selectedKeys={selectedOption}
+                                        selectionMode="single"
+                                        onSelectionChange={setSelectedOption}
+                                        itemClasses={{base:"mb-1"}}
+                                    >
+                                        <DropdownItem 
+                                            key="category" 
+                                            className="rounded-md transition-all !duration-1000 ease-in-out"
+                                            startContent={iconsMap["category"]}
+                                        >
+                                            {labelsMap["category"]}
+                                        </DropdownItem>
+                                        <DropdownItem 
+                                            key="type" 
+                                            className="rounded-md transition-all !duration-1000 ease-in-out"
+                                            startContent={iconsMap["type"]}
+                                        >
+                                            {labelsMap["type"]}
+                                        </DropdownItem>
+                                        <DropdownItem 
+                                            key="provider" 
+                                            className="rounded-md transition-all !duration-1000 ease-in-out"
+                                            startContent={iconsMap["provider"]}
+                                        >
+                                            {labelsMap["provider"]}
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </ButtonGroup>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4 gap-4 pb-8 sm:-m-2">
                         {cards.map((c, i) => (
                             <motion.div
                                 key={c.title}
@@ -402,262 +420,324 @@ export const Home = () => {
                             </motion.div>
                         ))}
                     </div>
-                    
-                    <div className="w-full lg:min-h-0 grid lg:grid-cols-3 grid-cols-1 grid-rows-3 lg:grid-rows-1 gap-4">
-                        <ScrollShadow className="h-full bg-transparent flex flex-col gap-2 p-2
-                        [&::-webkit-scrollbar]:h-1
-                        [&::-webkit-scrollbar]:w-1
-                        [&::-webkit-scrollbar-track]:rounded-full
-                        [&::-webkit-scrollbar-track]:bg-transparent
-                        [&::-webkit-scrollbar-thumb]:rounded-full
-                        [&::-webkit-scrollbar-thumb]:bg-transparent">
-                            <div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: 1 * 0.1 }}
-                                >
-                                    {miniCard("Categorías de equipos", categories.length, <TagFilled className="size-5"/>)}
-                                </motion.div>
+
+                    <div className="grid grid-cols-12 sm:-m-4 -m-2 xl:gap-0 gap-4">
+                        <div className="xl:col-span-4 col-span-12">
+                            <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2
+                            [&::-webkit-scrollbar]:h-1
+                            [&::-webkit-scrollbar]:w-1
+                            [&::-webkit-scrollbar-track]:rounded-full
+                            [&::-webkit-scrollbar-track]:bg-transparent
+                            [&::-webkit-scrollbar-thumb]:rounded-full
+                            [&::-webkit-scrollbar-thumb]:bg-transparent">
+                                <div>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3, delay: 0.4 }}
+                                    >
+                                        {miniCard("Notificaciones", notis.length, <AlertFilled className="size-5"/>)}
+                                    </motion.div>
+                                </div>
+
+                                {notis.map((item, n) => (
+                                    <motion.div
+                                        key={item.title}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3, delay: n * 0.1 + 0.4 }}
+                                    >
+                                        <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
+                                            <CardBody className="px-4 py-2">
+                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 xl:h-14 h-12 sm:14 md:h-12 lg:10 bg-primary rounded-full`}></div>
+                                                <div className="w-full h-full flex justify-between">
+                                                    <div>
+                                                        <div className="flex gap-1 pb-1 items-end">
+                                                            <p className="text-sm font-medium break-words">{item.title}</p>
+                                                        </div>
+                                                        <div className={`flex gap-1 text-xs items-start`}>
+                                                            <p className="text-xs text-background-500 pb-[2px]">{item.description}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center pl-2">
+                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                            <DropdownTrigger>
+                                                                <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
+                                                                    <MoreVerticalFilled className="size-5"/>
+                                                                </Button>
+                                                            </DropdownTrigger>
+                                                            <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
+                                                                <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                        key="handleRead"
+                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                    >
+                                                                        Ver más detalles
+                                                                    </DropdownItem>
+                                                                </DropdownSection>
+                                                            </DropdownMenu>
+                                                        </Dropdown>
+                                                    </div>
+                                                </div>
+                                            </CardBody>
+                                        </Card>
+                                    </motion.div>
+                                ))}
+                            </ScrollShadow>
+                        </div>
+                        <div className="xl:col-span-8 col-span-12">
+                            <div className="w-full grid md:grid-cols-6 grid-cols-1 md:gap-0 gap-4">
+                                <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2 md:col-span-3 xl:col-span-2
+                                [&::-webkit-scrollbar]:h-1
+                                [&::-webkit-scrollbar]:w-1
+                                [&::-webkit-scrollbar-track]:rounded-full
+                                [&::-webkit-scrollbar-track]:bg-transparent
+                                [&::-webkit-scrollbar-thumb]:rounded-full
+                                [&::-webkit-scrollbar-thumb]:bg-transparent">
+                                    <div>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: 1 * 0.1 }}
+                                        >
+                                            {miniCard("Categorías de equipos", categories.length, <TagFilled className="size-5"/>)}
+                                        </motion.div>
+                                    </div>
+                                        
+                                    {filteredCategories.map((item) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: item.n * 0.1 }}
+                                        >
+                                            <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "category"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
+                                                <CardBody className="px-4 py-2">
+                                                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                    <div className="w-full h-full flex justify-between">
+                                                        <div>
+                                                            <div className="flex gap-1 pb-1 items-end">
+                                                                <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
+                                                            </div>
+                                                            <div className={`flex gap-1 text-xs items-start ${item.status ? "text-primary" : "text-background-500"}`}>
+                                                                <p className="text-xs text-background-950 pb-[2px]">#{item.n}</p>
+                                                                <p>{item.status ? "Activo" : "Inactivo"}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center pl-2">
+                                                            <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                                <DropdownTrigger>
+                                                                    <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
+                                                                        <MoreVerticalFilled className="size-5"/>
+                                                                    </Button>
+                                                                </DropdownTrigger>
+                                                                <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
+                                                                    <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                            key="handleUpdate"
+                                                                            startContent={<EditFilled className="size-5"/>}
+                                                                            onPress={() => {handleUpdate(item, "category"); onModalOpen()}}
+                                                                        >
+                                                                            Actualizar
+                                                                        </DropdownItem>
+
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            key="handleRead"
+                                                                            startContent={<InfoFilled className="size-5"/>}
+                                                                            onPress={() => {handleRead(item, "category"); onModalOpen()}}
+                                                                        >
+                                                                            Ver más detalles
+                                                                        </DropdownItem>
+
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                            key="handleChangeStatus"
+                                                                            startContent={item.status ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
+                                                                            onPress={() => handleChangeStatus(item, "category")}
+                                                                        >
+                                                                            {item.status ? "Inhabilitar" : "Habilitar"}
+                                                                        </DropdownItem>
+                                                                    </DropdownSection>
+                                                                </DropdownMenu>
+                                                            </Dropdown>
+                                                        </div>
+                                                    </div>
+                                                </CardBody>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </ScrollShadow>
+
+                                <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2 md:col-span-3 xl:col-span-2
+                                [&::-webkit-scrollbar]:h-1
+                                [&::-webkit-scrollbar]:w-1
+                                [&::-webkit-scrollbar-track]:rounded-full
+                                [&::-webkit-scrollbar-track]:bg-transparent
+                                [&::-webkit-scrollbar-thumb]:rounded-full
+                                [&::-webkit-scrollbar-thumb]:bg-transparent">
+                                    <div>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: 2 * 0.1 }}
+                                        >
+                                            {miniCard("Tipos de mantenimiento", maintenanceTypes.length, <WrenchFilled className="size-5"/>)}
+                                        </motion.div>
+                                    </div>
+
+                                    {filteredMaintenanceTypes.map((item) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: item.n * 0.1 }}
+                                        >
+                                            <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "type"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
+                                                <CardBody className="px-4 py-2">
+                                                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                    <div className="w-full h-full flex justify-between">
+                                                        <div>
+                                                            <div className="flex gap-1 pb-1 items-end">
+                                                                <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
+                                                            </div>
+                                                            <div className={`flex gap-1 text-xs items-start ${item.status ? "text-primary" : "text-background-500"}`}>
+                                                                <p className="text-xs text-background-950 pb-[2px]">#{item.n}</p>
+                                                                <p>{item.status ? "Activo" : "Inactivo"}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center pl-2">
+                                                            <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                                <DropdownTrigger>
+                                                                    <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
+                                                                        <MoreVerticalFilled className="size-5"/>
+                                                                    </Button>
+                                                                </DropdownTrigger>
+                                                                <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
+                                                                    <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                            key="handleUpdate"
+                                                                            startContent={<EditFilled className="size-5"/>}
+                                                                            onPress={() => {handleUpdate(item, "type"); onModalOpen()}}
+                                                                        >
+                                                                            Actualizar
+                                                                        </DropdownItem>
+
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            key="handleRead"
+                                                                            startContent={<InfoFilled className="size-5"/>}
+                                                                            onPress={() => {handleRead(item, "type"); onModalOpen()}}
+                                                                        >
+                                                                            Ver más detalles
+                                                                        </DropdownItem>
+
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                            key="handleChangeStatus"
+                                                                            startContent={item.status ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
+                                                                            onPress={() => handleChangeStatus(item, "type")}
+                                                                        >
+                                                                            {item.status ? "Inhabilitar" : "Habilitar"}
+                                                                        </DropdownItem>
+                                                                    </DropdownSection>
+                                                                </DropdownMenu>
+                                                            </Dropdown>
+                                                        </div>
+                                                    </div>
+                                                </CardBody>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </ScrollShadow>
+
+                                <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2 md:col-span-6 xl:col-span-2 md:pt-6 xl:pt-2
+                                [&::-webkit-scrollbar]:h-1
+                                [&::-webkit-scrollbar]:w-1
+                                [&::-webkit-scrollbar-track]:rounded-full
+                                [&::-webkit-scrollbar-track]:bg-transparent
+                                [&::-webkit-scrollbar-thumb]:rounded-full
+                                [&::-webkit-scrollbar-thumb]:bg-transparent">
+                                    <div>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: 3 * 0.1 }}
+                                        >
+                                            {miniCard("Proveedores de mantenimiento", maintenanceProviders.length, <PersonWrenchFilled className="size-5"/>)}
+                                        </motion.div>
+                                    </div>
+
+                                    {filteredMaintenanceProviders.map((item) => (
+                                        <motion.div
+                                            key={item.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: item.n * 0.1 }}
+                                        >
+                                            <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "provider"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
+                                                <CardBody className="px-4 py-2">
+                                                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                    <div className="w-full h-full flex justify-between">
+                                                        <div>
+                                                            <div className="flex gap-1 pb-1 items-end">
+                                                                <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
+                                                            </div>
+                                                            <div className={`flex gap-1 text-xs items-start ${item.status ? "text-primary" : "text-background-500"}`}>
+                                                                <p className="text-xs text-background-950 pb-[2px]">#{item.n}</p>
+                                                                <p>{item.status ? "Activo" : "Inactivo"}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center pl-2">
+                                                            <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                                <DropdownTrigger>
+                                                                    <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
+                                                                        <MoreVerticalFilled className="size-5"/>
+                                                                    </Button>
+                                                                </DropdownTrigger>
+                                                                <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
+                                                                    <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                            key="handleUpdate"
+                                                                            startContent={<EditFilled className="size-5"/>}
+                                                                            onPress={() => {handleUpdate(item, "provider"); onModalOpen()}}
+                                                                        >
+                                                                            Actualizar
+                                                                        </DropdownItem>
+
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            key="handleRead"
+                                                                            startContent={<InfoFilled className="size-5"/>}
+                                                                            onPress={() => {handleRead(item, "provider"); onModalOpen()}}
+                                                                        >
+                                                                            Ver más detalles
+                                                                        </DropdownItem>
+
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                            key="handleChangeStatus"
+                                                                            startContent={item.status ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
+                                                                            onPress={() => handleChangeStatus(item, "provider")}
+                                                                        >
+                                                                            {item.status ? "Inhabilitar" : "Habilitar"}
+                                                                        </DropdownItem>
+                                                                    </DropdownSection>
+                                                                </DropdownMenu>
+                                                            </Dropdown>
+                                                        </div>
+                                                    </div>
+                                                </CardBody>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </ScrollShadow>
                             </div>
-                                
-                            {filteredCategories.map((item) => (
-                                <motion.div
-                                    key={item.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: item.n * 0.1 }}
-                                >
-                                    <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "category"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-                                    shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-                                    dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
-                                        <CardBody className="px-4 py-2">
-                                            <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
-                                            <div className="w-full h-full flex justify-between">
-                                                <div>
-                                                    <div className="flex gap-1 pb-1 items-end">
-                                                        <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
-                                                    </div>
-                                                    <div className={`flex gap-1 text-xs items-start ${item.status ? "text-primary" : "text-background-500"}`}>
-                                                        <p className="text-xs text-background-950 pb-[2px]">#{item.n}</p>
-                                                        <p>{item.status ? "Activo" : "Inactivo"}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center pl-2">
-                                                    <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
-                                                        <DropdownTrigger>
-                                                            <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
-                                                                <MoreVerticalFilled className="size-5"/>
-                                                            </Button>
-                                                        </DropdownTrigger>
-                                                        <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
-                                                            <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                    key="handleUpdate"
-                                                                    startContent={<EditFilled className="size-5"/>}
-                                                                    onPress={() => {handleUpdate(item, "category"); onModalOpen()}}
-                                                                >
-                                                                    Actualizar
-                                                                </DropdownItem>
-
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                    key="handleRead"
-                                                                    startContent={<InfoFilled className="size-5"/>}
-                                                                    onPress={() => {handleRead(item, "category"); onModalOpen()}}
-                                                                >
-                                                                    Ver más detalles
-                                                                </DropdownItem>
-
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                    key="handleChangeStatus"
-                                                                    startContent={item.status ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
-                                                                    onPress={() => handleChangeStatus(item, "category")}
-                                                                >
-                                                                    {item.status ? "Inhabilitar" : "Habilitar"}
-                                                                </DropdownItem>
-                                                            </DropdownSection>
-                                                        </DropdownMenu>
-                                                    </Dropdown>
-                                                </div>
-                                            </div>
-                                        </CardBody>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </ScrollShadow>
-
-                        <ScrollShadow className="h-full bg-transparent flex flex-col gap-2 p-2
-                        [&::-webkit-scrollbar]:h-1
-                        [&::-webkit-scrollbar]:w-1
-                        [&::-webkit-scrollbar-track]:rounded-full
-                        [&::-webkit-scrollbar-track]:bg-transparent
-                        [&::-webkit-scrollbar-thumb]:rounded-full
-                        [&::-webkit-scrollbar-thumb]:bg-transparent">
-                            <div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: 2 * 0.1 }}
-                                >
-                                    {miniCard("Tipos de mantenimiento", maintenanceTypes.length, <WrenchFilled className="size-5"/>)}
-                                </motion.div>
-                            </div>
-
-                            {filteredMaintenanceTypes.map((item) => (
-                                <motion.div
-                                    key={item.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: item.n * 0.1 }}
-                                >
-                                    <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "type"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-                                    shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-                                    dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
-                                        <CardBody className="px-4 py-2">
-                                            <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
-                                            <div className="w-full h-full flex justify-between">
-                                                <div>
-                                                    <div className="flex gap-1 pb-1 items-end">
-                                                        <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
-                                                    </div>
-                                                    <div className={`flex gap-1 text-xs items-start ${item.status ? "text-primary" : "text-background-500"}`}>
-                                                        <p className="text-xs text-background-950 pb-[2px]">#{item.n}</p>
-                                                        <p>{item.status ? "Activo" : "Inactivo"}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center pl-2">
-                                                    <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
-                                                        <DropdownTrigger>
-                                                            <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
-                                                                <MoreVerticalFilled className="size-5"/>
-                                                            </Button>
-                                                        </DropdownTrigger>
-                                                        <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
-                                                            <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                    key="handleUpdate"
-                                                                    startContent={<EditFilled className="size-5"/>}
-                                                                    onPress={() => {handleUpdate(item, "type"); onModalOpen()}}
-                                                                >
-                                                                    Actualizar
-                                                                </DropdownItem>
-
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                    key="handleRead"
-                                                                    startContent={<InfoFilled className="size-5"/>}
-                                                                    onPress={() => {handleRead(item, "type"); onModalOpen()}}
-                                                                >
-                                                                    Ver más detalles
-                                                                </DropdownItem>
-
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                    key="handleChangeStatus"
-                                                                    startContent={item.status ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
-                                                                    onPress={() => handleChangeStatus(item, "type")}
-                                                                >
-                                                                    {item.status ? "Inhabilitar" : "Habilitar"}
-                                                                </DropdownItem>
-                                                            </DropdownSection>
-                                                        </DropdownMenu>
-                                                    </Dropdown>
-                                                </div>
-                                            </div>
-                                        </CardBody>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </ScrollShadow>
-
-                        <ScrollShadow className="h-full bg-transparent flex flex-col gap-2 p-2
-                        [&::-webkit-scrollbar]:h-1
-                        [&::-webkit-scrollbar]:w-1
-                        [&::-webkit-scrollbar-track]:rounded-full
-                        [&::-webkit-scrollbar-track]:bg-transparent
-                        [&::-webkit-scrollbar-thumb]:rounded-full
-                        [&::-webkit-scrollbar-thumb]:bg-transparent">
-                            <div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: 3 * 0.1 }}
-                                >
-                                    {miniCard("Proveedores de mantenimiento", maintenanceProviders.length, <PersonWrenchFilled className="size-5"/>)}
-                                </motion.div>
-                            </div>
-
-                            {filteredMaintenanceProviders.map((item) => (
-                                <motion.div
-                                    key={item.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: item.n * 0.1 }}
-                                >
-                                    <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "provider"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-                                    shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-                                    dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
-                                        <CardBody className="px-4 py-2">
-                                            <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
-                                            <div className="w-full h-full flex justify-between">
-                                                <div>
-                                                    <div className="flex gap-1 pb-1 items-end">
-                                                        <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
-                                                    </div>
-                                                    <div className={`flex gap-1 text-xs items-start ${item.status ? "text-primary" : "text-background-500"}`}>
-                                                        <p className="text-xs text-background-950 pb-[2px]">#{item.n}</p>
-                                                        <p>{item.status ? "Activo" : "Inactivo"}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center pl-2">
-                                                    <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
-                                                        <DropdownTrigger>
-                                                            <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
-                                                                <MoreVerticalFilled className="size-5"/>
-                                                            </Button>
-                                                        </DropdownTrigger>
-                                                        <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
-                                                            <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                    key="handleUpdate"
-                                                                    startContent={<EditFilled className="size-5"/>}
-                                                                    onPress={() => {handleUpdate(item, "provider"); onModalOpen()}}
-                                                                >
-                                                                    Actualizar
-                                                                </DropdownItem>
-
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                    key="handleRead"
-                                                                    startContent={<InfoFilled className="size-5"/>}
-                                                                    onPress={() => {handleRead(item, "provider"); onModalOpen()}}
-                                                                >
-                                                                    Ver más detalles
-                                                                </DropdownItem>
-
-                                                                <DropdownItem 
-                                                                    className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                    key="handleChangeStatus"
-                                                                    startContent={item.status ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
-                                                                    onPress={() => handleChangeStatus(item, "provider")}
-                                                                >
-                                                                    {item.status ? "Inhabilitar" : "Habilitar"}
-                                                                </DropdownItem>
-                                                            </DropdownSection>
-                                                        </DropdownMenu>
-                                                    </Dropdown>
-                                                </div>
-                                            </div>
-                                        </CardBody>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </ScrollShadow>
+                        </div>
                     </div>
                 </div>)
             ))}
@@ -693,7 +773,7 @@ export const CRUDModal = ({isOpen, onOpenChange, data, action, onRefresh, entity
         setMultiObjectErrors({
             name: [],
         })
-    }, [data, entity])
+    }, [data, entity, action])
 
     const resetForm = () => {
         setMultiObject({ id:"", name:"" })

@@ -68,7 +68,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
             equipmentCategoryId: [],
             maintenanceProviderId: [],
         })
-    }, [data]);
+    }, [data, action]);
 
     const resetForm = () => {
         setEquipment({ id:"", name:"", code:"", serialNumber:"", location:"", brand:"", model:"", remarks:"", assignedToId:"", equipmentCategoryId:"", maintenanceProviderId:"" })

@@ -3,7 +3,7 @@ import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
+import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, PersonInfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
 import { UsersDrawer } from "../components/users/UsersDrawer"
@@ -215,7 +215,7 @@ export const Users = () => {
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
         return (
-            <div className="flex justify-between gap-4 items-center">
+            <div className="flex justify-between gap-4 items-center px-1">
                 <div className="flex flex-col">
                     <p className="text-lg font-bold">Usuarios</p>
                     <span className="text-background-500 text-xs">
@@ -231,14 +231,14 @@ export const Users = () => {
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-transparent transition-background !duration-1000 ease-in-out"
+                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
                                 <OptionsFilled className="size-5"/>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
+                        <PopoverContent className="bg-background dark:bg-background-200 transition-colors duration-1000 ease-in-out w-32 shadow-large">
                             <div className="p-1 flex flex-col items-start w-full h-full">
                                 <p className="text-xs text-background-500 pt-1 pb-1">Opciones</p>
                                 
@@ -253,7 +253,7 @@ export const Users = () => {
                                             Ordenar
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
+                                    <PopoverContent className="bg-background dark:bg-background-200 transition-colors duration-1000 ease-in-out w-32 shadow-large">
                                         <div className="p-1 flex flex-col items-start w-full h-full">
                                             <p className="text-xs text-background-500 pt-1 pb-1">Ordenar por:</p>
                                             
@@ -290,7 +290,7 @@ export const Users = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out rounded-lg",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -317,7 +317,7 @@ export const Users = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out rounded-lg",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -359,7 +359,7 @@ export const Users = () => {
     const bottomContent = React.useMemo(() => {
         if (filteredItems.length > 0){
             return (
-                <div className="flex justify-end px-2">
+                <div className="flex justify-end">
                     <Pagination
                         showControls
                         showShadow
@@ -394,7 +394,7 @@ export const Users = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-0 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -404,10 +404,10 @@ export const Users = () => {
     return (
         <>
             {isLoading ? (
-                <div className="w-full h-full">
+                <div className="relative w-full h-full px-1">
                     <p className="text-lg font-bold">Usuarios</p>
-                    
-                    <div className="w-full pt-[62px] flex justify-center">
+            
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
                             classNames={{ label: "pt-2 text-sm font-medium" }}
                             color="current"
@@ -417,7 +417,7 @@ export const Users = () => {
                     </div>
                 </div>
             ) : ( errors.length > 0 ? (
-                <div className="w-full h-full">
+                <div className="w-full h-full px-1">
                     <p className="text-lg font-bold">Usuarios</p>
 
                     <div className="space-y-4 pt-4">
@@ -515,9 +515,7 @@ export const Users = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
-                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-                                        shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-                                        dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
                                                 <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-12 h-14 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
@@ -535,7 +533,7 @@ export const Users = () => {
                                                         <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">{item.email}</p>
                                                     </div>
                                                     <div className="flex items-center pl-2">
-                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                        <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
                                                             <DropdownTrigger>
                                                                 <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
                                                                     <MoreVerticalFilled className="size-5"/>
@@ -555,7 +553,7 @@ export const Users = () => {
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadUser"
-                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        startContent={<PersonInfoFilled className="size-5"/>}
                                                                         onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
@@ -612,7 +610,7 @@ export const Users = () => {
                                                     </div>
                                                     
                                                     <div className="flex justify-center flex-shrink-0 w-16">
-                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                        <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
                                                             <DropdownTrigger>
                                                                 <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
                                                                     <MoreVerticalFilled className="size-5"/>
@@ -632,7 +630,7 @@ export const Users = () => {
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadUser"
-                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        startContent={<PersonInfoFilled className="size-5"/>}
                                                                         onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
