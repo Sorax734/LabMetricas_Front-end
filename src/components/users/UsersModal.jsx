@@ -56,12 +56,10 @@ export const UsersModal = ({isOpen, onOpenChange, data, initialData, action, onR
 
     const userDetails = (user) => {
         return (
-            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-            shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-            dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
+            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-large">
 
                 <CardBody className="pl-4">
-                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-28 bg-primary rounded-full`}></div>
+                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 ${ user.phone ? "h-28" : "h-24"} bg-primary rounded-full`}></div>
                     
                     <div className="w-full flex flex-col gap-1">
                         <div className="w-full flex justify-between">

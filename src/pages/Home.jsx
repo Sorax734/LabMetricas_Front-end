@@ -15,7 +15,7 @@ import { getMaintenances } from "../service/maintenanceCalibration"
 import { getCustomers } from "../service/customer"
 import { EquipmentsDrawer } from "../components/equipments/EquipmentsDrawer"
 import { MaintenancesCalibrationsDrawer } from "../components/maintenancesCalibrations/MaintenancesCalibrationsDrawer"
-import { required } from "../validators/validators"
+import { required } from "../js/validators"
 import { CloseButton } from "../components/CloseButton"
 import { CustomersDrawer } from "../components/customers/CustomersDrawer"
 
@@ -68,10 +68,6 @@ export const Home = () => {
     const [action, setAction] = useState("")
 
     const hasSearchFilter = Boolean(searchValue)
-
-    useEffect(() => {
-        setSearchValue("")
-    }, [])
 
     const [filteredMaintenanceProviders, filteredCategories, filteredMaintenanceTypes] = React.useMemo(() => {
         let providersFilt = [...maintenanceProviders]
@@ -308,7 +304,7 @@ export const Home = () => {
 
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
-                            classNames={{ label: "pt-2 text-sm font-medium" }}
+                            classNames={{ label: "pt-2 text-sm" }}
                             color="current"
                             size="md"
                             label="Espere un poco por favor"

@@ -1,12 +1,13 @@
 import { addToast, Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Form, Input, InputOtp, Select, SelectItem, Textarea, useDisclosure } from "@heroui/react"
 import { CloseButton } from "../CloseButton"
-import { ArrowHookUpRightFilled, CheckmarkCircleFilled, CheckmarkFilled, ChevronDownFilled, DismissCircleFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, SubtractCircleFilled, SubtractFilled, TextAsteriskFilled } from "@fluentui/react-icons"
+import { ArrowHookUpRightFilled, CheckmarkCircleFilled, CheckmarkFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, SubtractCircleFilled, SubtractFilled, TextAsteriskFilled } from "@fluentui/react-icons"
 import { useEffect, useState } from "react"
-import { required } from "../../validators/validators"
+import { required } from "../../js/validators"
 import { SecondaryButton } from "../SecondaryButton"
 import { EquipmentsChangeStatusModal } from "./EquipmentsChangeStatusModal"
 import { getEquipments } from "../../service/equipment"
 import { EquipmentsModal } from "./EquipmentsModal"
+import { formatDateLiteral } from "../../js/utils"
 
 export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh, users, categories, maintenanceProviders}) => {
     const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
@@ -206,6 +207,20 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                         </DrawerHeader>
                         <DrawerBody className="h-full flex flex-col justify-between [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary">
                             <Form onSubmit={onSubmit} id="equipment-form" className="gap-6 flex flex-col">
+                                {action !== "create" && (
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center gap-1 pl-0.5">
+                                            <p className="font-medium text-sm">Status: </p>
+                                            <CircleFilled className={`size-2 ${data.status === "activo" ? "text-primary" : "text-background-500"}`} />
+                                            <p className={`text-sm capitalize ${data.status === "activo" ? "text-primary" : "text-background-500"}`}>{data.status}</p>
+                                        </div>
+
+                                        <div className="pl-0.5 flex flex-col">
+                                            <p className="text-sm"><span className="font-medium ">Fecha de modificación: </span>{formatDateLiteral(data.updatedAt, true)}</p>
+                                        </div>
+                                    </div>
+                                )}
+                         
                                 <Input
                                     label={
                                         <div className="flex justify-between">

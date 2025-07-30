@@ -1,11 +1,12 @@
 import { addToast, Button, DatePicker, Drawer, DrawerBody, DrawerContent, DrawerHeader, Form, Input, InputOtp, NumberInput, Select, SelectItem, Textarea, useDisclosure } from "@heroui/react"
 import { CloseButton } from "../CloseButton"
-import { ArrowHookUpRightFilled, CheckmarkCircleFilled, CheckmarkFilled, ChevronDownFilled, DismissCircleFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, SubtractCircleFilled, TextAsteriskFilled } from "@fluentui/react-icons"
+import { ArrowHookUpRightFilled, CheckmarkCircleFilled, CheckmarkFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, DismissFilled, PersonAvailableFilled, PersonSubtractFilled, SubtractCircleFilled, TextAsteriskFilled } from "@fluentui/react-icons"
 import { useEffect, useState } from "react"
-import { onlyLetters, required, validEmail, validPhone, validRoleId } from "../../validators/validators"
+import { onlyLetters, required, validEmail, validPhone, validRoleId } from "../../js/validators"
 import { SecondaryButton } from "../SecondaryButton"
 import { MaintenancesCalibrationsChangeStatusModal } from "./maintenancesCalibrationsChangeStatusModal"
 import { MaintenancesCalibrationsModal } from "./maintenancesCalibrationsModal"
+import { formatDateLiteral } from "../../js/utils"
 
 export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, action, onRefresh, isScheduled, users, maintenanceTypes, equipments}) => {
     const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
@@ -199,6 +200,20 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
                         </DrawerHeader>
                         <DrawerBody className="h-full flex flex-col justify-between [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary">
                             <Form onSubmit={onSubmit} id="user-form" className="gap-6 flex flex-col">
+                                {action !== "create" && (
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center gap-1 pl-0.5">
+                                            <p className="font-medium text-sm">Status: </p>
+                                            <CircleFilled className={`size-2 ${data.status === "activo" ? "text-primary" : "text-background-500"}`} />
+                                            <p className={`text-sm capitalize ${data.status === "activo" ? "text-primary" : "text-background-500"}`}>{data.status}</p>
+                                        </div>
+
+                                        <div className="pl-0.5 flex flex-col">
+                                            <p className="text-sm"><span className="font-medium ">Fecha de modificación: </span>{formatDateLiteral(data.updatedAt, true)}</p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="w-full flex justify-between">
                                     <div className="flex items-center gap-1">
                                         <p className="font-medium text-sm pl-0.5">Equipo</p>

@@ -2,12 +2,13 @@ import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, Dropdo
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
+import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, CloudDatabaseFilled, CloudErrorFilled, DatabaseSearchFilled, DismissCircleFilled, PersonInfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
 import { getCustomers } from "../service/customer"
 import { CustomersChangeStatusModal } from "../components/customers/CustomersChangeStatusModal"
 import { CustomersDrawer } from "../components/customers/CustomersDrawer"
+import { formatDateLiteral } from "../js/utils"
 
 export const Customers = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -27,10 +28,6 @@ export const Customers = () => {
     const [action, setAction] = useState("")
 
     useEffect(() => {
-        setSearchValue("")
-    }, [])
-
-    useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true)
@@ -42,7 +39,7 @@ export const Customers = () => {
                     const dataCount = data.map((item, index) => ({
                         ...item,
                         n: index + 1,
-                        status: item.status ? "activo" : "inactivo"
+                        status: item.status ? "activo" : "inactivo",
                     }))
                     
                     startTransition(() => {
@@ -206,6 +203,8 @@ export const Customers = () => {
             { key: "email", label: "Correo" },
             { key: "name", label: "Nombre" },
             { key: "nif", label: "NIF" },
+            { key: "phone", label: "Teléfono" },
+            { key: "address", label: "Dirección" },
         ]
 
         const totalFiltered = filteredItems.length
@@ -213,7 +212,7 @@ export const Customers = () => {
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
         return (
-            <div className="flex justify-between gap-4 items-center">
+            <div className="flex justify-between gap-4 items-center px-1">
                 <div className="flex flex-col">
                     <p className="text-lg font-bold">Clientes</p>
                     <span className="text-background-500 text-xs">
@@ -229,14 +228,14 @@ export const Customers = () => {
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-transparent transition-background !duration-1000 ease-in-out"
+                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
                                 <OptionsFilled className="size-5"/>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
+                        <PopoverContent className="bg-background dark:bg-background-200 transition-colors duration-1000 ease-in-out w-32 shadow-large">
                             <div className="p-1 flex flex-col items-start w-full h-full">
                                 <p className="text-xs text-background-500 pt-1 pb-1">Opciones</p>
                                 
@@ -251,7 +250,7 @@ export const Customers = () => {
                                             Ordenar
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
+                                    <PopoverContent className="bg-background transition-colors duration-1000 ease-in-out w-32 dark:bg-background-200 shadow-large">
                                         <div className="p-1 flex flex-col items-start w-full h-full">
                                             <p className="text-xs text-background-500 pt-1 pb-1">Ordenar por:</p>
                                             
@@ -288,7 +287,7 @@ export const Customers = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg dark:bg-background-200 shadow-large",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -315,7 +314,7 @@ export const Customers = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg dark:bg-background-200 shadow-large",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -357,7 +356,7 @@ export const Customers = () => {
     const bottomContent = React.useMemo(() => {
         if (filteredItems.length > 0){
             return (
-                <div className="flex justify-end px-2">
+                <div className="flex justify-end">
                     <Pagination
                         showControls
                         showShadow
@@ -378,7 +377,7 @@ export const Customers = () => {
 
     const classNames = React.useMemo(
         () => ({
-            thead: "[&>tr]:first:shadow-none [&>tr:last-child]:hidden [&>tr]:first:shadow-[0px_0px_5px_0px_rgba(0,0,0,0.05)] [&>tr]:first:dark:shadow-[0px_0px_5px_0px_rgba(255,255,255,0.05)]",
+            thead: "[&>tr]:first:shadow-none [&>tr:last-child]:hidden",
             th: "bg-transparent",
             td: [
                 "px-1 py-2",
@@ -392,7 +391,7 @@ export const Customers = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-0 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal            base: "h-full",
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -402,12 +401,12 @@ export const Customers = () => {
     return (
         <>
             {isLoading ? (
-                <div className="w-full h-full">
+                <div className="relative w-full h-full px-1">
                     <p className="text-lg font-bold">Clientes</p>
                     
-                    <div className="w-full pt-[62px] flex justify-center">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
-                            classNames={{ label: "pt-2 text-sm font-medium" }}
+                            classNames={{ label: "pt-2 text-sm" }}
                             color="current"
                             size="md"
                             label="Espere un poco por favor"
@@ -415,7 +414,7 @@ export const Customers = () => {
                     </div>
                 </div>
             ) : ( errors.length > 0 ? (
-                <div className="w-full h-full">
+                <div className="w-full h-full px-1">
                     <p className="text-lg font-bold">Clientes</p>
 
                     <div className="space-y-4 pt-4">
@@ -438,7 +437,7 @@ export const Customers = () => {
                         ))}
                     </div>
                 </div>
-            ) : ( customers.length > 0 && (
+            ) : ( customers.length > 0 ? (
                 <Table
                     isHeaderSticky
                     radius="none"
@@ -460,7 +459,7 @@ export const Customers = () => {
                             <Card shadow="none" className="w-full bg-transparent p-0" radius="sm">
                                 <CardBody className="p-0">
                                     <div className="flex w-full items-center justify-between gap-2 text-sm font-medium">
-                                        <div className="w-6 flex-shrink-0 ml-4">
+                                        <div className="w-7 flex-shrink-0 ml-4">
                                             #
                                         </div>
                                         
@@ -474,6 +473,18 @@ export const Customers = () => {
                                         
                                         <div className="w-48 flex-shrink-0">
                                             NIF
+                                        </div>
+                                        
+                                        <div className="w-40 flex-shrink-0 text-center">
+                                            Fecha de modificación
+                                        </div>
+                                        
+                                        <div className="w-28 flex-shrink-0">
+                                            Teléfono
+                                        </div>
+                                        
+                                        <div className="flex-1 min-w-0 max-w-[25%]">
+                                            Dirección
                                         </div>
                                         
                                         <div className="w-[68px] flex-shrink-0 mr-4">
@@ -494,7 +505,7 @@ export const Customers = () => {
                         items={paginatedSortedItems}
                         emptyContent={filteredItems.length > 0 ? 
                             <SpinnerH 
-                                classNames={{ label: "pt-2 text-sm font-medium" }} 
+                                classNames={{ label: "pt-2 text-sm" }} 
                                 color="current" 
                                 size="md" 
                                 label="Espere un poco por favor" 
@@ -509,14 +520,12 @@ export const Customers = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
-                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-                                        shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-                                        dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-12 h-14 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 ${item.address && item.phone ? "h-[104px] sm:h-24" : "h-20 sm:h-16"} ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
-                                                        <div className="xs:flex xs:items-center xs:gap-2">
+                                                        <div className="xs:flex xs:items-center xs:gap-2 pb-2">
                                                             <div className="flex gap-1 pb-1 items-end">
                                                                 <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
                                                             </div>
@@ -526,10 +535,13 @@ export const Customers = () => {
                                                                 <p className="text-xs text-background-500 pb-[2px]">#{item.n}</p>
                                                             </div>
                                                         </div>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">{item.email}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Correo electrónico: </span>{item.email}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Fecha de modificación: </span>{formatDateLiteral(item.lastModification, true)}</p>
+                                                        {item.phone && (<p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Teléfono: </span>{item.phone}</p>)}
+                                                        {item.address && (<p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Dirección: </span>{item.address}</p>)}
                                                     </div>
                                                     <div className="flex items-center pl-2">
-                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                        <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
                                                             <DropdownTrigger>
                                                                 <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
                                                                     <MoreVerticalFilled className="size-5"/>
@@ -549,7 +561,7 @@ export const Customers = () => {
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadCustomer"
-                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        startContent={<PersonInfoFilled className="size-5"/>}
                                                                         onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
@@ -570,7 +582,7 @@ export const Customers = () => {
                                                 </div>
 
                                                 <div className="hidden md:flex w-full h-full items-center justify-between gap-2">
-                                                    <div className="w-6 flex-shrink-0 ml-4">
+                                                    <div className="w-7 flex-shrink-0 ml-4">
                                                         <p className={`text-sm truncate ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
                                                             {item.n}
                                                         </p>
@@ -594,13 +606,31 @@ export const Customers = () => {
                                                         </p>
                                                     </div>
 
+                                                    <div className="w-40 flex-shrink-0">
+                                                        <p className="text-sm truncate text-center">
+                                                            {formatDateLiteral(item.lastModification)}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="w-28 flex-shrink-0">
+                                                        <p className="text-sm truncate">
+                                                            {item.phone}
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    <div className="flex-1 min-w-0 max-w-[25%]">
+                                                        <p className="text-sm truncate">
+                                                            {item.address}
+                                                        </p>
+                                                    </div>
+                                                    
                                                     <div className="w-[68px] flex-shrink-0 mr-4 flex items-center gap-1">
                                                         <CircleFilled className={`size-2 ${item.status === "activo" ? "text-primary" : "text-background-500"}`} />
                                                         <p className={`text-sm ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>{capitalize(item.status)}</p>
                                                     </div>
                                                     
                                                     <div className="flex justify-center flex-shrink-0 w-16">
-                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                        <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
                                                             <DropdownTrigger>
                                                                 <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
                                                                     <MoreVerticalFilled className="size-5"/>
@@ -620,7 +650,7 @@ export const Customers = () => {
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleReadCustomer"
-                                                                        startContent={<InfoFilled className="size-5"/>}
+                                                                        startContent={<PersonInfoFilled className="size-5"/>}
                                                                         onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
@@ -646,7 +676,24 @@ export const Customers = () => {
                             </TableRow>
                         )}
                     </TableBody>
-                </Table>)
+                </Table>) : (
+                <div className="flex flex-col w-full h-full px-1">
+                    <div className="flex justify-between">
+                        <p className="text-lg font-bold">Clientes</p>
+
+                        <PrimaryButton
+                            tooltipPlacement="bottom"
+                            label="Registrar"
+                            startContent={<PersonAddFilled className="size-5"/>}
+                            onPress={() => {handleCreateCustomer(); setIsDrawerOpen(true)}}
+                        />
+                    </div>
+                    
+                    <div className="flex-1 flex items-center justify-center flex-col gap-4">
+                        <CloudDatabaseFilled className="size-10"/>
+                        <p className="text-sm">No hay clientes existentes actualmente</p>
+                    </div>
+                </div>)
             ))}
             
             <CustomersChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedCustomer} onRefresh={triggerRefresh}/>

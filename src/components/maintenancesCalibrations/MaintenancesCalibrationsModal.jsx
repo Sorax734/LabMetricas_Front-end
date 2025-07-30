@@ -57,9 +57,7 @@ export const MaintenancesCalibrationsModal = ({isOpen, onOpenChange, data, initi
 
     const maintenanceDetails = (maintenance) => {
         return (
-            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-            shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-            dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
+            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-large">
 
                 <CardBody className="pl-4">
                     <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-28 bg-primary rounded-full`}></div>

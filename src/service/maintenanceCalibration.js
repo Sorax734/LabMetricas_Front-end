@@ -2,7 +2,7 @@ import { api } from "./config/api";
 
 export const getMaintenances = async () => {
 	try {
-		const response = await api.get('/maintenance/list')
+		const response = await api.get('/maintenance')
 
 		if (response.status >= 200 && response.status < 300) {
 			return response.data

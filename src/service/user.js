@@ -60,6 +60,22 @@ export const updateUser = async (user) => {
 	}
 }
 
+export const updateProfile = async (user) => {
+	console.log(user)
+	try {
+		const response = await api.put('/users/profile', user)
+
+		if (response.status >= 200 && response.status < 300) {
+			return response.data
+		}
+
+		throw new Error(`Código de estado inesperado: ${response.status}`)
+	} catch (error) {
+		console.error("[updateProfile] error:", error);
+		throw error
+	}
+}
+
 export const changeStatus = async (email) => {
 	try {
 		const response = await api.delete(`/users/${email}`)
@@ -71,6 +87,21 @@ export const changeStatus = async (email) => {
 		throw new Error(`Código de estado inesperado: ${response.status}`)
 	} catch (error) {
 		console.error("[changeStatus] error:", error);
+		throw error
+	}
+}
+
+export const changePassword = async (passwords) => {
+	try {
+		const response = await api.post('/users/change-password', passwords)
+
+		if (response.status >= 200 && response.status < 300) {
+			return response.data
+		}
+
+		throw new Error(`Código de estado inesperado: ${response.status}`)
+	} catch (error) {
+		console.error("[changePassword] error:", error);
 		throw error
 	}
 }

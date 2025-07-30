@@ -3,13 +3,16 @@ import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, PersonInfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
+import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, PersonInfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled, PersonClockFilled, ScriptFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
-import { useOutletContext } from "react-router-dom"
+import { useNavigate, useOutletContext } from "react-router-dom"
 import { UsersDrawer } from "../components/users/UsersDrawer"
 import { UsersChangeStatusModal } from "../components/users/UsersChangeStatusModal"
+import { formatDateLiteral } from "../js/utils"
 
 export const Users = () => {
+    let navigate = useNavigate()
+
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
@@ -25,10 +28,6 @@ export const Users = () => {
 
     const [selectedUser, setSelectedUser] = useState({})
     const [action, setAction] = useState("")
-
-    useEffect(() => {
-        setSearchValue("")
-    }, [])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -380,7 +379,7 @@ export const Users = () => {
 
     const classNames = React.useMemo(
         () => ({
-            thead: "[&>tr]:first:shadow-none [&>tr:last-child]:hidden [&>tr]:first:shadow-[0px_0px_5px_0px_rgba(0,0,0,0.05)] [&>tr]:first:dark:shadow-[0px_0px_5px_0px_rgba(255,255,255,0.05)]",
+            thead: "[&>tr]:first:shadow-none [&>tr:last-child]:hidden",
             th: "bg-transparent",
             td: [
                 "px-1 py-2",
@@ -409,7 +408,7 @@ export const Users = () => {
             
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
-                            classNames={{ label: "pt-2 text-sm font-medium" }}
+                            classNames={{ label: "pt-2 text-sm" }}
                             color="current"
                             size="md"
                             label="Espere un poco por favor"
@@ -462,7 +461,7 @@ export const Users = () => {
                             <Card shadow="none" className="w-full bg-transparent p-0" radius="sm">
                                 <CardBody className="p-0">
                                     <div className="flex w-full items-center justify-between gap-2 text-sm font-medium">
-                                        <div className="w-6 flex-shrink-0 ml-4">
+                                        <div className="w-7 flex-shrink-0 ml-4">
                                             #
                                         </div>
                                         
@@ -480,6 +479,14 @@ export const Users = () => {
                                         
                                         <div className="w-36 flex-shrink-0">
                                             Puesto
+                                        </div>
+                                        
+                                        <div className="w-40 flex-shrink-0 text-center">
+                                            Fecha de modificación
+                                        </div>
+                                        
+                                        <div className="w-28 flex-shrink-0">
+                                            Teléfono
                                         </div>
                                         
                                         <div className="w-[68px] flex-shrink-0 mr-4">
@@ -500,7 +507,7 @@ export const Users = () => {
                         items={paginatedSortedItems}
                         emptyContent={filteredItems.length > 0 ? 
                             <SpinnerH 
-                                classNames={{ label: "pt-2 text-sm font-medium" }} 
+                                classNames={{ label: "pt-2 text-sm" }} 
                                 color="current" 
                                 size="md" 
                                 label="Espere un poco por favor" 
@@ -517,10 +524,10 @@ export const Users = () => {
                                     >
                                         <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-12 h-14 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 ${item.phone ? "h-[104px] sm:h-[88px]" : "h-24 sm:h-20"} ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
-                                                        <div className="xs:flex xs:items-center xs:gap-2">
+                                                        <div className="xs:flex xs:items-center xs:gap-2 pb-2">
                                                             <div className="flex gap-1 pb-1 items-end">
                                                                 <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
                                                             </div>
@@ -530,7 +537,10 @@ export const Users = () => {
                                                                 <p className="text-xs text-background-500 pb-[2px]">#{item.n}</p>
                                                             </div>
                                                         </div>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">{item.email}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Correo electrónico: </span>{item.email}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Puesto: </span>{item.position}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Fecha de modificación: </span>{formatDateLiteral(item.updatedAt, true)}</p>
+                                                        {item.phone && (<p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Teléfono: </span>{item.phone}</p>)}
                                                     </div>
                                                     <div className="flex items-center pl-2">
                                                         <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
@@ -560,12 +570,21 @@ export const Users = () => {
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusUser"
                                                                         startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
                                                                         onPress={() => handleChangeStatusUser(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
+                                                                    </DropdownItem>
+                                                                    
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        key="logs"
+                                                                        startContent={<ScriptFilled className="size-5"/>}
+                                                                        onPress={() => {navigate("/App/Logs"); setSearchValue(item.name)}}
+                                                                    >
+                                                                        Ver sus logs
                                                                     </DropdownItem>
                                                                 </DropdownSection>
                                                             </DropdownMenu>
@@ -574,7 +593,7 @@ export const Users = () => {
                                                 </div>
 
                                                 <div className="hidden md:flex w-full h-full items-center justify-between gap-2">
-                                                    <div className="w-6 flex-shrink-0 ml-4">
+                                                    <div className="w-7 flex-shrink-0 ml-4">
                                                         <p className={`text-sm truncate ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
                                                             {item.n}
                                                         </p>
@@ -604,6 +623,18 @@ export const Users = () => {
                                                         </p>
                                                     </div>
 
+                                                    <div className="w-40 flex-shrink-0">
+                                                        <p className="text-sm truncate text-center">
+                                                            {formatDateLiteral(item.updatedAt)}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="w-28 flex-shrink-0">
+                                                        <p className="text-sm truncate">
+                                                            {item.phone}
+                                                        </p>
+                                                    </div>
+                                                    
                                                     <div className="w-[68px] flex-shrink-0 mr-4 flex items-center gap-1">
                                                         <CircleFilled className={`size-2 ${item.status === "activo" ? "text-primary" : "text-background-500"}`} />
                                                         <p className={`text-sm ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>{capitalize(item.status)}</p>
@@ -637,12 +668,21 @@ export const Users = () => {
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusUser"
                                                                         startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
                                                                         onPress={() => handleChangeStatusUser(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
+                                                                    </DropdownItem>
+                                                                    
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        key="logs"
+                                                                        startContent={<ScriptFilled className="size-5"/>}
+                                                                        onPress={() => {navigate("/App/Logs"); setSearchValue(item.name)}}
+                                                                    >
+                                                                        Ver sus logs
                                                                     </DropdownItem>
                                                                 </DropdownSection>
                                                             </DropdownMenu>

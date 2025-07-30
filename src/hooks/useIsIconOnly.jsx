@@ -67,3 +67,26 @@ export const useIsIconOnlyMedium = () => {
 
     return isIconOnlySmall;
 };
+
+export const useIsIconOnlyXL = () => {
+    const [isIconOnlySmall, setIsIconOnlySmall] = useState(() => {
+        // matchMedia con min-width: 640px (tailwind 'sm')
+        const mq = window.matchMedia('(min-width: 1280px)');
+        // si mq.matches es true (>=640px) → no icon-only → invertimos
+        return !mq.matches;
+    });
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 1280px)');
+
+        const handleChange = (e) => {
+        // e.matches === true cuando >=640px → isIconOnly = false
+        setIsIconOnlySmall(!e.matches);
+        };
+
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
+
+    return isIconOnlySmall;
+};

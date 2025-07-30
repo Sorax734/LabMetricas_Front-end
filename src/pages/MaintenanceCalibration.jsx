@@ -3,17 +3,19 @@ import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled, SubtractCircleFilled, WrenchScrewdriverFilled } from "@fluentui/react-icons"
+import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronDownFilled, CircleFilled, CloudDatabaseFilled, DismissCircleFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled, SettingsFilled, SubtractCircleFilled, WrenchScrewdriverFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
-import { useOutletContext } from "react-router-dom"
+import { useNavigate, useOutletContext } from "react-router-dom"
 import { getMaintenances } from "../service/maintenanceCalibration"
 import { MaintenancesCalibrationsChangeStatusModal } from "../components/maintenancesCalibrations/maintenancesCalibrationsChangeStatusModal"
 import { getEquipments } from "../service/equipment"
 import { getMaintenanceTypes } from "../service/maintenanceType"
 import { getScheduledMaintenances } from "../service/scheduledMaintenance"
 import { MaintenancesCalibrationsDrawer } from "../components/maintenancesCalibrations/MaintenancesCalibrationsDrawer"
+import { formatDateLiteral } from "../js/utils"
 
 export const MaintenanceCalibration = () => {
+    let navigate = useNavigate()
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
@@ -32,10 +34,6 @@ export const MaintenanceCalibration = () => {
 
     const [selectedMaintenance, setSelectedMaintenance] = useState({})
     const [action, setAction] = useState("")
-
-    useEffect(() => {
-        setSearchValue("")
-    }, [])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -59,11 +57,19 @@ export const MaintenanceCalibration = () => {
                 )
 
                 if (data && usersData && equipmentsData && maintenanceTypesData) {
+                    const priorityLabels = {
+                        LOW:      'Baja',
+                        MEDIUM:   'Media',
+                        HIGH:     'Alta',
+                        CRITICAL: 'Crítica'
+                    }
+                    
                     const dataCount = data.map((item, index) => ({
                         ...item,
                         n: index + 1,
                         status: item.status ? "activo" : "inactivo",
                         isScheduled: scheduledSet.has(item.id),
+                        priorityName: priorityLabels[item.priority] || '-'
                     }))
                     
                     startTransition(() => {
@@ -231,7 +237,7 @@ export const MaintenanceCalibration = () => {
             { key: "description", label: "Descripción" },
             { key: "equipmentName", label: "Equipo" },
             { key: "responsibleUserName", label: "Responsable" },
-            { key: "priority", label: "Prioridad" },
+            { key: "priorityName", label: "Prioridad" },
         ]
 
         const totalFiltered = filteredItems.length
@@ -239,9 +245,9 @@ export const MaintenanceCalibration = () => {
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
         return (
-            <div className="flex justify-between gap-4 items-center">
+            <div className="flex justify-between gap-4 items-center px-1">
                 <div className="flex flex-col">
-                    <p className="text-lg font-bold">Mantenimiento y calibración</p>
+                    <p className="text-lg font-bold">Servicios</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
                         ? "Sin resultados"
@@ -255,14 +261,14 @@ export const MaintenanceCalibration = () => {
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-transparent transition-background !duration-1000 ease-in-out"
+                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
                                 <OptionsFilled className="size-5"/>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-32">
+                        <PopoverContent className="bg-background dark:bg-background-200 transition-colors duration-1000 ease-in-out w-32 shadow-large">
                             <div className="p-1 flex flex-col items-start w-full h-full">
                                 <p className="text-xs text-background-500 pt-1 pb-1">Opciones</p>
                                 
@@ -277,7 +283,7 @@ export const MaintenanceCalibration = () => {
                                             Ordenar
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="bg-background-100 transition-colors duration-1000 ease-in-out w-36">
+                                    <PopoverContent className="bg-background transition-colors duration-1000 ease-in-out w-36 dark:bg-background-200 shadow-large">
                                         <div className="p-1 flex flex-col items-start w-full h-full">
                                             <p className="text-xs text-background-500 pt-1 pb-1">Ordenar por:</p>
                                             
@@ -314,7 +320,7 @@ export const MaintenanceCalibration = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg dark:bg-background-200 shadow-large",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -341,7 +347,7 @@ export const MaintenanceCalibration = () => {
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     classNames={{
                                         trigger: "border-0 shadow-none !bg-transparent -ml-2",
-                                        popoverContent: "text-current bg-background-100 transition-colors duration-1000 ease-in-out rounded-lg",
+                                        popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg dark:bg-background-200 shadow-large",
                                     }}
                                     listboxProps={{
                                         itemClasses: {
@@ -383,7 +389,7 @@ export const MaintenanceCalibration = () => {
     const bottomContent = React.useMemo(() => {
         if (filteredItems.length > 0){
             return (
-                <div className="flex justify-end px-2">
+                <div className="flex justify-end">
                     <Pagination
                         showControls
                         showShadow
@@ -404,7 +410,7 @@ export const MaintenanceCalibration = () => {
 
     const classNames = React.useMemo(
         () => ({
-            thead: "[&>tr]:first:shadow-none [&>tr:last-child]:hidden [&>tr]:first:shadow-[0px_0px_5px_0px_rgba(0,0,0,0.05)] [&>tr]:first:dark:shadow-[0px_0px_5px_0px_rgba(255,255,255,0.05)]",
+            thead: "[&>tr]:first:shadow-none [&>tr:last-child]:hidden",
             th: "bg-transparent",
             td: [
                 "px-1 py-2",
@@ -418,7 +424,7 @@ export const MaintenanceCalibration = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-0 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -428,12 +434,12 @@ export const MaintenanceCalibration = () => {
     return (
         <>
             {isLoading ? (
-                <div className="w-full h-full">
-                    <p className="text-lg font-bold">Mantenimientos y calibración</p>
+                <div className="relative w-full h-full px-1">
+                    <p className="text-lg font-bold">Servicios</p>
                     
-                    <div className="w-full pt-[62px] flex justify-center">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
-                            classNames={{ label: "pt-2 text-sm font-medium" }}
+                            classNames={{ label: "pt-2 text-sm" }}
                             color="current"
                             size="md"
                             label="Espere un poco por favor"
@@ -441,8 +447,8 @@ export const MaintenanceCalibration = () => {
                     </div>
                 </div>
             ) : ( errors.length > 0 ? (
-                <div className="w-full h-full">
-                    <p className="text-lg font-bold">Mantenimientos y calibración</p>
+                <div className="w-full h-full px-1">
+                    <p className="text-lg font-bold">Servicios</p>
 
                     <div className="space-y-4 pt-4">
                         {errors.map((msg, i) => (
@@ -464,12 +470,12 @@ export const MaintenanceCalibration = () => {
                         ))}
                     </div>
                 </div>
-            ) : ( maintenances.length > 0 && (
+            ) : ( maintenances.length > 0 ? (
                 <Table
                     isHeaderSticky
                     radius="none"
                     shadow="none"
-                    aria-label="Tabla de mantenimientos y calibración"
+                    aria-label="Tabla de Servicios"
                     topContentPlacement="outside"
                     bottomContentPlacement="inside"
                     hideHeader={isIconOnlyMedium}
@@ -486,7 +492,7 @@ export const MaintenanceCalibration = () => {
                             <Card shadow="none" className="w-full bg-transparent p-0" radius="sm">
                                 <CardBody className="p-0">
                                     <div className="flex w-full items-center justify-between gap-2 text-sm font-medium">
-                                        <div className="w-6 flex-shrink-0 ml-4">
+                                        <div className="w-7 flex-shrink-0 ml-4">
                                             #
                                         </div>
                                         
@@ -494,10 +500,6 @@ export const MaintenanceCalibration = () => {
                                             Código
                                         </div>
                                         
-                                        <div className="flex-1 min-w-0 max-w-[30%] truncate">
-                                            Descripción
-                                        </div>
-                                      
                                         <div className="flex-1 min-w-0 max-w-[25%]">
                                             Equipo
                                         </div>
@@ -506,8 +508,12 @@ export const MaintenanceCalibration = () => {
                                             Responsable
                                         </div>
                                         
-                                        <div className="w-20 flex-shrink-0">
+                                        <div className="w-20 flex-shrink-0 text-center">
                                             Prioridad
+                                        </div>
+                                        
+                                        <div className="w-40 flex-shrink-0 text-center">
+                                            Fecha de modificación
                                         </div>
                                         
                                         <div className="w-[68px] flex-shrink-0 mr-4">
@@ -528,7 +534,7 @@ export const MaintenanceCalibration = () => {
                         items={paginatedSortedItems}
                         emptyContent={filteredItems.length > 0 ? 
                             <SpinnerH 
-                                classNames={{ label: "pt-2 text-sm font-medium" }} 
+                                classNames={{ label: "pt-2 text-sm" }} 
                                 color="current" 
                                 size="md" 
                                 label="Espere un poco por favor" 
@@ -543,14 +549,12 @@ export const MaintenanceCalibration = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
-                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadMaintenance(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent
-                                        shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]
-                                        dark:shadow-[0px_0px_10px_0px_rgba(255,255,255,0.04)]">
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadMaintenance(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-12 h-20 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-20 h-24 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
-                                                        <div className="xs:flex xs:items-center xs:gap-2">
+                                                        <div className="xs:flex xs:items-center xs:gap-2 pb-2">
                                                             <div className="flex gap-1 pb-1 items-end">
                                                                 <p className="text-sm font-medium break-all line-clamp-1">{item.code}</p>
                                                             </div>
@@ -560,11 +564,12 @@ export const MaintenanceCalibration = () => {
                                                                 <p className="text-xs text-background-500 pb-[2px]">#{item.n}</p>
                                                             </div>
                                                         </div>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">Responsable: {item.responsibleUserName}</p>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1">Prioridad: {item.priority}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Responsable: </span>{item.responsibleUserName}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Prioridad: </span>{item.priorityName}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Fecha de modificación: </span>{formatDateLiteral(item.updatedAt, true)}</p>
                                                     </div>
                                                     <div className="flex items-center pl-2">
-                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                        <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
                                                             <DropdownTrigger>
                                                                 <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
                                                                     <MoreVerticalFilled className="size-5"/>
@@ -591,12 +596,21 @@ export const MaintenanceCalibration = () => {
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusMaintenance"
                                                                         startContent={item.status === "activo" ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
                                                                         onPress={() => handleChangeStatusMaintenance(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
+                                                                    </DropdownItem>
+                                                                    
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        key="equipment"
+                                                                        startContent={<SettingsFilled className="size-5"/>}
+                                                                        onPress={() => {navigate("/App/Equipments"); setSearchValue(item.equipmentName)}}
+                                                                    >
+                                                                        Ver equipo
                                                                     </DropdownItem>
                                                                 </DropdownSection>
                                                             </DropdownMenu>
@@ -605,7 +619,7 @@ export const MaintenanceCalibration = () => {
                                                 </div>
 
                                                 <div className="hidden md:flex w-full h-full items-center justify-between gap-2">
-                                                    <div className="w-6 flex-shrink-0 ml-4">
+                                                    <div className="w-7 flex-shrink-0 ml-4">
                                                         <p className={`text-sm truncate ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
                                                             {item.n}
                                                         </p>
@@ -614,12 +628,6 @@ export const MaintenanceCalibration = () => {
                                                     <div className="w-36 flex-shrink-0">
                                                         <p className="text-sm truncate">
                                                             {item.code}
-                                                        </p>
-                                                    </div>
-   
-                                                    <div className="flex-1 min-w-0 max-w-[30%]">
-                                                        <p className="text-sm truncate">
-                                                            {item.description}
                                                         </p>
                                                     </div>
 
@@ -636,18 +644,24 @@ export const MaintenanceCalibration = () => {
                                                     </div>
 
                                                     <div className="w-20 flex-shrink-0">
-                                                        <p className="text-sm truncate">
-                                                            {item.priority}
+                                                        <p className="text-sm truncate text-center">
+                                                            {item.priorityName}
                                                         </p>
                                                     </div>
                                                 
+                                                    <div className="w-40 flex-shrink-0">
+                                                        <p className="text-sm truncate text-center">
+                                                            {formatDateLiteral(item.updatedAt)}
+                                                        </p>
+                                                    </div>
+
                                                     <div className="w-[68px] flex-shrink-0 mr-4 flex items-center gap-1">
                                                         <CircleFilled className={`size-2 ${item.status === "activo" ? "text-primary" : "text-background-500"}`} />
                                                         <p className={`text-sm ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>{capitalize(item.status)}</p>
                                                     </div>
                                                     
                                                     <div className="flex justify-center flex-shrink-0 w-16">
-                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
+                                                        <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
                                                             <DropdownTrigger>
                                                                 <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
                                                                     <MoreVerticalFilled className="size-5"/>
@@ -674,12 +688,21 @@ export const MaintenanceCalibration = () => {
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusMaintenance"
                                                                         startContent={item.status === "activo" ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
                                                                         onPress={() => handleChangeStatusMaintenance(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
+                                                                    </DropdownItem>
+                                                                    
+                                                                    <DropdownItem 
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
+                                                                        key="equipment"
+                                                                        startContent={<SettingsFilled className="size-5"/>}
+                                                                        onPress={() => {navigate("/App/Equipments"); setSearchValue(item.equipmentName)}}
+                                                                    >
+                                                                        Ver equipo
                                                                     </DropdownItem>
                                                                 </DropdownSection>
                                                             </DropdownMenu>
@@ -693,7 +716,24 @@ export const MaintenanceCalibration = () => {
                             </TableRow>
                         )}
                     </TableBody>
-                </Table>)
+                </Table>) : (
+                <div className="flex flex-col w-full h-full px-1">
+                    <div className="flex justify-between">
+                        <p className="text-lg font-bold">Servicios</p>
+            
+                        <PrimaryButton
+                            tooltipPlacement="bottom"
+                            label="Solicitar"
+                            startContent={<WrenchScrewdriverFilled className="size-5"/>}
+                            onPress={() => {handleCreateMaintenance(); setIsDrawerOpen(true)}}
+                        />
+                    </div>
+                    
+                    <div className="flex-1 flex items-center justify-center flex-col gap-4">
+                        <CloudDatabaseFilled className="size-10"/>
+                        <p className="text-sm">No cuenta con servicios asignados actualmente</p>
+                    </div>
+                </div>)
             ))}
             
             <MaintenancesCalibrationsChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedMaintenance} onRefresh={triggerRefresh}/>

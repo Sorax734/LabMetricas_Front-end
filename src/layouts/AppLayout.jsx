@@ -1,8 +1,8 @@
-import { AlertFilled, BuildingPeopleFilled, ClockBillFilled, DatabaseSearchFilled, DataLineFilled, Dismiss12Filled, DismissCircleFilled, DismissFilled, DockFilled, DocumentBulletListClockFilled, DocumentMultipleFilled, DocumentTextClockFilled, DoorArrowLeftFilled, EmojiHandFilled, InfoFilled, InfoSparkleFilled, KeyMultipleFilled, KeyResetFilled, MoreCircleFilled, MoreHorizontalFilled, PeopleFilled, PeopleListFilled, PeopleSettingsFilled, PeopleStarFilled, PeopleToolboxFilled, PersonArrowLeftFilled, PersonBriefcaseFilled, PersonFilled, PersonHeartFilled, PersonSearchFilled, PersonSettingsFilled, PersonSquareFilled, PersonWrenchFilled, ScriptFilled, SearchFilled, SearchSparkleFilled, SettingsCogMultipleFilled, SettingsFilled, TagFilled, TextBulletListFilled, WeatherMoonFilled, WeatherSunnyFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
-import { Bars3Icon, ClockIcon, HomeIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid"
-import { Outlet, useLocation, useNavigate } from "react-router-dom"
+import { AlertFilled, BuildingPeopleFilled, CheckmarkCircleFilled, ClockBillFilled, DatabaseSearchFilled, DataLineFilled, Dismiss12Filled, DismissCircleFilled, DismissFilled, DockFilled, DocumentBulletListClockFilled, DocumentMultipleFilled, DocumentTextClockFilled, DoorArrowLeftFilled, EditFilled, EmojiHandFilled, InfoFilled, InfoSparkleFilled, KeyMultipleFilled, KeyResetFilled, MoreCircleFilled, MoreHorizontalFilled, PeopleFilled, PeopleListFilled, PeopleSettingsFilled, PeopleStarFilled, PeopleToolboxFilled, PersonArrowLeftFilled, PersonBriefcaseFilled, PersonFilled, PersonHeartFilled, PersonSearchFilled, PersonSettingsFilled, PersonSquareFilled, PersonWrenchFilled, ScriptFilled, SearchFilled, SearchSparkleFilled, SettingsCogMultipleFilled, SettingsFilled, TagFilled, TextAsterisk16Filled, TextBulletListFilled, WeatherMoonFilled, WeatherSunnyFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
+import { Bars3Icon, ClockIcon, EyeIcon, EyeSlashIcon, HomeIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid"
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useIsIconOnly } from "../hooks/useIsIconOnly"
-import { addToast, Button, Divider, Drawer, DrawerBody, DrawerContent, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Image, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Spinner, useDisclosure, useDraggable, User } from "@heroui/react"
+import { addToast, Button, Divider, Drawer, DrawerBody, DrawerContent, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Form, Image, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Spinner, useDisclosure, useDraggable, User } from "@heroui/react"
 import { SidebarButton } from "../components/SidebarButton"
 import { BottomButton } from "../components/BottomButton"
 import { useTheme } from "@heroui/use-theme"
@@ -10,16 +10,78 @@ import { useEffect, useRef, useState } from "react"
 import { CloseButton } from "../components/CloseButton"
 import { PrimaryButton } from "../components/PrimaryButton"
 import { useAuth } from "../hooks/useAuth"
-import { getProfile } from "../service/user"
+import { changePassword, getProfile } from "../service/user"
 import { motion } from "framer-motion"
 
-export const UserProfile = ({user}) => {
+export const UserProfile = ({user, onRefresh}) => {
     const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
+    const [isCPOpen, setIsCPOpen] = useState(false)
+    const [isCPLoading, setIsCPLoading] = useState(false);
+    
+    const targetRef = useRef(null)
+    const {moveProps} = useDraggable({targetRef, isDisabled: !isCPOpen})
+    
+    const [cPErrors, setCPErrors] = useState({})
+    
+    const [isVisible, setIsVisible] = useState(false)
+    const [isNewPVisible, setIsNewPVisible] = useState(false)
+
+    const toggleVisibility = () => setIsVisible(!isVisible)
+    const toggleNewPVisibility = () => setIsNewPVisible(!isNewPVisible)
 
     const tema = `Tema ${theme === 'dark' ? 'oscuro' : 'claro'}`
 
     let navigate = useNavigate()
+
+    const onSubmitCP = async (e) => {
+        e.preventDefault()
+
+        const formEntries = Object.fromEntries(new FormData(e.currentTarget))
+    
+        try {
+            setIsCPLoading(true)
+            
+            const response = await changePassword(formEntries)
+
+            const success = response.type === "SUCCESS"
+            
+            addToast({
+                title: success
+                    ? `Se actualizó su contraseña correctamente`
+                    : `No se actualizó su contraseña`,
+                description: `Para ingresar nuevamente a la aplicación, use la contraseña nueva`,
+                color: success ? "primary" : "danger",
+                icon: success
+                    ? <CheckmarkCircleFilled className="size-5"/>
+                    : <DismissCircleFilled className="size-5"/>
+            })
+
+            if (success){onRefresh()}
+        } catch (error){
+            if (error.response.data.message == "Current password is incorrect"){
+                addToast({
+                    title: `No se actualizó su contraseña`,
+                    description: "La contraseña actual es incorrecta. Por favor, verifique que sea válida",
+                    color: "danger",
+                    icon: <DismissCircleFilled className="size-5"/>
+                })
+                setCPErrors({currentPassword: "Contraseña incorrecta. Vuelva a intentarlo"})
+            } else {
+                addToast({
+                    title: `No se actualizó su contraseña`,
+                    description: error.response.data.message,
+                    color: "danger",
+                    icon: <DismissCircleFilled className="size-5"/>
+                })
+            }
+        } finally {
+            setIsCPLoading(false)
+        }
+    }
+
+    const passwordRegex =
+    /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{}|;:,.<>?])[A-Za-z0-9!@#$%^&*()_+\-=[\]{}|;:,.<>?]{8,}$/;
 
     return (
         <>
@@ -31,7 +93,7 @@ export const UserProfile = ({user}) => {
                         avatarProps={{
                             size: "md",
                             radius: "sm",
-                            name: user.name.split(' ').map(word => word[0]).join('').toUpperCase(),
+                            name: user.name.split(' ').map(word => word[0]).slice(0, 2).join('').toUpperCase(),
                             className: "bg-background-100 transition-colors duration-1000 ease-in-out",
                             classNames: {name: "text-base font-medium"}
                         }}
@@ -47,18 +109,9 @@ export const UserProfile = ({user}) => {
                             className="rounded-md transition-all !duration-1000 ease-in-out "
                             key="profile"
                             startContent={<PersonFilled className="size-5"/>}
-                            onPress={() => navigate("/App/Profile")}
+                            onPress={() => {navigate("/App/Profile"); setSearchValue("")}}
                         >
                             Mi perfil
-                        </DropdownItem>
-
-                        <DropdownItem 
-                            className="rounded-md transition-all !duration-1000 ease-in-out "
-                            key="notifications"
-                            startContent={<AlertFilled className="size-5"/>}
-                            //onPress={() => navigate("/App/Profile")}
-                        >
-                            Notificaciones
                         </DropdownItem>
 
                         <DropdownItem 
@@ -74,7 +127,7 @@ export const UserProfile = ({user}) => {
                             className="rounded-md transition-all !duration-1000 ease-in-out "
                             key="password"
                             startContent={<KeyMultipleFilled className="size-5"/>}
-                            //onPress={() => navigate("/App/Profile")}
+                            onPress={() => setIsCPOpen(true)}
                         >
                             Cambiar contraseña
                         </DropdownItem>
@@ -101,6 +154,142 @@ export const UserProfile = ({user}) => {
                 </DropdownMenu>
             </Dropdown>
             <LogOutModal isOpen={isOpen} onOpenChange={setIsOpen}/>
+
+            <Modal
+                hideCloseButton
+                size="md"
+                radius="lg"
+                isDismissable={false}
+                isOpen={isCPOpen}
+                onOpenChange={setIsCPOpen}
+                classNames={{wrapper: "overflow-hidden"}}
+                ref={targetRef} 
+                backdrop="blur"
+            >
+                <ModalContent className="bg-background">
+                    {(onClose) => (
+                        <>
+                        <ModalHeader {...moveProps} className="flex flex-col gap-2 pb-4 pt-4">
+                            <div className="w-full flex justify-end">
+                                <CloseButton onPress={() => {onClose(); setCPErrors({})}}/>     
+                            </div>
+                            <p className="text-lg font-bold text-center">Cambiar contraseña</p>
+                        </ModalHeader>
+                        <ModalBody className="py-0 gap-0">
+                            <p className="text-sm font-normal pb-6 text-center">Ingrese su contraseña actual y la nueva contraseña para poder actualizar su contraseña</p>
+                            <Form onSubmit={onSubmitCP} id="cp-form" className="gap-6 flex flex-col" validationErrors={cPErrors}>
+                                <Input
+                                    label={
+                                        <div className="flex justify-between">
+                                            <div className="flex items-center gap-1">
+                                                <p>Contraseña actual</p>
+                                                <TextAsterisk16Filled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
+                                            </div>
+                                            <Link className="text-secondary font-medium text-sm" to="/">¿Olvidaste tu contraseña?</Link>
+                                        </div>
+                                    }
+                                    classNames={{ label: "w-full font-medium !text-current", input: "group-data-[invalid=true]:!text-current font-medium",  mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-background-100 text-current" }}
+                                    className="w-full"
+                                    color="primary"
+                                    name="currentPassword"
+                                    autoComplete="current-password"
+                                    labelPlacement="outside"
+                                    type={isVisible ? "text" : "password"}
+                                    radius="sm"
+                                    size="md"
+                                    variant="bordered"
+                                    placeholder="Ingrese su contraseña actual"
+                                    endContent={
+                                        <button
+                                            aria-label="toggle password visibility"
+                                            className="focus:outline-none"
+                                            type="button"
+                                            onClick={toggleVisibility}
+                                        >
+                                            {isVisible ? (
+                                                <EyeSlashIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                            ) : (                                        
+                                                <EyeIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                            )}
+                                        </button>
+                                    }
+                                    validate={(value) => {
+                                        if (value.length === 0){
+                                            return "El campo es obligatorio."
+                                        }
+                                    }}
+                                />
+
+                                <Input
+                                    label={
+                                        <div className="flex justify-between">
+                                            <div className="flex items-center gap-1">
+                                                <p>Nueva contraseña</p>
+                                                <TextAsterisk16Filled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
+                                            </div>
+                                        </div>
+                                    }
+                                    classNames={{ label: "w-full font-medium !text-current", input: "group-data-[invalid=true]:!text-current font-medium",  mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-background-100 text-current" }}
+                                    className="w-full"
+                                    color="primary"
+                                    name="newPassword"
+                                    autoComplete="new-password"
+                                    labelPlacement="outside"
+                                    type={isNewPVisible ? "text" : "password"}
+                                    radius="sm"
+                                    size="md"
+                                    variant="bordered"
+                                    placeholder="Ingrese la nueva contraseña"
+                                    endContent={
+                                        <button
+                                            aria-label="toggle password visibility"
+                                            className="focus:outline-none"
+                                            type="button"
+                                            onClick={toggleNewPVisibility}
+                                        >
+                                            {isNewPVisible ? (
+                                                <EyeSlashIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                            ) : (                                        
+                                                <EyeIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                            )}
+                                        </button>
+                                    }
+                                    description="La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula y un carácter especial."
+                                    validate={(value) => {
+                                        if (!passwordRegex.test(value)) {
+                                            return "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula y un carácter especial.";
+                                        }
+                                    }}
+                                />
+                            </Form>
+                        </ModalBody>
+                        <ModalFooter className="flex justify-center pt-8 pb-8">
+                            <Button
+                                className="bg-transparent dark:bg-background-100"
+                                radius="sm"
+                                startContent={<DismissFilled className="size-5"/>}
+                                onPress={() => {onClose(); setCPErrors({})}}
+                            >
+                                Cancelar
+                            </Button>
+                            
+                            <Button
+                                className="tracking-wide font-medium data-[hover=true]:-translate-y-1"
+                                form="cp-form"
+                                radius="sm"
+                                variant="shadow"
+                                color="primary"
+                                type="submit"
+                                startContent={!isCPLoading && <EditFilled className="size-5"/>}
+                                isLoading={isCPLoading}
+                            >
+                                Actualizar
+                            </Button>
+                        </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </>
     );
 }
@@ -118,6 +307,18 @@ export const AppLayout = () => {
 
     const [profile, setProfile] = useState({})
     const [errors, setErrors] = useState([])
+
+    const [refreshTrigger, setRefreshTrigger] = useState(false)
+    const triggerRefresh = () => setRefreshTrigger(prev => !prev)
+
+    useEffect(() => {
+        const handlePop = () => setSearchValue("")
+        window.addEventListener("popstate", handlePop)
+        
+        return () => {
+            window.removeEventListener("popstate", handlePop)
+        }
+    }, [])
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -146,7 +347,16 @@ export const AppLayout = () => {
             }
         }
         fetchProfile()
-    }, [user])
+
+        const handleProfileUpdated = () => {
+            fetchProfile()
+        }
+        window.addEventListener("profileUpdated", handleProfileUpdated)
+
+        return () => {
+            window.removeEventListener("profileUpdated", handleProfileUpdated)
+        }
+    }, [user, refreshTrigger])
 
     const navigation = [
         {
@@ -231,7 +441,7 @@ export const AppLayout = () => {
             {isLoading ? (
                 <div className="flex w-screen h-screen justify-center items-center">
                     <Spinner
-                        classNames={{ label: "pt-2 text-sm font-medium" }}
+                        classNames={{ label: "pt-2 text-sm" }}
                         color="current"
                         size="md"
                         label="Espere un poco por favor"
@@ -295,10 +505,10 @@ export const AppLayout = () => {
                                             setSearchValue(val)
                                         }}
                                         isClearable
-                                        placeholder={location.pathname === "/App/Maintenance-Calibration" ? "Buscar resultados por código" : "Buscar resultados por nombre"}
+                                        placeholder={location.pathname === "/App/Maintenance-Calibration" ? "Buscar resultados por código" : location.pathname === "/App/Logs" ? "Buscar resultados por usuario" : "Buscar resultados por nombre"}
                                         endContent={<div className="w-full h-full flex items-center justify-center"><DismissFilled className='size-5 group-data-[focus=true]:text-primary' /></div>}
                                     />
-                                    <UserProfile user={profile}/>
+                                    <UserProfile user={profile} onRefresh={triggerRefresh}/>
                                 </div>
                             </div>
 
@@ -322,7 +532,7 @@ export const AppLayout = () => {
                                                 key={label}
                                                 label={label}
                                                 startContent={icon}
-                                                onPress={() => {navigate(path);}}
+                                                onPress={() => {navigate(path); setSearchValue("")}}
                                             />
                                         ))}
 {/*
@@ -378,7 +588,7 @@ export const AppLayout = () => {
                                                 key={label}
                                                 label={label}
                                                 centerContent={icon}
-                                                onPress={() => {navigate(path);}}
+                                                onPress={() => {navigate(path); setSearchValue("")}}
                                             />
                                         ))}
                                     </div>
@@ -438,7 +648,7 @@ export const AppLayout = () => {
                                     key={label}
                                     label={label}
                                     startContent={icon}
-                                    onPress={() => {navigate(path)}}
+                                    onPress={() => {navigate(path); setSearchValue(""); onClose()}}
                                 />
                             ))}
                         </DrawerBody>
