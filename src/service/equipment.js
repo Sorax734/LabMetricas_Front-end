@@ -30,6 +30,21 @@ export const createEquipment = async (equipment) => {
 	}
 }
 
+export const createEquipmentWithMaintenances = async (EquipmentWithMaintenances) => {
+	try {
+		const response = await api.post('/equipment/withMaintenances', EquipmentWithMaintenances)
+
+		if (response.status >= 200 && response.status < 300) {
+			return response.data
+		}
+
+		throw new Error(`Código de estado inesperado: ${response.status}`)
+	} catch (error) {
+		console.error("[createEquipmentWithMaintenances] error:", error);
+		throw error
+	}
+}
+
 export const updateEquipment = async (equipment) => {
 	try {
 		const response = await api.put(`/equipment/${equipment.id}`, equipment)

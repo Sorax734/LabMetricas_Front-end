@@ -4,6 +4,52 @@ export function required(value) {
     }
 }
 
+export function validateDatePicker(value) {
+    if (!value) return "La fecha es obligatoria."
+    
+    // Convertir el objeto CalendarDate a Date en UTC
+    const selectedDate = new Date(Date.UTC(
+        value.year,
+        value.month - 1, // Los meses en JavaScript son 0-indexed
+        value.day,
+        value.hour || 0,
+        value.minute || 0,
+        value.second || 0
+    ))
+    
+    // Obtener fecha actual en UTC
+    const now = new Date()
+    const todayUTC = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds()
+    ))
+    
+    // Fecha máxima (2038-01-19 03:14:07 UTC)
+    const maxDate = new Date(Date.UTC(2038, 0, 19, 3, 14, 7))
+    
+    if (selectedDate < todayUTC) {
+        return "La fecha debe ser con un día de anticipación como mínimo."
+    }
+    
+    if (selectedDate > maxDate) {
+        return "La fecha no puede ser posterior al 19 de enero de 2038."
+    }
+    
+    return null
+}
+
+export function requiredNumber(value) {
+    if (Number.isNaN(value)) {
+        return "El campo no es válido.";
+    } else if (value === null || value === undefined) {
+        return "El campo es obligatorio."
+    }
+}
+
 export function noSpaces(value) {
     if (/\s/.test(value)) {
         return "El campo no puede contener espacios.";

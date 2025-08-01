@@ -4,9 +4,9 @@ import { CloseButton } from "../CloseButton"
 import { AddCircleFilled, ArrowHookUpLeftFilled, ArrowHookUpRightFilled, CheckmarkCircleFilled, DismissCircleFilled, DismissFilled, EditFilled, PersonAddFilled, PersonEditFilled } from "@fluentui/react-icons"
 import { PrimaryButton } from "../PrimaryButton"
 import { Tooltip } from "../Tooltip"
-import { createEquipment, updateEquipment } from "../../service/equipment"
+import { createEquipment, createEquipmentWithMaintenances, updateEquipment } from "../../service/equipment"
 
-export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action, onRefresh, closeDrawer}) => {
+export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action, onRefresh, closeDrawer, maintenances, withMaintenances}) => {
     const targetRef = useRef(null)
     const {moveProps} = useDraggable({targetRef, isDisabled: !isOpen})
 
@@ -17,14 +17,19 @@ export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action
 
     const [isLoading, setIsLoading] = useState(false)
 
+    const payload = {
+        equipment: data,        
+        maintenances: maintenances
+    }
+
     const handleSubmit = async () => {
         const verb = action === "create" ? "registró" : "actualizó"
-
+        
         try {
             setIsLoading(true)
             
             const response = action === "create"
-                ? await createEquipment(data)
+                ? ( maintenances.length > 0 && withMaintenances ? await createEquipmentWithMaintenances(payload) : await createEquipment(data))
                 : await updateEquipment(data)
 
             const success = response.type === "SUCCESS"
@@ -56,7 +61,7 @@ export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action
 
     const equipmentDetails = (equipment) => {
         return (
-            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-large">
+            <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-large overflow-hidden">
 
                 <CardBody className="pl-4">
                     <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-28 bg-primary rounded-full`}></div>

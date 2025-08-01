@@ -47,6 +47,9 @@ export default {
             DEFAULT: "#368e91",
             foreground: "#f2f2f2",
           },
+          default: {
+            100: '#e6e6e6',
+          },
           secondary: {
             50: '#eff5f6',
             100: '#dfebec',
@@ -96,6 +99,9 @@ export default {
             950: '#ecf8f8',
             DEFAULT: "#6ec6c9", 
             foreground: "#0d0d0d",
+          },
+          default: {
+            100: '#1F1F1F',
           },
           secondary: {
             50: '#091010',

@@ -113,16 +113,7 @@ export const UserProfile = ({user, onRefresh}) => {
                         >
                             Mi perfil
                         </DropdownItem>
-
-                        <DropdownItem 
-                            className="rounded-md transition-all !duration-1000 ease-in-out "
-                            key="step-by-step"
-                            startContent={<EmojiHandFilled className="size-5"/>}
-                            //onPress={() => navigate("/App/Profile")}
-                        >
-                            Paso a paso
-                        </DropdownItem>
-
+                        
                         <DropdownItem 
                             className="rounded-md transition-all !duration-1000 ease-in-out "
                             key="password"
