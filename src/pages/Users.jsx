@@ -1,5 +1,5 @@
 import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react"
-import { getUsers } from "../service/user"
+import { getUsers, getUsersButMe } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
@@ -22,7 +22,7 @@ export const Users = () => {
 
     const isIconOnlyMedium = useIsIconOnlyMedium()
     const [, startTransition] = useTransition()
-    const {searchValue, setSearchValue, userName} = useOutletContext()
+    const {searchValue, setSearchValue, userName, id} = useOutletContext()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -34,7 +34,7 @@ export const Users = () => {
             try {
                 setIsLoading(true)
 
-                const response = await getUsers()
+                const response = await getUsersButMe()
                 const data = response.data
 
                 if (data) {
@@ -214,8 +214,8 @@ export const Users = () => {
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
         return (
-            <div className="flex justify-between gap-4 items-center px-1">
-                <div className="flex flex-col">
+            <div className="flex justify-between gap-4 items-center px-1 n2">
+                <div className="flex flex-col n7">
                     <p className="text-lg font-bold">Usuarios</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
@@ -230,7 +230,7 @@ export const Users = () => {
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
+                                className="n8 bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
@@ -336,7 +336,7 @@ export const Users = () => {
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
-                        startContent={<PersonAddFilled className="size-5"/>}
+                        startContent={<PersonAddFilled className="size-5 "/>}
                         onPress={() => {handleCreateUser(); setIsDrawerOpen(true)}}
                     />
                 </div>
@@ -362,7 +362,7 @@ export const Users = () => {
                     <Pagination
                         showControls
                         showShadow
-                        className="-m-0 px-0 pt-2 pb-2.5"
+                        className="-m-0 px-0 pt-2 pb-2.5 n4"
                         aria-label="Pagination tabla"
                         radius="sm"
                         variant="light"
@@ -393,7 +393,7 @@ export const Users = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] n3 gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -523,8 +523,8 @@ export const Users = () => {
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
                                         <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadUser(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
-                                            <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 ${item.phone ? "h-[104px] sm:h-[88px]" : "h-24 sm:h-20"} ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                            <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0 n5">
+                                                <div className={`absolute left-0 inset-y-4 w-1 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full md:inset-y-1`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
                                                         <div className="xs:flex xs:items-center xs:gap-2 pb-2">

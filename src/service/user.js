@@ -15,6 +15,21 @@ export const getUsers = async () => {
 	}
 }
 
+export const getUsersButMe = async () => {
+	try {
+		const response = await api.get('/users/ButMe')
+
+		if (response.status >= 200 && response.status < 300) {
+			return response.data
+		}
+
+		throw new Error(`Código de estado inesperado: ${response.status}`)
+	} catch (error) {
+		console.error("[getUsersButMe] error:", error);
+		throw error
+	}
+}
+
 export const getProfile = async () => {
 	try {
 		const response = await api.get("/users/profile")
@@ -61,7 +76,6 @@ export const updateUser = async (user) => {
 }
 
 export const updateProfile = async (user) => {
-	console.log(user)
 	try {
 		const response = await api.put('/users/profile', user)
 

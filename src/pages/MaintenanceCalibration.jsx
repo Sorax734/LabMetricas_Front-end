@@ -1,18 +1,19 @@
-import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react"
-import { getUsers } from "../service/user"
+import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tabs, Tab } from "@heroui/react"
+import { getUsers, getUsersButMe } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronDownFilled, CircleFilled, CloudDatabaseFilled, DismissCircleFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled, SettingsFilled, SubtractCircleFilled, WrenchScrewdriverFilled } from "@fluentui/react-icons"
+import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ArrowSyncCircleFilled, CalendarClockFilled, CheckmarkCircleFilled, CheckmarkFilled, ChevronDownFilled, CircleFilled, ClipboardClockFilled, ClipboardTextEditFilled, ClockFilled, CloudDatabaseFilled, DismissCircleFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled, SettingsFilled, SubtractCircleFilled, WrenchScrewdriverFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useNavigate, useOutletContext } from "react-router-dom"
-import { getMaintenances } from "../service/maintenanceCalibration"
+import { getMaintenancesByMe, getMaintenancesToMe } from "../service/maintenanceCalibration"
+import { getScheduledMaintenancesByMe, getScheduledMaintenancesToMe } from "../service/scheduledMaintenance"
 import { MaintenancesCalibrationsChangeStatusModal } from "../components/maintenancesCalibrations/maintenancesCalibrationsChangeStatusModal"
 import { getEquipments } from "../service/equipment"
 import { getMaintenanceTypes } from "../service/maintenanceType"
-import { getScheduledMaintenances } from "../service/scheduledMaintenance"
 import { MaintenancesCalibrationsDrawer } from "../components/maintenancesCalibrations/MaintenancesCalibrationsDrawer"
 import { formatDateLiteral } from "../js/utils"
+import { ReviewModal } from "../components/maintenancesCalibrations/ReviewModal"
 
 export const MaintenanceCalibration = () => {
     let navigate = useNavigate()
@@ -21,6 +22,9 @@ export const MaintenanceCalibration = () => {
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
 
     const [maintenances, setMaintenances] = useState([])
+    const [maintenancesByMe, setMaintenancesByMe] = useState([])
+    const [scheduledMaintenances, setScheduledMaintenances] = useState([])
+    const [scheduledMaintenancesByMe, setScheduledMaintenancesByMe] = useState([])
     const [users, setUsers] = useState([])
     const [equipments, setEquipments] = useState([])
     const [maintenanceTypes, setMaintenanceTypes] = useState([])
@@ -28,52 +32,109 @@ export const MaintenanceCalibration = () => {
 
     const isIconOnlyMedium = useIsIconOnlyMedium()
     const [, startTransition] = useTransition()
-    const {searchValue, setSearchValue, userName} = useOutletContext()
+    const {searchValue, setSearchValue, userName, id} = useOutletContext()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
 
     const [selectedMaintenance, setSelectedMaintenance] = useState({})
     const [action, setAction] = useState("")
+    const [reviewAction, setReviewAction] = useState("")
 
+    const [selectedKeyTab, setSelectedKeyTab] = useState("scheduledToMe")
+    const [selectedKeyBy, setSelectedKeyBy] = useState("Anyone")
+
+    const reviewStatusEnum = {
+        IN_PROGRESS: {
+            icon: <ArrowSyncCircleFilled className='size-5' />,
+            label: "En progreso",
+            colorClassName: "text-background-500"
+        },
+        PENDING: {
+            icon: <ClockFilled className='size-5' />,
+            label: "Pendiente",
+            colorClassName: "text-warning"
+        },
+        APPROVED: {
+            icon: <CheckmarkCircleFilled className='size-5' />,
+            label: "Aprobado",
+            colorClassName: "text-primary"
+        },
+        REJECTED: {
+            icon: <DismissCircleFilled className='size-5' />,
+            label: "Rechazado",
+            colorClassName: "text-danger"
+        }
+    }
+                    
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoading(true)
 
-                const maintenancesResponse = await getMaintenances()
-                const usersResponse = await getUsers()
+                const maintenancesNBResponse = await getMaintenancesByMe(id)
+                const maintenancesNTResponse = await getMaintenancesToMe(id)
+                const maintenancesPBResponse = await getScheduledMaintenancesByMe(id)
+                const maintenancesPTResponse = await getScheduledMaintenancesToMe(id)
+                const usersResponse = await getUsersButMe()
                 const equipmentsResponse = await getEquipments()
                 const maintenanceTypesResponse = await getMaintenanceTypes()
-                const ScheduledMaintenancesResponse = await getScheduledMaintenances()
 
-                const data = maintenancesResponse.data
+                const data = maintenancesNTResponse.data
+                const data2 = maintenancesNBResponse.data
+                const data3 = maintenancesPTResponse.data
+                const data4 = maintenancesPBResponse.data
                 const usersData = usersResponse.data
                 const equipmentsData = equipmentsResponse.data
                 const maintenanceTypesData = maintenanceTypesResponse.data
-                const scheduledMaintenancesData = ScheduledMaintenancesResponse.data
 
-                const scheduledSet = new Set(
-                    scheduledMaintenancesData.map((s) => s.maintenanceId)
-                )
-
-                if (data && usersData && equipmentsData && maintenanceTypesData) {
+                if (data && usersData && equipmentsData && maintenanceTypesData && data2 && data3 && data4) {
                     const priorityLabels = {
                         LOW:      'Baja',
                         MEDIUM:   'Media',
                         HIGH:     'Alta',
                         CRITICAL: 'Crítica'
                     }
-                    
+
                     const dataCount = data.map((item, index) => ({
                         ...item,
                         n: index + 1,
                         status: item.status ? "activo" : "inactivo",
-                        isScheduled: scheduledSet.has(item.id),
-                        priorityName: priorityLabels[item.priority] || '-'
+                        priorityName: priorityLabels[item.priority] || '-',
+                        isScheduled: false
                     }))
-                    
+                    console.log(dataCount)
+                    const dataCountS = data3.map((item, index) => ({
+                        ...item,
+                        n: index + 1,
+                        status: item.status ? "activo" : "inactivo",
+                        priorityName: priorityLabels[item.priority] || '-',
+                        isScheduled: true
+                    }))
+                    console.log(dataCountS)
+                    const dataCountByMe = data2.map((item, index) => ({
+                        ...item,
+                        n: index + 1,
+                        status: item.status ? "activo" : "inactivo",
+                        priorityName: priorityLabels[item.priority] || '-',
+                        isScheduled: false
+                    }))
+                    console.log(dataCountByMe)
+
+                    const dataCountSByMe = data4.map((item, index) => ({
+                        ...item,
+                        n: index + 1,
+                        status: item.status ? "activo" : "inactivo",
+                        priorityName: priorityLabels[item.priority] || '-',
+                        isScheduled: true
+                    }))
+                    console.log(dataCountSByMe)
+
                     startTransition(() => {
                         setMaintenances(dataCount)
+                        setMaintenancesByMe(dataCountByMe)
+                        setScheduledMaintenances(dataCountS)
+                        setScheduledMaintenancesByMe(dataCountSByMe)
                         setUsers(usersData.filter(u  => u.status === true))
                         setEquipments(equipmentsData.filter(u  => u.status === true))
                         setMaintenanceTypes(maintenanceTypesData.filter(u  => u.status === true))
@@ -81,6 +142,24 @@ export const MaintenanceCalibration = () => {
                         setSelectedMaintenance(prev => {
                             if (!prev) return null
                             const updated = dataCount.find(u => u.id === prev.id)
+                            return updated ?? prev
+                        })
+
+                        setSelectedMaintenance(prev => {
+                            if (!prev) return null
+                            const updated = dataCountByMe.find(u => u.id === prev.id)
+                            return updated ?? prev
+                        })
+
+                        setSelectedMaintenance(prev => {
+                            if (!prev) return null
+                            const updated = dataCountS.find(u => u.id === prev.id)
+                            return updated ?? prev
+                        })
+
+                        setSelectedMaintenance(prev => {
+                            if (!prev) return null
+                            const updated = dataCountSByMe.find(u => u.id === prev.id)
                             return updated ?? prev
                         })
 
@@ -132,26 +211,34 @@ export const MaintenanceCalibration = () => {
 
     useEffect(() => {
         setPage(1)
-    }, [searchValue, statusFilter])
+    }, [searchValue, statusFilter, selectedKeyTab, selectedKeyBy])
 
     const hasSearchFilter = Boolean(searchValue)
-    
+
+    let itemsToShow = []
+
+    if(selectedKeyTab === "scheduled"){
+        itemsToShow = selectedKeyBy === "Anyone" ? scheduledMaintenances : scheduledMaintenancesByMe
+    } else {
+        itemsToShow = selectedKeyBy === "Anyone" ? maintenances : maintenancesByMe
+    }
+
     const filteredItems = React.useMemo(() => {
-        let filteredMaintenances = [...maintenances]
+        let itemsToFilter = [...itemsToShow]
     
         if (hasSearchFilter) {
-            filteredMaintenances = filteredMaintenances.filter((maintenance) =>
+            itemsToFilter = itemsToFilter.filter((maintenance) =>
                 maintenance.code.toLowerCase().includes(searchValue.toLowerCase()),
             )
         }
         if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-            filteredMaintenances = filteredMaintenances.filter((maintenance) =>
+            itemsToFilter = itemsToFilter.filter((maintenance) =>
                 Array.from(statusFilter).includes(maintenance.status),
             )
         }
     
-        return filteredMaintenances
-    }, [maintenances, searchValue, statusFilter])
+        return itemsToFilter
+    }, [itemsToShow, searchValue, statusFilter])
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage)
     
@@ -182,6 +269,10 @@ export const MaintenanceCalibration = () => {
     const onRowsPerPageChange = React.useCallback((e) => {
         setRowsPerPage(Number(e.target.value))
         setPage(1)
+    }, [])
+    
+    const onShowChange = React.useCallback((e) => {
+        setSelectedKeyBy(String(e.target.value))
     }, [])
     
     const onSearchChange = React.useCallback((value) => {
@@ -229,6 +320,12 @@ export const MaintenanceCalibration = () => {
         setSelectedMaintenance(user)
         setIsModalOpen(true)
     }
+
+    const handleReviewModal = (maintenance, action) => {
+        setSelectedMaintenance(maintenance)
+        setReviewAction(action)
+        setIsReviewModalOpen(true)
+    }
     
     const topContent = React.useMemo(() => {
         const sortOptions = [
@@ -236,7 +333,6 @@ export const MaintenanceCalibration = () => {
             { key: "code", label: "Código" },
             { key: "description", label: "Descripción" },
             { key: "equipmentName", label: "Equipo" },
-            { key: "responsibleUserName", label: "Responsable" },
             { key: "priorityName", label: "Prioridad" },
         ]
 
@@ -244,10 +340,19 @@ export const MaintenanceCalibration = () => {
         const startIndex = (page - 1) * rowsPerPage + 1
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
+        let title = selectedKeyTab === "scheduled" ? "Servicios programados" : "Solicitudes de servicio"
+
+        if(selectedKeyTab === "scheduled"){
+            title = selectedKeyBy === "Anyone" ? "Servicios programados asignados" : "Servicios programados creados"
+        } else {
+            title = selectedKeyBy === "Anyone" ? "Solicitudes de servicio asignadas" : "Solicitudes de servicio creadas"
+        }
+
         return (
-            <div className="flex justify-between gap-4 items-center px-1">
-                <div className="flex flex-col">
-                    <p className="text-lg font-bold">Servicios</p>
+            <>
+            <div className="flex justify-between gap-0 items-center px-1 n2">
+                <div className="flex flex-col n7">
+                    <p className={` ${selectedKeyTab === "scheduled" ? "max-xs:text-base text-lg" : "text-lg"} font-bold`}>{title}</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
                         ? "Sin resultados"
@@ -258,10 +363,25 @@ export const MaintenanceCalibration = () => {
                 </div>
 
                 <div className="flex gap-2 sm:gap-4">
+                    <Tabs onSelectionChange={setSelectedKeyTab} className="hidden md:flex pr-4" classNames={{cursor: "rounded-full" }} variant="underlined" size="md" defaultSelectedKey={selectedKeyTab}>
+                        <Tab key="scheduled" title={
+                            <div className="flex gap-2">
+                                <CalendarClockFilled className="size-5"/>
+                                <p className="text-sm">Programados</p>
+                            </div>
+                        }/>
+                        <Tab key="request" title={
+                            <div className="flex gap-2">
+                                <ClipboardTextEditFilled className="size-5"/>
+                                <p className="text-sm">Solicitudes</p>
+                            </div>
+                        }/>
+                    </Tabs>
+
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
+                                className="n8 bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
@@ -360,6 +480,34 @@ export const MaintenanceCalibration = () => {
                                         </SelectItem>
                                     ))}
                                 </Select>
+
+                                <Select
+                                    disallowEmptySelection
+                                    className="w-28 flex-none"
+                                    aria-label="Select table"
+                                    renderValue={() => <p>{selectedKeyBy === "Anyone" ? "Asignados" : "Creados"}</p>}
+                                    size="md"
+                                    radius="sm"
+                                    selectionMode="single"
+                                    defaultSelectedKeys={[`${selectedKeyBy}`]}
+                                    onChange={onShowChange} 
+                                    selectorIcon={<ChevronDownFilled className="size-5"/>}
+                                    classNames={{
+                                        trigger: "border-0 shadow-none !bg-transparent -ml-2",
+                                        popoverContent: "text-current bg-background transition-colors duration-1000 ease-in-out rounded-lg dark:bg-background-200 shadow-large",
+                                    }}
+                                    listboxProps={{
+                                        itemClasses: {
+                                            base: "!bg-transparent hover:!text-background-950/60 transition-colors duration-1000 ease-in-out",
+                                        }
+                                    }}>
+                                    <SelectItem key="Me">
+                                        Creado
+                                    </SelectItem>
+                                    <SelectItem key="Anyone">
+                                        Asignado
+                                    </SelectItem>
+                                </Select>
                             </div>
                         </PopoverContent>
                     </Popover>
@@ -367,11 +515,29 @@ export const MaintenanceCalibration = () => {
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Solicitar"
-                        startContent={<WrenchScrewdriverFilled className="size-5"/>}
+                        startContent={<WrenchScrewdriverFilled className="size-5 "/>}
                         onPress={() => {handleCreateMaintenance(); setIsDrawerOpen(true)}}
                     />
                 </div>
             </div>
+
+            <div className="flex w-full md:hidden">
+                <Tabs fullWidth variant="underlined" size="md" defaultSelectedKey={selectedKeyTab} classNames={{cursor: "rounded-full" }} onSelectionChange={setSelectedKeyTab}>
+                    <Tab key="scheduled" title={
+                        <div className="flex gap-2">
+                            <CalendarClockFilled className="size-5"/>
+                            <p className="text-sm">Programados</p>
+                        </div>
+                    }/>
+                    <Tab key="request" title={
+                        <div className="flex gap-2">
+                            <ClipboardTextEditFilled className="size-5"/>
+                            <p className="text-sm">Solicitudes</p>
+                        </div>
+                    }/>
+                </Tabs>
+            </div>
+            </>
         )
     }, [
         filteredItems,
@@ -383,7 +549,9 @@ export const MaintenanceCalibration = () => {
         page,
         maintenances.length,
         hasSearchFilter,
-        sortDescriptor
+        sortDescriptor,
+        selectedKeyTab,
+        selectedKeyBy
     ])
     
     const bottomContent = React.useMemo(() => {
@@ -393,7 +561,7 @@ export const MaintenanceCalibration = () => {
                     <Pagination
                         showControls
                         showShadow
-                        className="-m-0 px-0 pt-2 pb-2.5"
+                        className="-m-0 px-0 pt-2 pb-2.5 n4"
                         aria-label="Paginación"
                         radius="sm"
                         variant="light"
@@ -406,7 +574,7 @@ export const MaintenanceCalibration = () => {
                 </div>
             )
         }
-    }, [filteredItems.length, page, pages])
+    }, [filteredItems.length, page, pages, selectedKeyTab, selectedKeyBy])
 
     const classNames = React.useMemo(
         () => ({
@@ -424,7 +592,7 @@ export const MaintenanceCalibration = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] n3 gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -470,7 +638,7 @@ export const MaintenanceCalibration = () => {
                         ))}
                     </div>
                 </div>
-            ) : ( maintenances.length > 0 ? (
+            ) : ( maintenances.length > 0 || maintenancesByMe.length > 0 || scheduledMaintenances.length > 0 || scheduledMaintenancesByMe.length > 0 ? (
                 <Table
                     isHeaderSticky
                     radius="none"
@@ -498,6 +666,10 @@ export const MaintenanceCalibration = () => {
                                         
                                         <div className="w-36 flex-shrink-0">
                                             Código
+                                        </div>
+                                        
+                                        <div className="w-32 flex-shrink-0">
+                                            Revisión
                                         </div>
                                         
                                         <div className="flex-1 min-w-0 max-w-[25%]">
@@ -550,13 +722,21 @@ export const MaintenanceCalibration = () => {
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
                                         <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadMaintenance(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
-                                            <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 sm:h-20 h-24 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                            <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0 n5">
+                                                <div className={`absolute left-0 inset-y-4 w-1 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full md:inset-y-1`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
                                                         <div className="xs:flex xs:items-center xs:gap-2 pb-2">
                                                             <div className="flex gap-1 pb-1 items-end">
                                                                 <p className="text-sm font-medium break-all line-clamp-1">{item.code}</p>
+                                                                {(() => {
+                                                                    const statusInfo = reviewStatusEnum[item.reviewStatus] || {}
+                                                                    return (
+                                                                        <div className={"flex items-center gap-1 " + statusInfo.colorClassName}>
+                                                                            {statusInfo.icon}
+                                                                        </div>
+                                                                    )
+                                                                })()}
                                                             </div>
                                                             <div className={`flex gap-1 text-xs items-start ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
                                                                 <p className="text-background-950">Equipo: {item.equipmentName}</p>
@@ -577,6 +757,7 @@ export const MaintenanceCalibration = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    { selectedKeyBy === "Me" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateMaintenance"
@@ -584,7 +765,7 @@ export const MaintenanceCalibration = () => {
                                                                         onPress={() => {handleUpdateMaintenance(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar
-                                                                    </DropdownItem>
+                                                                    </DropdownItem> }
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -595,6 +776,38 @@ export const MaintenanceCalibration = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    { selectedKeyBy === "Me" ? item.reviewStatus === "PENDING" &&
+                                                                        <>
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            key="APPROVED"
+                                                                            startContent={<CheckmarkCircleFilled className="size-5"/>}
+                                                                            onPress={() => handleReviewModal(item, "APPROVED")}
+                                                                        >
+                                                                            Marcar como Aprobado
+                                                                        </DropdownItem>
+
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            key="REJECTED"
+                                                                            startContent={<DismissCircleFilled className="size-5"/>}
+                                                                            onPress={() => handleReviewModal(item, "REJECTED")}
+                                                                        >
+                                                                            Marcar como rechazado
+                                                                        </DropdownItem>
+                                                                        </>
+                                                                    : item.reviewStatus === "IN_PROGRESS" &&
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out -mt-1"
+                                                                            key="PENDING"
+                                                                            startContent={<ClockFilled className="size-5"/>}
+                                                                            onPress={() => handleReviewModal(item, "PENDING")}
+                                                                        >
+                                                                            Marcar como pendiente
+                                                                        </DropdownItem>
+                                                                    }
+
+                                                                    { selectedKeyBy === "Me" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusMaintenance"
@@ -602,7 +815,7 @@ export const MaintenanceCalibration = () => {
                                                                         onPress={() => handleChangeStatusMaintenance(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem> }
                                                                     
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
@@ -629,6 +842,18 @@ export const MaintenanceCalibration = () => {
                                                         <p className="text-sm truncate">
                                                             {item.code}
                                                         </p>
+                                                    </div>
+
+                                                    <div className="w-32 flex-shrink-0">
+                                                        {(() => {
+                                                            const statusInfo = reviewStatusEnum[item.reviewStatus] || {}
+                                                            return (
+                                                                <div className={"flex items-center gap-1 " + statusInfo.colorClassName}>
+                                                                    {statusInfo.icon}
+                                                                    <span className="text-sm truncate">{statusInfo.label}</span>
+                                                                </div>
+                                                            )
+                                                        })()}
                                                     </div>
 
                                                     <div className="flex-1 min-w-0 max-w-[25%]">
@@ -669,6 +894,7 @@ export const MaintenanceCalibration = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    { selectedKeyBy === "Me" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateMaintenance"
@@ -676,7 +902,7 @@ export const MaintenanceCalibration = () => {
                                                                         onPress={() => {handleUpdateMaintenance(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -686,7 +912,39 @@ export const MaintenanceCalibration = () => {
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
+                                                                    
+                                                                    { selectedKeyBy === "Me" ? item.reviewStatus === "PENDING" &&
+                                                                        <>
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            key="APPROVED"
+                                                                            startContent={<CheckmarkCircleFilled className="size-5"/>}
+                                                                            onPress={() => handleReviewModal(item, "APPROVED")}
+                                                                        >
+                                                                            Marcar como Aprobado
+                                                                        </DropdownItem>
 
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            key="REJECTED"
+                                                                            startContent={<DismissCircleFilled className="size-5"/>}
+                                                                            onPress={() => handleReviewModal(item, "REJECTED")}
+                                                                        >
+                                                                            Marcar como rechazado
+                                                                        </DropdownItem>
+                                                                        </>
+                                                                    : item.reviewStatus === "IN_PROGRESS" &&
+                                                                        <DropdownItem 
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out -mt-1"
+                                                                            key="PENDING"
+                                                                            startContent={<ClockFilled className="size-5"/>}
+                                                                            onPress={() => handleReviewModal(item, "PENDING")}
+                                                                        >
+                                                                            Marcar como pendiente
+                                                                        </DropdownItem>
+                                                                    }
+
+                                                                    { selectedKeyBy === "Me" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusMaintenance"
@@ -694,7 +952,7 @@ export const MaintenanceCalibration = () => {
                                                                         onPress={() => handleChangeStatusMaintenance(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                     
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
@@ -724,20 +982,25 @@ export const MaintenanceCalibration = () => {
                         <PrimaryButton
                             tooltipPlacement="bottom"
                             label="Solicitar"
-                            startContent={<WrenchScrewdriverFilled className="size-5"/>}
+                            startContent={<WrenchScrewdriverFilled className="size-5 "/>}
                             onPress={() => {handleCreateMaintenance(); setIsDrawerOpen(true)}}
                         />
                     </div>
+                                        
+                    <div className="flex-1 flex items-center justify-center flex-col gap-4 -mt-10">
+                        <div className="flex flex-col gap-3 max-w-[450px] px-6 sm:px-0">
+                            <CloudDatabaseFilled className="size-10"/>
                     
-                    <div className="flex-1 flex items-center justify-center flex-col gap-4">
-                        <CloudDatabaseFilled className="size-10"/>
-                        <p className="text-sm">No cuenta con servicios asignados actualmente</p>
+                            <p className="text-base sm:text-lg">Actualmente no cuenta con servicos en la aplicación</p>
+                            <p className="text-xs sm:text-sm">Aquí se mostraran los servicios que solicitó o que le fueron asignados</p>
+                        </div>
                     </div>
                 </div>)
             ))}
             
             <MaintenancesCalibrationsChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedMaintenance} onRefresh={triggerRefresh}/>
-            <MaintenancesCalibrationsDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} data={selectedMaintenance} action={action} onRefresh={triggerRefresh} isScheduled={selectedMaintenance?.isScheduled} users={users} equipments={equipments} maintenanceTypes={maintenanceTypes}/>
+            <MaintenancesCalibrationsDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} data={selectedMaintenance} action={action} onRefresh={triggerRefresh} isScheduled={selectedMaintenance ? selectedMaintenance.isScheduled : false} users={users} equipments={equipments} maintenanceTypes={maintenanceTypes}/>
+            <ReviewModal isOpen={isReviewModalOpen} onOpenChange={setIsReviewModalOpen} data={selectedMaintenance} action={reviewAction} onRefresh={triggerRefresh}/>
         </>
     )
 }

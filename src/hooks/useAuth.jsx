@@ -1,9 +1,8 @@
 import { addToast, Form, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDraggable } from '@heroui/react';
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { CheckmarkCircleFilled, DismissCircleFilled, PersonArrowLeftFilled, PersonArrowRightFilled, TextAsterisk16Filled } from '@fluentui/react-icons';
-import { Link, useNavigate } from 'react-router';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { CheckmarkCircleFilled, DismissCircleFilled, DoorArrowLeftFilled, DoorArrowRightFilled, EyeFilled, EyeOffFilled, PersonArrowLeftFilled, PersonArrowRightFilled, TextAsterisk16Filled } from '@fluentui/react-icons';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { SecondaryButton } from '../components/SecondaryButton';
 import { useIsIconOnlySmall } from './useIsIconOnly';
 
@@ -14,9 +13,10 @@ export const AuthProvider = ({ children }) => {
     // Leer usuario de localStorage al iniciar
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
-  });
+  })
 
   let navigate = useNavigate()
+  const location = useLocation()
 
   const isIconOnly = useIsIconOnlySmall()
   const [isOpen, setIsOpen] = useState(false)
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         addToast({
           title: "Contraseña incorrecta",
-          description: "La contraseña no es valida. Por favor, verifica tu contraseña",
+          description: "La contraseña no es valida. Por favor, verifique su contraseña",
           color: "danger",
           icon: <DismissCircleFilled className='size-5' />
         })
@@ -91,6 +91,10 @@ export const AuthProvider = ({ children }) => {
       })
       setIsLoading(false);
     }
+
+    window.dispatchEvent(new Event('clearSearch'))
+
+    if (location.pathname === "/App") window.location.reload(true)
   }
 
   const login = (userData) => {
@@ -124,29 +128,30 @@ export const AuthProvider = ({ children }) => {
           isDismissable={false}
           isKeyboardDismissDisabled
           hideCloseButton
-          className="bg-background"
+          className="bg-background my-0"
           size="md"
           backdrop="blur"
         >
           <ModalContent>
-            <ModalHeader {...moveProps} className="flex flex-col gap-2">
+            <ModalHeader {...moveProps} className="flex flex-col py-4">
               <p className="text-lg font-bold text-center pt-5">La sesión ha expirado</p>
             </ModalHeader>
-            <ModalBody>
+            <ModalBody className='py-0 gap-0'>
               <p className="text-center">Vuelva a ingresar su contraseña de acceso para continuar como: <span className='font-medium'>{user.email}</span></p>
 
-              <Form className="pt-8 xs:px-6 pb-2 flex items-center w-full" onSubmit={onSubmit} validationErrors={errors}>
+              <Form className="pt-6 flex items-center w-full" onSubmit={onSubmit} validationErrors={errors}>
                 <input type="hidden" name="email" value={user.email} />
 
                 <Input
                   autoFocus
+                  autoComplete='current-password'
                   label={
                       <div className="flex justify-between">
                           <div className="flex items-center gap-1">
                               <p>Contraseña</p>
                               <TextAsterisk16Filled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                           </div>
-                          <Link className="text-secondary font-medium text-sm" to="/">¿Olvidaste tu contraseña?</Link>
+                          <Link className="text-secondary font-medium text-sm" to="/ForgotPassword">¿Olvidó su contraseña?</Link>
                       </div>
                   }
                   classNames={{ label: "w-full font-medium !text-current", input: "group-data-[invalid=true]:!text-current font-medium",  mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-background-100 text-current" }}
@@ -167,9 +172,9 @@ export const AuthProvider = ({ children }) => {
                           onClick={toggleVisibility}
                       >
                           {isVisible ? (
-                              <EyeSlashIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                              <EyeOffFilled className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
                           ) : (                                        
-                              <EyeIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                              <EyeFilled className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
                           )}
                       </button>
                   }
@@ -180,20 +185,18 @@ export const AuthProvider = ({ children }) => {
                   }}
                 />
 
-                <div className='py-6 flex gap-4 w-full'>
+                <div className='pt-4 pb-8 flex sm:gap-4 gap-2 w-full justify-center'>
                   <SecondaryButton
-                    fullWidth
                     onPress={handleLogout}
                     label="Cerrar sesión"
-                    startContent={!isIconOnly && <PersonArrowLeftFilled className="size-5"/>}
+                    startContent={<DoorArrowLeftFilled className="size-5"/>}
                   />
                   
                   <PrimaryButton
-                    fullWidth
                     isLoading={isLoading}
                     isSubmit={true} 
                     label="Continuar"
-                    startContent={!isIconOnly && <PersonArrowRightFilled className="size-5"/>}
+                    startContent={<DoorArrowRightFilled className="size-5"/>}
                   />
                 </div>
               </Form>

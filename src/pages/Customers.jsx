@@ -20,7 +20,7 @@ export const Customers = () => {
 
     const isIconOnlyMedium = useIsIconOnlyMedium()
     const [, startTransition] = useTransition()
-    const {searchValue, setSearchValue, userName} = useOutletContext()
+    const {searchValue, setSearchValue, userName, id} = useOutletContext()
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -212,8 +212,8 @@ export const Customers = () => {
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
         return (
-            <div className="flex justify-between gap-4 items-center px-1">
-                <div className="flex flex-col">
+            <div className="flex justify-between gap-4 items-center px-1 n2">
+                <div className="flex flex-col n7">
                     <p className="text-lg font-bold">Clientes</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
@@ -228,7 +228,7 @@ export const Customers = () => {
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
+                                className="n8 bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
@@ -334,7 +334,7 @@ export const Customers = () => {
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
-                        startContent={<PersonAddFilled className="size-5"/>}
+                        startContent={<PersonAddFilled className="size-5 "/>}
                         onPress={() => {handleCreateCustomer(); setIsDrawerOpen(true)}}
                     />
                 </div>
@@ -360,7 +360,7 @@ export const Customers = () => {
                     <Pagination
                         showControls
                         showShadow
-                        className="-m-0 px-0 pt-2 pb-2.5"
+                        className="-m-0 px-0 pt-2 pb-2.5 n4"
                         aria-label="Pagination tabla"
                         radius="sm"
                         variant="light"
@@ -391,7 +391,7 @@ export const Customers = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal            base: "h-full",
+            wrapper: "n3 rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal            base: "h-full",
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -483,10 +483,6 @@ export const Customers = () => {
                                             Teléfono
                                         </div>
                                         
-                                        <div className="flex-1 min-w-0 max-w-[25%]">
-                                            Dirección
-                                        </div>
-                                        
                                         <div className="w-[68px] flex-shrink-0 mr-4">
                                             Status
                                         </div>
@@ -521,8 +517,8 @@ export const Customers = () => {
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
                                         <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadCustomer(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
-                                            <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 md:h-8 ${item.address && item.phone ? "h-[104px] sm:h-24" : "h-20 sm:h-16"} ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                            <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0 n5">
+                                                <div className={`absolute left-0 inset-y-4 w-1 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full md:inset-y-1`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
                                                         <div className="xs:flex xs:items-center xs:gap-2 pb-2">
@@ -617,13 +613,7 @@ export const Customers = () => {
                                                             {item.phone}
                                                         </p>
                                                     </div>
-                                                    
-                                                    <div className="flex-1 min-w-0 max-w-[25%]">
-                                                        <p className="text-sm truncate">
-                                                            {item.address}
-                                                        </p>
-                                                    </div>
-                                                    
+
                                                     <div className="w-[68px] flex-shrink-0 mr-4 flex items-center gap-1">
                                                         <CircleFilled className={`size-2 ${item.status === "activo" ? "text-primary" : "text-background-500"}`} />
                                                         <p className={`text-sm ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>{capitalize(item.status)}</p>
@@ -684,14 +674,18 @@ export const Customers = () => {
                         <PrimaryButton
                             tooltipPlacement="bottom"
                             label="Registrar"
-                            startContent={<PersonAddFilled className="size-5"/>}
+                            startContent={<PersonAddFilled className="size-5 "/>}
                             onPress={() => {handleCreateCustomer(); setIsDrawerOpen(true)}}
                         />
                     </div>
                     
-                    <div className="flex-1 flex items-center justify-center flex-col gap-4">
-                        <CloudDatabaseFilled className="size-10"/>
-                        <p className="text-sm">No hay clientes existentes actualmente</p>
+                    <div className="flex-1 flex items-center justify-center flex-col gap-4 -mt-10">
+                        <div className="flex flex-col gap-3 max-w-[450px] px-6 sm:px-0">
+                            <CloudDatabaseFilled className="size-10"/>
+                    
+                            <p className="text-base sm:text-lg">Actualmente no hay clientes existentes en la aplicación</p>
+                            <p className="text-xs sm:text-sm">Aquí se mostraran los clientes existentes</p>
+                        </div>
                     </div>
                 </div>)
             ))}

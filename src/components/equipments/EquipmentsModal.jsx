@@ -64,7 +64,7 @@ export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action
             <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-large overflow-hidden">
 
                 <CardBody className="pl-4">
-                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-28 bg-primary rounded-full`}></div>
+                    <div className="absolute left-0 inset-y-4 w-1 bg-primary rounded-full"></div>
                     
                     <div className="w-full flex flex-col gap-1">
                         <div className="w-full flex justify-between">
@@ -82,6 +82,9 @@ export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action
                         </div>
                         <p className="text-sm line-clamp-2 break-all"><span className="font-medium">Código: </span>{equipment.code}</p>
                         <p className="text-sm"><span className="font-medium">Número de serie: </span>{equipment.serialNumber}</p>
+                        <p className="text-sm"><span className="font-medium">Locación: </span>{equipment.location}</p>
+                        <p className="text-sm"><span className="font-medium">Marca: </span>{equipment.brand}</p>
+                        <p className="text-sm"><span className="font-medium">Modelo: </span>{equipment.model}</p>
                     </div>
                 </CardBody>
             </Card>
@@ -92,6 +95,7 @@ export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action
         <>
             <Modal
                 hideCloseButton
+                className="my-0"
                 size="lg"
                 radius="lg"
                 isKeyboardDismissDisabled
@@ -119,9 +123,9 @@ export const EquipmentsModal = ({isOpen, onOpenChange, data, initialData, action
                                 !showBefore ? equipmentDetails(data) : equipmentDetails(initialData)
                             }
                         </ModalBody>
-                        <ModalFooter className="flex justify-center pt-4 pb-8">
+                        <ModalFooter className="flex justify-center pt-4 pb-8 sm:gap-4 gap-2">
                             <Button
-                                className="bg-transparent"
+                                className="bg-transparent dark:bg-background-100"
                                 radius="sm"
                                 startContent={<DismissFilled className="size-5"/>}
                                 onPress={onClose}

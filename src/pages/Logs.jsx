@@ -48,7 +48,7 @@ export const Logs = () => {
 
     const isIconOnlyMedium = useIsIconOnlyMedium()
     const [, startTransition] = useTransition()
-    const {searchValue, setSearchValue, userName} = useOutletContext()
+    const {searchValue, setSearchValue, userName, id} = useOutletContext()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -192,8 +192,8 @@ export const Logs = () => {
         const endIndex = Math.min(page * rowsPerPage, totalFiltered)
 
         return (
-            <div className="flex justify-between gap-4 items-center px-1">
-                <div className="flex flex-col">
+            <div className="flex justify-between gap-4 items-center px-1 n2">
+                <div className="flex flex-col n7">
                     <p className="text-lg font-bold">Logs</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
@@ -208,7 +208,7 @@ export const Logs = () => {
                     <Popover placement="bottom" shadow="lg" radius="sm">
                         <PopoverTrigger>
                             <Button
-                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
+                                className="n8 bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
                                 isIconOnly
                                 radius="sm"
                             >
@@ -314,7 +314,7 @@ export const Logs = () => {
                     <Pagination
                         showControls
                         showShadow
-                        className="-m-0 px-0 pt-2 pb-2.5"
+                        className="-m-0 px-0 pt-2 pb-2.5 n4"
                         aria-label="Pagination tabla"
                         radius="sm"
                         variant="light"
@@ -345,7 +345,7 @@ export const Logs = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "rounded-[9px] n3 gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
@@ -459,8 +459,8 @@ export const Logs = () => {
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
                                         <Card shadow="none" radius="sm" isPressable onPress={() => {setSelectedLog(item); setIsModalOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
-                                            <CardBody className="md:px-2 md:py-2.5 pl-4 md:pl-0">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-20 md:h-7 bg-primary rounded-full`}></div>
+                                            <CardBody className="md:px-2 md:py-2.5 pl-4 md:pl-0 n5">
+                                                <div className={`absolute left-0 inset-y-4 w-1 bg-primary rounded-full md:inset-y-1`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
                                                         <div className="pb-2">
@@ -522,6 +522,7 @@ export const Logs = () => {
                 hideCloseButton
                 size="md"
                 radius="lg"
+                className="my-0"
                 isOpen={isModalOpen}
                 onOpenChange={setIsModalOpen}
                 classNames={{wrapper: "overflow-hidden"}}
@@ -541,15 +542,12 @@ export const Logs = () => {
                             <p className="text-sm break-words"><span className="font-medium">Correo electrónico del usuario: </span>{selectedLog.userEmail}</p>
                             <p className="text-sm break-words"><span className="font-medium">Nombre del usuario: </span>{selectedLog.userName}</p>
                         </ModalBody>
-                        <ModalFooter className="flex pt-8 pb-8">
-                            <Button
-                                className="bg-transparent dark:bg-background-100 transition-background !duration-1000 ease-in-out"
-                                radius="sm"
+                        <ModalFooter className="flex pt-4 pb-8 justify-center">
+                            <PrimaryButton
                                 onPress={() => {navigate("/App/Users"); setSearchValue(selectedLog.userName)}}
-                                startContent={<PersonInfoFilled className="size-5"/>}
-                            >
-                                Ver detalles del usuario
-                            </Button>
+                                startContent={<PersonInfoFilled className="size-5 "/>}
+                                label="Ver detalles del usuario"
+                            />
                         </ModalFooter>
                         </>
                     )}

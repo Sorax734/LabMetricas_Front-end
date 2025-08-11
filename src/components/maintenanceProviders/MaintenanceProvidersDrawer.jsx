@@ -4,18 +4,18 @@ import { ArrowHookUpRightFilled, CheckmarkFilled, ChevronDownFilled, CircleFille
 import { useEffect, useState } from "react"
 import { noSpaces, onlyLetters, required, validEmail, validPhone, } from "../../js/validators"
 import { SecondaryButton } from "../SecondaryButton"
-import { getCustomers } from "../../service/customer"
-import { CustomersModal } from "./CustomersModal"
-import { CustomersChangeStatusModal } from "./CustomersChangeStatusModal"
 import { formatDateLiteral } from "../../js/utils"
+import { getMaintenanceProviders } from "../../service/maintenanceProvider"
+import { MaintenanceProvidersModal } from "./MaintenanceProvidersModal"
+import { MaintenanceProvidersChangeStatusModal } from "./MaintenanceProvidersChangeStatusModal"
 
-export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => {
+export const MaintenanceProvidersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => {
     const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
     const {isOpen: isModalCSOpen, onOpen: onModalCSOpen, onOpenChange: onModalCSOpenChange} = useDisclosure()
     
     const [isLoading, setIsLoading] = useState(false)
 
-    const [customer, setCustomer] = useState({
+    const [maintenanceProvider, setMaintenanceProvider] = useState({
         id: data?.id || "",
         name: data?.name || "",
         email: data?.email || "",
@@ -24,7 +24,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
         address: data?.address || ""
     })
 
-    const [customerErrors, setCustomerErrors] = useState({ 
+    const [maintenanceProviderErrors, setMaintenanceProviderErrors] = useState({ 
         name: [],
         email: [],
         nif: [],
@@ -33,7 +33,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
     })
 
     useEffect(() => {
-        setCustomer({
+        setMaintenanceProvider({
             id: data?.id || "",
             name: data?.name || "",
             email: data?.email || "",
@@ -42,7 +42,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
             address: data?.address || ""
         })
 
-        setCustomerErrors({
+        setMaintenanceProviderErrors({
             name: [],
             email: [],
             nif: [],
@@ -52,8 +52,8 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
     }, [data, action]);
 
     const resetForm = () => {
-        setCustomer({ id:"", name:"", email:"", nif:"", phone:"", address:"" })
-        setCustomerErrors({ name:[], email:[], nif:[], phone:[], address:[] })
+        setMaintenanceProvider({ id:"", name:"", email:"", nif:"", phone:"", address:"" })
+        setMaintenanceProviderErrors({ name:[], email:[], nif:[], phone:[], address:[] })
     }
 
     const validators = {
@@ -66,11 +66,11 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
     const runValidators = (value, fns) => fns.map(fn => fn(value)).filter(Boolean)
 
     const handleInputChange = (field, value) => {
-        setCustomer(prev => ({ ...prev, [field]: value }))
+        setMaintenanceProvider(prev => ({ ...prev, [field]: value }))
 
         const fns = validators[field] || []
         const errs = runValidators(value, fns)
-        setCustomerErrors(prev => ({ ...prev, [field]: errs }))
+        setMaintenanceProviderErrors(prev => ({ ...prev, [field]: errs }))
     }
 
     let title
@@ -78,16 +78,16 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
 
     switch (action) {
         case "create":
-            title = "Registrar cliente"
-            description = "Ingrese la información solicitada para poder registrar un nuevo cliente."
+            title = "Registrar proveedor de servicio"
+            description = "Ingrese la información solicitada para poder registrar un nuevo proveedor de servicio."
             break
         case "update":
-            title = "Actualizar cliente"
-            description = "Edite la información necesaria y guarde los cambios para actualizar el cliente."
+            title = "Actualizar proveedor de servicio"
+            description = "Edite la información necesaria y guarde los cambios para actualizar el proveedor de servicio."
             break
         default:
-            title = "Detalles del cliente"
-            description = "Revise la información completa del cliente. Esta vista es solo de lectura."
+            title = "Detalles del proveedor de servicio"
+            description = "Revise la información completa del proveedor de servicio. Esta vista es solo de lectura."
             break
     }
 
@@ -97,17 +97,17 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
         const formEntries = Object.fromEntries(new FormData(e.currentTarget))
         
         const formData = action !== "create"
-            ? { id: customer.id, ...formEntries }
+            ? { id: maintenanceProvider.id, ...formEntries }
             : { ...formEntries };
 
         try {
             setIsLoading(true)
 
-            const response = await getCustomers()
-            const customers = response.data
+            const response = await getMaintenanceProviders()
+            const maintenanceProviders = response.data
 
-            const exists = customers.find(u => u.email.toLowerCase() === formData.email.toLowerCase())
-            const existsNIF = customers.find(u => u.nif.toLowerCase()   === formData.nif.toLowerCase())
+            const exists = maintenanceProviders.find(u => u.email.toLowerCase() === formData.email.toLowerCase())
+            const existsNIF = maintenanceProviders.find(u => u.nif.toLowerCase()   === formData.nif.toLowerCase())
 
             const newErrors = { name: [], email: [], nif: [], phone:[], address:[] }
 
@@ -122,7 +122,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
             }
 
             if (newErrors.email.length > 0 || newErrors.nif.length > 0) {
-                setCustomerErrors(newErrors)
+                setMaintenanceProviderErrors(newErrors)
 
                 addToast({
                     title: "Algunos datos ingresados no son correctos",
@@ -146,8 +146,8 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
             setIsLoading(false)
         }
 
-        setCustomerErrors({ name: [], email: [], nif: [], phone:[], address:[] });
-        setCustomer(formData)
+        setMaintenanceProviderErrors({ name: [], email: [], nif: [], phone:[], address:[] });
+        setMaintenanceProvider(formData)
         onModalOpen()
     }
 
@@ -192,7 +192,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                             <p className="text-sm font-normal">{description}</p>
                         </DrawerHeader>
                         <DrawerBody className="h-full flex flex-col justify-between [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary">
-                            <Form onSubmit={onSubmit} id="customer-form" className={action === 'create' || action === 'update' ? "gap-6 flex flex-col" : "gap-6 flex flex-col pb-8"}>
+                            <Form onSubmit={onSubmit} id="maintenanceProvider-form" className={action === 'create' || action === 'update' ? "gap-6 flex flex-col" : "gap-6 flex flex-col pb-8"}>
                                 {action !== "create" && (
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-1 pl-0.5">
@@ -214,7 +214,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                                 <p className="font-medium text-sm">Nombre</p>
                                                 <TextAsteriskFilled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                             </div>
-                                            <p className="!text-background-500 text-xs font-normal">{customer.name.length + " / 100"}</p>
+                                            <p className="!text-background-500 text-xs font-normal">{maintenanceProvider.name.length + " / 100"}</p>
                                         </div>
                                     }
                                     autoComplete="given-name"
@@ -229,15 +229,15 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                     variant="bordered"
                                     maxLength={100}
                                     isReadOnly={action !== 'create' && action !== 'update'}
-                                    placeholder={action === "create" ? "Ingrese el nombre del cliente" : data.name}
-                                    value={customer.name}
+                                    placeholder={action === "create" ? "Ingrese el nombre del proveedor de servicio" : data.name}
+                                    value={maintenanceProvider.name}
                                     onValueChange={(value) => handleInputChange('name', value)}
-                                    isInvalid={customerErrors.name.length > 0}
-                                    endContent={customerErrors.name.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
+                                    isInvalid={maintenanceProviderErrors.name.length > 0}
+                                    endContent={maintenanceProviderErrors.name.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
                                     errorMessage={() => (
                                         <div className="flex text-danger">
                                             <ul>
-                                                {customerErrors.name.map((error, i) => (
+                                                {maintenanceProviderErrors.name.map((error, i) => (
                                                     <li key={i}>{error}</li>
                                                 ))}
                                             </ul>
@@ -252,7 +252,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                                 <p className="font-medium text-sm">Correo electrónico</p>
                                                 <TextAsteriskFilled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                             </div>
-                                            <p className="!text-background-500 text-xs font-normal">{customer.email.length + " / 50"}</p>
+                                            <p className="!text-background-500 text-xs font-normal">{maintenanceProvider.email.length + " / 50"}</p>
                                         </div>
                                     }
                                     autoComplete="email"
@@ -267,15 +267,15 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                     variant="bordered"
                                     maxLength={50}
                                     isReadOnly={action !== 'create' && action !== 'update'}
-                                    placeholder={action === "create" ? "Ingrese el correo electrónico del cliente" : data.email}
-                                    value={customer.email}
+                                    placeholder={action === "create" ? "Ingrese el correo electrónico del proveedor de servicio" : data.email}
+                                    value={maintenanceProvider.email}
                                     onValueChange={(value) => handleInputChange('email', value)}
-                                    isInvalid={customerErrors.email.length > 0}
-                                    endContent={customerErrors.email.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
+                                    isInvalid={maintenanceProviderErrors.email.length > 0}
+                                    endContent={maintenanceProviderErrors.email.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
                                     errorMessage={() => (
                                         <div className="flex text-danger">
                                             <ul>
-                                                {customerErrors.email.map((error, i) => (
+                                                {maintenanceProviderErrors.email.map((error, i) => (
                                                     <li key={i}>{error}</li>
                                                 ))}
                                             </ul>
@@ -290,7 +290,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                                 <p className="font-medium text-sm">NIF</p>
                                                 <TextAsteriskFilled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                             </div>
-                                            <p className="!text-background-500 text-xs font-normal">{customer.nif.length + " / 20"}</p>
+                                            <p className="!text-background-500 text-xs font-normal">{maintenanceProvider.nif.length + " / 20"}</p>
                                         </div>
                                     }
                                     classNames={{ label: "w-full font-medium !text-current transition-colors !duration-1000 ease-in-out", input: "transition-colors !duration-1000 ease-in-out group-data-[invalid=true]:!text-current font-medium !placeholder-background-500 placeholder:!font-normal",  mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "transition-colors !duration-1000 ease-in-out caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-transparent text-current" }}
@@ -304,15 +304,15 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                     variant="bordered"
                                     maxLength={20}
                                     isReadOnly={action !== 'create' && action !== 'update'}
-                                    placeholder={action === "create" ? "Ingrese el NIF del cliente" : data.nif}
-                                    value={customer.nif}
+                                    placeholder={action === "create" ? "Ingrese el NIF del proveedor de servicio" : data.nif}
+                                    value={maintenanceProvider.nif}
                                     onValueChange={(value) => handleInputChange('nif', value)}
-                                    isInvalid={customerErrors.nif.length > 0}
-                                    endContent={customerErrors.nif.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
+                                    isInvalid={maintenanceProviderErrors.nif.length > 0}
+                                    endContent={maintenanceProviderErrors.nif.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
                                     errorMessage={() => (
                                         <div className="flex text-danger">
                                             <ul>
-                                                {customerErrors.nif.map((error, i) => (
+                                                {maintenanceProviderErrors.nif.map((error, i) => (
                                                     <li key={i}>{error}</li>
                                                 ))}
                                             </ul>
@@ -326,7 +326,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                             <div className="flex items-center gap-1">
                                                 <p className="font-medium text-sm">Dirección</p>
                                             </div>
-                                            <p className="!text-background-500 text-xs font-normal">{customer.address.length + " / 255"}</p>
+                                            <p className="!text-background-500 text-xs font-normal">{maintenanceProvider.address.length + " / 255"}</p>
                                         </div>
                                     }
                                     autoComplete="street-address"
@@ -341,15 +341,15 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                     variant="bordered"
                                     maxLength={100}
                                     isReadOnly={action !== 'create' && action !== 'update'}
-                                    placeholder={action === "create" ? "Ingrese la dirección del cliente" : (data.address === "" ? " " : data.address)}
-                                    value={customer.address}
+                                    placeholder={action === "create" ? "Ingrese la dirección del proveedor de servicio" : (data.address === "" ? " " : data.address)}
+                                    value={maintenanceProvider.address}
                                     onValueChange={(value) => handleInputChange('address', value)}
-                                    isInvalid={customerErrors.address.length > 0}
-                                    endContent={customerErrors.address.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
+                                    isInvalid={maintenanceProviderErrors.address.length > 0}
+                                    endContent={maintenanceProviderErrors.address.length === 0 ? <CheckmarkFilled className='size-4 text-background-500 group-data-[focus=true]:text-primary' /> : <DismissFilled className='size-4 text-danger' /> }
                                     errorMessage={() => (
                                         <div className="flex text-danger">
                                             <ul>
-                                                {customerErrors.address.map((error, i) => (
+                                                {maintenanceProviderErrors.address.map((error, i) => (
                                                     <li key={i}>{error}</li>
                                                 ))}
                                             </ul>
@@ -361,7 +361,7 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                     <div className="flex items-center gap-1">
                                         <p className="font-medium text-sm pl-0.5">Teléfono</p>
                                     </div>
-                                    <p className="!text-background-500 text-xs font-normal pr-2.5">{customer.phone.length + " / 10"}</p>
+                                    <p className="!text-background-500 text-xs font-normal pr-2.5">{maintenanceProvider.phone.length + " / 10"}</p>
                                 </div>
                                 <InputOtp
                                     autoComplete="tel"
@@ -373,13 +373,13 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                                     length={10} 
                                     isReadOnly={action !== 'create' && action !== 'update'}
                                     placeholder={action !== "create" ? data.phone : undefined}
-                                    value={customer.phone}
+                                    value={maintenanceProvider.phone}
                                     onValueChange={(value) => handleInputChange('phone', value)}
-                                    isInvalid={customerErrors.phone.length > 0}
+                                    isInvalid={maintenanceProviderErrors.phone.length > 0}
                                     errorMessage={() => (
                                         <div className="flex text-danger font-medium">
                                             <ul>
-                                                {customerErrors.phone.map((error, i) => (
+                                                {maintenanceProviderErrors.phone.map((error, i) => (
                                                     <li key={i}>{error}</li>
                                                 ))}
                                             </ul>
@@ -400,14 +400,14 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
 
                                     <Button
                                         className="tracking-wide font-medium data-[hover=true]:-translate-y-1"
-                                        form="customer-form"
+                                        form="maintenanceProvider-form"
                                         radius="sm"
                                         variant="shadow"
                                         color="primary"
                                         type="submit"
                                         startContent={!isLoading && <ArrowHookUpRightFilled className="size-5"/>}
                                         isLoading={isLoading}
-                                        isDisabled={customer.name === "" || customer.email === "" || customer.nif === "" || customerErrors.name.length > 0 || customerErrors.email.length > 0 || customerErrors.nif.length > 0 || customerErrors.phone.length > 0 }
+                                        isDisabled={maintenanceProvider.name === "" || maintenanceProvider.email === "" || maintenanceProvider.nif === "" || maintenanceProviderErrors.name.length > 0 || maintenanceProviderErrors.email.length > 0 || maintenanceProviderErrors.nif.length > 0 || maintenanceProviderErrors.phone.length > 0 }
                                     >
                                         Siguiente
                                     </Button>
@@ -419,8 +419,8 @@ export const CustomersDrawer = ({isOpen, onOpenChange, data, action, onRefresh})
                 </DrawerContent>
             </Drawer>
 
-            <CustomersChangeStatusModal isOpen={isModalCSOpen} onOpenChange={onModalCSOpenChange} data={data} onRefresh={onRefresh}/>
-            <CustomersModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={customer} initialData={data} action={action} onRefresh={onRefresh} closeDrawer={() => {onOpenChange(false); resetForm()}}/>
+            <MaintenanceProvidersChangeStatusModal isOpen={isModalCSOpen} onOpenChange={onModalCSOpenChange} data={data} onRefresh={onRefresh}/>
+            <MaintenanceProvidersModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={maintenanceProvider} initialData={data} action={action} onRefresh={onRefresh} closeDrawer={() => {onOpenChange(false); resetForm()}}/>
         </>
     )
 }

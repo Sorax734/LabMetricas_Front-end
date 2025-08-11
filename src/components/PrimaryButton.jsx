@@ -37,7 +37,7 @@ export const PrimaryButton = ({
                     radius="sm"
                     variant="shadow"
                     className={`
-                        font-medium
+                        font-medium n9 
                         ${isSmHidden ? 'sm:hidden' : 'tracking-wide data-[hover=true]:-translate-y-1'}
                     `}
                     >

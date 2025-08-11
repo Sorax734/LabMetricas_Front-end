@@ -1,8 +1,8 @@
-import { AlertFilled, BuildingPeopleFilled, CheckmarkCircleFilled, ClockBillFilled, DatabaseSearchFilled, DataLineFilled, Dismiss12Filled, DismissCircleFilled, DismissFilled, DockFilled, DocumentBulletListClockFilled, DocumentMultipleFilled, DocumentTextClockFilled, DoorArrowLeftFilled, EditFilled, EmojiHandFilled, InfoFilled, InfoSparkleFilled, KeyMultipleFilled, KeyResetFilled, MoreCircleFilled, MoreHorizontalFilled, PeopleFilled, PeopleListFilled, PeopleSettingsFilled, PeopleStarFilled, PeopleToolboxFilled, PersonArrowLeftFilled, PersonBriefcaseFilled, PersonFilled, PersonHeartFilled, PersonSearchFilled, PersonSettingsFilled, PersonSquareFilled, PersonWrenchFilled, ScriptFilled, SearchFilled, SearchSparkleFilled, SettingsCogMultipleFilled, SettingsFilled, TagFilled, TextAsterisk16Filled, TextBulletListFilled, WeatherMoonFilled, WeatherSunnyFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
+import { AlertFilled, ArrowSyncCheckmarkFilled, ArrowSyncCircleFilled, BookQuestionMarkFilled, BuildingPeopleFilled, CheckmarkCircleFilled, ClockBillFilled, DatabaseSearchFilled, DataLineFilled, Dismiss12Filled, DismissCircleFilled, DismissFilled, DockFilled, DocumentBulletListClockFilled, DocumentMultipleFilled, DocumentTextClockFilled, DoorArrowLeftFilled, EditFilled, EmojiHandFilled, EmojiSadFilled, EyeFilled, EyeOffFilled, InfoFilled, InfoSparkleFilled, KeyMultipleFilled, KeyResetFilled, MoreCircleFilled, MoreHorizontalFilled, PeopleFilled, PeopleListFilled, PeopleSettingsFilled, PeopleStarFilled, PeopleToolboxFilled, PersonArrowLeftFilled, PersonBriefcaseFilled, PersonFilled, PersonHeartFilled, PersonSearchFilled, PersonSettingsFilled, PersonSquareFilled, PersonWrenchFilled, ScriptFilled, SearchFilled, SearchSparkleFilled, SettingsCogMultipleFilled, SettingsFilled, TagFilled, TextAsterisk16Filled, TextBulletListFilled, WeatherMoonFilled, WeatherSunnyFilled, WrenchSettingsFilled } from "@fluentui/react-icons"
 import { Bars3Icon, ClockIcon, EyeIcon, EyeSlashIcon, HomeIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid"
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
-import { useIsIconOnly } from "../hooks/useIsIconOnly"
-import { addToast, Button, Divider, Drawer, DrawerBody, DrawerContent, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Form, Image, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Spinner, useDisclosure, useDraggable, User } from "@heroui/react"
+import { useIsIconOnly, useIsIconOnlySmallMedium } from "../hooks/useIsIconOnly"
+import { addToast, Button, Divider, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Form, Image, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, ScrollShadow, Spinner, useDisclosure, useDraggable, User } from "@heroui/react"
 import { SidebarButton } from "../components/SidebarButton"
 import { BottomButton } from "../components/BottomButton"
 import { useTheme } from "@heroui/use-theme"
@@ -12,10 +12,16 @@ import { PrimaryButton } from "../components/PrimaryButton"
 import { useAuth } from "../hooks/useAuth"
 import { changePassword, getProfile } from "../service/user"
 import { motion } from "framer-motion"
+import { useTour } from "@reactour/tour"
+import { SecondaryButton } from "../components/SecondaryButton"
+import { Profile } from "../pages/Profile"
+import { Notifications } from "../pages/Notifications"
 
 export const UserProfile = ({user, onRefresh}) => {
     const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
+    const [isNOpen, setIsNOpen] = useState(false);
+    const [isPOpen, setIsPOpen] = useState(false);
     const [isCPOpen, setIsCPOpen] = useState(false)
     const [isCPLoading, setIsCPLoading] = useState(false);
     
@@ -109,9 +115,18 @@ export const UserProfile = ({user, onRefresh}) => {
                             className="rounded-md transition-all !duration-1000 ease-in-out "
                             key="profile"
                             startContent={<PersonFilled className="size-5"/>}
-                            onPress={() => {navigate("/App/Profile"); setSearchValue("")}}
+                            onPress={() => setIsPOpen(true)}
                         >
                             Mi perfil
+                        </DropdownItem>
+                                                
+                        <DropdownItem 
+                            className="rounded-md transition-all !duration-1000 ease-in-out "
+                            key="notifications"
+                            startContent={<AlertFilled className="size-5"/>}
+                            onPress={() => setIsNOpen(true)}
+                        >
+                            Mis notificaciones
                         </DropdownItem>
                         
                         <DropdownItem 
@@ -145,11 +160,14 @@ export const UserProfile = ({user, onRefresh}) => {
                 </DropdownMenu>
             </Dropdown>
             <LogOutModal isOpen={isOpen} onOpenChange={setIsOpen}/>
+            <Profile isOpen={isPOpen} onOpenChange={setIsPOpen}/>
+            <Notifications isOpen={isNOpen} onOpenChange={setIsNOpen}/>
 
             <Modal
                 hideCloseButton
                 size="md"
                 radius="lg"
+                className="my-0"
                 isDismissable={false}
                 isOpen={isCPOpen}
                 onOpenChange={setIsCPOpen}
@@ -176,7 +194,6 @@ export const UserProfile = ({user, onRefresh}) => {
                                                 <p>Contraseña actual</p>
                                                 <TextAsterisk16Filled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                             </div>
-                                            <Link className="text-secondary font-medium text-sm" to="/">¿Olvidaste tu contraseña?</Link>
                                         </div>
                                     }
                                     classNames={{ label: "w-full font-medium !text-current", input: "group-data-[invalid=true]:!text-current font-medium",  mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-background-100 text-current" }}
@@ -198,9 +215,9 @@ export const UserProfile = ({user, onRefresh}) => {
                                             onClick={toggleVisibility}
                                         >
                                             {isVisible ? (
-                                                <EyeSlashIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                                <EyeOffFilled className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
                                             ) : (                                        
-                                                <EyeIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                                <EyeFilled className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
                                             )}
                                         </button>
                                     }
@@ -239,9 +256,9 @@ export const UserProfile = ({user, onRefresh}) => {
                                             onClick={toggleNewPVisibility}
                                         >
                                             {isNewPVisible ? (
-                                                <EyeSlashIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                                <EyeOffFilled className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
                                             ) : (                                        
-                                                <EyeIcon className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
+                                                <EyeFilled className="size-5 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:text-danger" />
                                             )}
                                         </button>
                                     }
@@ -254,7 +271,7 @@ export const UserProfile = ({user, onRefresh}) => {
                                 />
                             </Form>
                         </ModalBody>
-                        <ModalFooter className="flex justify-center pt-8 pb-8">
+                        <ModalFooter className="flex justify-center pt-4 pb-8 sm:gap-4 gap-2">
                             <Button
                                 className="bg-transparent dark:bg-background-100"
                                 radius="sm"
@@ -287,8 +304,10 @@ export const UserProfile = ({user, onRefresh}) => {
 
 export const AppLayout = () => {
     let navigate = useNavigate()
+    const { setIsOpen: setIsOpenT } = useTour()
     const {user} = useAuth()
     const isIconOnly = useIsIconOnly()
+    const isIconOnlySm = useIsIconOnlySmallMedium()
     const location = useLocation()
     const [isOpen, setIsOpen] = useState(false)
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -304,10 +323,14 @@ export const AppLayout = () => {
 
     useEffect(() => {
         const handlePop = () => setSearchValue("")
+        const handleClearSearch = () => setSearchValue("")
+
         window.addEventListener("popstate", handlePop)
+        window.addEventListener("clearSearch", handleClearSearch)
         
         return () => {
             window.removeEventListener("popstate", handlePop)
+            window.removeEventListener("clearSearch", handleClearSearch)
         }
     }, [])
 
@@ -365,11 +388,6 @@ export const AppLayout = () => {
             icon: <WrenchSettingsFilled className='sm:size-5 size-6' />,
             path: "/App/Services"
         },
-        {
-            label: "Perfil",
-            icon: <PersonFilled className='sm:size-5 size-6' />,
-            path: "/App/Profile"
-        }
     ]
 
     const adminNavigation = [
@@ -388,6 +406,11 @@ export const AppLayout = () => {
             label: "Clientes",
             icon: <PeopleToolboxFilled className='sm:size-5 size-6' />,
             path: "/App/Customers"
+        },
+        {
+            label: "Proveedores de servicio",
+            icon: <PersonWrenchFilled className='size-5' />,
+            path: "/App/ServiceProviders"
         }
     ]
 
@@ -403,9 +426,9 @@ export const AppLayout = () => {
     const supervisorNavigation = [
         ...navigation,
         {
-            label: "Documentos",
-            icon: <DocumentMultipleFilled className='size-5' />,
-            path: "/App/Documents"
+            label: "Proveedores de servicio",
+            icon: <PersonWrenchFilled className='size-5' />,
+            path: "/App/ServiceProviders"
         }
     ]
     
@@ -438,27 +461,22 @@ export const AppLayout = () => {
                         label="Espere un poco por favor"
                     />
                 </div>
-                ) : ( errors.length > 0 ? (
-                    <div className="flex flex-col w-screen h-screen lg:p-28 md:p-24 sm:p-20 p-10 space-y-4 overflow-x-hidden overflow-y-auto">
-                        <p className="text-2xl font-bold pb-2">Vaya...</p>
-                        <p className="text-xl font-medium pb-8">Algo ha ido mal al iniciar la aplicación</p>
-                        {errors.map((msg, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: i * 0.05 }}
-                        >
-                            <div key={i} className="bg-danger-50 rounded-lg border-danger-100 border py-4 px-3 flex gap-3">
-                                <div className="flex items-center justify-center text-danger-600">
-                                    <DismissCircleFilled className="size-5" />
-                                </div>
-                                <div className="text-sm text-danger-600">
-                                    <p className="font-medium break-words">{msg}</p>
-                                </div>
+                ) : ( errors.length > 0 ? ( //space-y-4
+                    <div className="flex h-screen w-full justify-center items-center">
+                        <div className="flex flex-col gap-5 max-w-[450px] px-6 sm:px-0">
+                            <EmojiSadFilled className="size-12"/>
+
+                            <p className="text-lg sm:text-xl">Algo ha ido mal al iniciar la aplicación</p>
+                            <p className="text-sm sm:text-base">Actualice la aplicación para intentar solucionar el problema. Si el problema persiste, comuniquelo con algún administrador</p>
+
+                            <div className="flex justify-end pt-3">
+                                <PrimaryButton
+                                    label="Actualizar aplicación"
+                                    startContent={<ArrowSyncCircleFilled className="size-5"/>}
+                                    onPress={() => window.location.reload(true)}
+                                />
                             </div>
-                        </motion.div>
-                        ))}
+                        </div>
                     </div>
                 ) : ( 
                     <>
@@ -468,12 +486,12 @@ export const AppLayout = () => {
                             <div className="flex-shrink-0 h-[72px] bg-background rounded-lg transition-colors duration-1000 ease-in-out flex sm:z-auto z-50 dark:shadow-large shadow-medium">
                                 <div className="px-4 justify-center w-96 hidden sm:flex flex-col">
                                     <p className="text-base font-medium">Nombre del sistema</p>
-                                    <p className="text-xs text-background-500">Lab Métricas SAS de CV.</p>
+                                    <p className="text-xs text-background-500">Lab Métricas SA de CV.</p>
                                 </div>
 
                                 <div className="px-4 flex w-full justify-end items-center sm:gap-4 gap-2">
                                     <Button
-                                        className="bg-background-100 transition-background !duration-1000 ease-in-out sm:hidden"
+                                        className={`bg-background-100 transition-background !duration-1000 ease-in-out sm:hidden ${isIconOnlySm ? "n1" : ""}`}
                                         isIconOnly
                                         radius="sm"
                                         onPress={() => setIsDrawerOpen(true)}
@@ -482,7 +500,7 @@ export const AppLayout = () => {
                                     </Button>
                                     <Input
                                         classNames={{ input: "transition-colors !duration-1000 ease-in-out group-data-[invalid=true]:!text-current font-medium !placeholder-background-500 placeholder:!font-normal", mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "transition-colors !duration-1000 ease-in-out caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-transparent text-current" }}
-                                        className="grow sm:max-w-72"
+                                        className="grow sm:max-w-72 n6"
                                         color="primary"
                                         name="search"
                                         labelPlacement="inside"
@@ -496,7 +514,7 @@ export const AppLayout = () => {
                                             setSearchValue(val)
                                         }}
                                         isClearable
-                                        placeholder={location.pathname === "/App/Maintenance-Calibration" ? "Buscar resultados por código" : location.pathname === "/App/Logs" ? "Buscar resultados por usuario" : "Buscar resultados por nombre"}
+                                        placeholder={location.pathname === "/App/Services" ? "Buscar resultados por código" : location.pathname === "/App/Logs" ? "Buscar resultados por usuario" : "Buscar resultados por nombre"}
                                         endContent={<div className="w-full h-full flex items-center justify-center"><DismissFilled className='size-5 group-data-[focus=true]:text-primary' /></div>}
                                     />
                                     <UserProfile user={profile} onRefresh={triggerRefresh}/>
@@ -505,13 +523,12 @@ export const AppLayout = () => {
 
                             <div className="flex flex-1 min-h-0 bg-transparent gap-4">
                                 {/* SIDEBAR */}
-                                <div className="flex-shrink-0 flex-col lg:w-52 w-28 hidden sm:flex h-full transition-colors duration-1000 ease-in-out bg-background rounded-lg overflow-y-auto overflow-x-hidden dark:shadow-large shadow-medium
-                                [&::-webkit-scrollbar]:lg:w-2
+                                <div className="flex-shrink-0 flex-col lg:w-52 w-28 hidden sm:flex h-full transition-colors duration-1000 ease-in-out bg-background rounded-lg overflow-y-auto overflow-x-hidden dark:shadow-large shadow-medium n1
                                 [&::-webkit-scrollbar]:w-1
                                 [&::-webkit-scrollbar-track]:rounded-full
                                 [&::-webkit-scrollbar-track]:bg-transparent
                                 [&::-webkit-scrollbar-thumb]:rounded-full
-                                [&::-webkit-scrollbar-thumb]:bg-background-300">
+                                [&::-webkit-scrollbar-thumb]:bg-transparent">
                                     <div className="flex-shrink-0 lg:px-4 w-full lg:items-start items-center flex flex-col pt-4 gap-1">
                                         <p className="text-base hidden lg:flex font-medium">Bienvenido de vuelta {profile.roleName === "ADMIN" ? "administrador" : profile.roleName.toLowerCase()}</p>
 
@@ -552,7 +569,19 @@ export const AppLayout = () => {
                                         </div>
                                     </ScrollShadow>
                                     <div className="flex-shrink-0 pb-4 lg:px-4 lg:items-start items-center flex flex-col gap-1">
-                                        
+                                        <Button
+                                            className={`bg-background-100 transition-background !duration-1000 ease-in-out`}
+                                            isIconOnly={isIconOnly}
+                                            fullWidth
+                                            radius="sm"
+                                            onPress={() => setIsOpenT(true)}
+                                            startContent={!isIconOnly && <BookQuestionMarkFilled className="size-5"/>}
+                                        >
+                                            {isIconOnly ? <BookQuestionMarkFilled className="size-5"/> : "¿Cómo empezar?"}
+                                        </Button>
+                                        <div className="w-full flex px-4 text-center">
+                                            <p className="text-xs font-medium lg:hidden line-clamp-2">¿Cómo empezar?</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex-1 flex flex-col bg-transparent sm:gap-4 min-w-0">
@@ -566,7 +595,7 @@ export const AppLayout = () => {
                                         [&::-webkit-scrollbar-thumb]:rounded-full
                                         [&::-webkit-scrollbar-thumb]:bg-primary">
                                             <div className="w-full h-full flex flex-col pr-3 xs:pr-5">
-                                                <Outlet context={{ searchValue, setSearchValue, userName: profile.name }} />
+                                                <Outlet context={{ searchValue, setSearchValue, userName: profile.name, id: profile.id }} />
                                             </div>
                                         </ScrollShadow>
                                     </div>
@@ -643,6 +672,17 @@ export const AppLayout = () => {
                                 />
                             ))}
                         </DrawerBody>
+                        <DrawerFooter>
+                            <Button
+                                className={`bg-background-100 transition-background !duration-1000 ease-in-out`}
+                                fullWidth
+                                radius="sm"
+                                onPress={() => {onClose(); setIsOpenT(true)}}
+                                startContent={<BookQuestionMarkFilled className="size-5"/>}
+                            >
+                                ¿Cómo empezar?
+                            </Button>
+                        </DrawerFooter>
                         </>
                     )}
                 </DrawerContent>
@@ -673,7 +713,7 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
                 onOpenChange={onOpenChange}
                 ref={targetRef} 
                 hideCloseButton
-                className="bg-background"
+                className="bg-background my-0"
                 size="md"
                 backdrop="blur"
             >
@@ -689,9 +729,9 @@ export const LogOutModal = ({isOpen, onOpenChange}) => {
                         <ModalBody>
                             <p className="text-center">Está a punto de cerrar sesión, sin embargo, puede ingresar de nuevo sin problema.</p>
                         </ModalBody>
-                        <ModalFooter className="flex justify-center py-6">
+                        <ModalFooter className="flex justify-center pt-4 pb-8 sm:gap-4 gap-2">
                             <Button
-                                className="bg-transparent"
+                                className="bg-transparent dark:bg-background-100"
                                 radius="sm"
                                 startContent={<DismissFilled className="size-5"/>}
                                 onPress={onClose}

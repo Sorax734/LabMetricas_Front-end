@@ -182,7 +182,7 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => 
                             <p className="text-sm font-normal">{description}</p>
                         </DrawerHeader>
                         <DrawerBody className="h-full flex flex-col justify-between [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary">
-                            <Form onSubmit={onSubmit} id="user-form" className="gap-6 flex flex-col">
+                            <Form onSubmit={onSubmit} id="user-form" className={action === 'create' || action === 'update' ? "gap-6 flex flex-col" : "gap-6 flex flex-col pb-8"}>
                                 {action !== "create" && (
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-1 pl-0.5">
@@ -387,7 +387,7 @@ export const UsersDrawer = ({isOpen, onOpenChange, data, action, onRefresh}) => 
                             </Form>
 
                             {(action === 'create' || action === 'update') && (
-                                <div className="w-full flex justify-end py-8 gap-4">
+                                <div className="w-full flex justify-end py-8 sm:gap-4 gap-2">
                                     {action === "update" && (
                                         <SecondaryButton
                                             label={data.status === "activo" ? "Inhabilitar" : "Habilitar"}

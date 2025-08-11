@@ -9,7 +9,7 @@ import { getEquipments } from "../../service/equipment"
 import { EquipmentsModal } from "./EquipmentsModal"
 import { formatDateLiteral } from "../../js/utils"
 import { getMaintenanceTypes } from "../../service/maintenanceType"
-import { CalendarDate } from "@internationalized/date";
+import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 
 export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh, users, categories, maintenanceProviders}) => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -172,6 +172,8 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
         setMaintenanceErrors({ maintenanceTypeId: [], responsibleUserId: [], description: [], priority: [], nextMaintenanceDate: [], frequencyValue: [], frequencyType: [] })
         setEquipment({ id:"", name:"", code:"", serialNumber:"", location:"", brand:"", model:"", remarks:"", assignedToId:"", equipmentCategoryId:"", maintenanceProviderId:"" })
         setEquipmentErrors({ name:[], code:[], serialNumber:[], location:[], brand:[], model:[], remarks:[], assignedToId:[], equipmentCategoryId:[], maintenanceProviderId:[] })
+        setMaintenances([])
+        setIsSelected(false)
     }
 
     const maintenanceValidators = {
@@ -431,7 +433,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                             <p className="text-sm font-normal">{description}</p>
                         </DrawerHeader>
                         <DrawerBody className="h-full flex flex-col justify-between [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary">
-                            <Form onSubmit={onSubmit} id="equipment-form" className="gap-6 flex flex-col">
+                            <Form onSubmit={onSubmit} id="equipment-form" className={action === 'create' || action === 'update' ? "gap-6 flex flex-col" : "gap-6 flex flex-col pb-8"}>
                                 {action !== "create" && (
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-1 pl-0.5">
@@ -754,12 +756,12 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
 
                                 <div className="w-full flex justify-between">
                                     <div className="flex items-center gap-1">
-                                        <p className="font-medium text-sm pl-0.5">Proveedor de mantenimiento / calibración</p>
+                                        <p className="font-medium text-sm pl-0.5">Proveedor de servicio</p>
                                         <TextAsteriskFilled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                     </div>
                                 </div>
                                 <Select
-                                    aria-label="Proveedor de mantenimiento / calibración"
+                                    aria-label="Proveedor de servicio"
                                     className="w-full -mt-4"
                                     name="maintenanceProviderId"
                                     classNames={{value: "text-background-500 !font-normal", trigger: "bg-background-100 data-[hover=true]:!bg-background-100 border-transparent", popoverContent: "bg-background-100 rounded-lg", selectorIcon: "!text-background-500"}}
@@ -772,7 +774,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                                     disallowEmptySelection
                                     selectorIcon={<ChevronDownFilled className="size-5"/>}
                                     labelPlacement="outside"
-                                    placeholder="Selecciona un proveedor de mantenimiento / calibración"
+                                    placeholder="Selecciona un proveedor de servicio"
                                     radius="sm"
                                     selectedKeys={new Set([`${equipment.maintenanceProviderId}`])}
                                     onSelectionChange={(keys) => {
@@ -1074,7 +1076,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                                             size="md"
                                             variant="bordered"
                                             minValue={1}
-                                            maxValue={10000}
+                                            maxValue={127}
                                             step={1}
                                             value={maintenance.frequencyValue}
                                             placeholder={1}
@@ -1119,7 +1121,6 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                                                 const [first] = Array.from(keys)
                                                 handleInputChangeMaintenance('frequencyType', first)
                                             }}
-                                            isDisabled={action !== 'create' && action !== 'update'}
                                             isInvalid={maintenanceErrors.frequencyType.length > 0}
                                             errorMessage={() => (
                                                 <div className="flex text-danger font-medium">
@@ -1160,7 +1161,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                                     radius="sm"
                                     size="md"
                                     variant="bordered"
-                                    minValue={new CalendarDate(1969, 12, 31)}
+                                    minValue={today(getLocalTimeZone()).add({ days: 1 })}
                                     maxValue={new CalendarDate(2038, 1, 18)}
                                     value={maintenance.nextMaintenanceDate}
                                     onChange={(value) => handleInputChangeMaintenance('nextMaintenanceDate', value)}
@@ -1250,7 +1251,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                                 </>
                             )}
                         </DrawerBody>
-                        <DrawerFooter className="flex w-full py-10 gap-4">
+                        <DrawerFooter className="flex w-full py-10 sm:gap-4 gap-2">
                             <SecondaryButton
                                 label="Asignar servicio"
                                 startContent={<AddCircleFilled className="size-5"/>}
@@ -1266,7 +1267,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
                                 startContent={!isLoading && <ArrowHookUpRightFilled className="size-5"/>}
                                 onPress={onSubmitWithMaintenances}
                                 isLoading={isLoading}
-                                isDisabled={!maintenances.length > 0 && isSelected}
+                                isDisabled={((!(maintenances.length > 0)) || !isSelected)}
                             >
                                 Siguiente
                             </Button>
@@ -1277,7 +1278,7 @@ export const EquipmentsDrawer = ({isOpen, onOpenChange, data, action, onRefresh,
             </Drawer>
 
             <EquipmentsChangeStatusModal isOpen={isModalCSOpen} onOpenChange={onModalCSOpenChange} data={data} onRefresh={onRefresh}/>
-            <EquipmentsModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={equipment} initialData={data} action={action} onRefresh={onRefresh} closeDrawer={() => {onOpenChange(false); resetForm()}} maintenances={maintenances} withMaintenances={isSelected}/>
+            <EquipmentsModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={equipment} initialData={data} action={action} onRefresh={onRefresh} closeDrawer={() => {resetForm(); onOpenChange(false)}} maintenances={maintenances} withMaintenances={isSelected}/>
         </>
     )
 }

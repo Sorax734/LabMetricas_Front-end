@@ -17,6 +17,7 @@ export const ChangeStatusModal = ({isOpen, onOpenChange, title, description, chi
                 onOpenChange={onOpenChange}
                 classNames={{wrapper: "overflow-hidden", backdrop: "bg-black/20"}}
                 ref={targetRef} 
+                className="my-0"
             >
                 <ModalContent className="bg-background">
                     {(onClose) => (
@@ -30,9 +31,9 @@ export const ChangeStatusModal = ({isOpen, onOpenChange, title, description, chi
                         <ModalBody className="py-0 gap-0">
                             <p className="text-sm font-normal pb-4 text-center">{description}</p>
                         </ModalBody>
-                        <ModalFooter className="flex justify-center pt-4 pb-8">
+                        <ModalFooter className="flex justify-center pt-4 pb-8 sm:gap-4 gap-2">
                             <Button
-                                className="bg-transparent"
+                                className="bg-transparent dark:bg-background-100"
                                 radius="sm"
                                 startContent={<DismissFilled className="size-5"/>}
                                 onPress={onClose}

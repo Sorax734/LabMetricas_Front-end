@@ -1,26 +1,20 @@
 import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react"
-import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useState, useTransition } from "react"
 import { useIsIconOnlyMedium } from "../hooks/useIsIconOnly"
-import { AddCircleFilled, ArrowSortDownLinesFilled, ArrowSortFilled, SettingsFilled, ArrowSortUpLinesFilled, CheckmarkCircleFilled, ChevronDownFilled, CircleFilled, DismissCircleFilled, EditFilled, InfoFilled, MoreVerticalFilled, OptionsFilled, SubtractCircleFilled, CloudDatabaseFilled } from "@fluentui/react-icons"
+import { ArrowSortDownLinesFilled, ArrowSortFilled, ArrowSortUpLinesFilled, ChevronDownFilled, CircleFilled, CloudDatabaseFilled, CloudErrorFilled, DatabaseSearchFilled, DismissCircleFilled, PersonInfoFilled, MoreVerticalFilled, OptionsFilled, PersonAddFilled, PersonAvailableFilled, PersonEditFilled, PersonSubtractFilled } from "@fluentui/react-icons"
 import { motion } from "framer-motion"
 import { useOutletContext } from "react-router-dom"
-import { getEquipments } from "../service/equipment"
-import { getCategories } from "../service/category"
-import { getMaintenanceProviders } from "../service/maintenanceProvider"
-import { EquipmentsDrawer } from "../components/equipments/EquipmentsDrawer"
-import { EquipmentsChangeStatusModal } from "../components/equipments/EquipmentsChangeStatusModal"
 import { formatDateLiteral } from "../js/utils"
+import { getMaintenanceProviders } from "../service/maintenanceProvider"
+import { MaintenanceProvidersChangeStatusModal } from "../components/maintenanceProviders/MaintenanceProvidersChangeStatusModal"
+import { MaintenanceProvidersDrawer } from "../components/maintenanceProviders/MaintenanceProvidersDrawer"
 
-export const Equipments = () => {
+export const MaintenanceProviders = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
 
-    const [equipments, setEquipments] = useState([])
-    const [users, setUsers] = useState([])
-    const [categories, setCategories] = useState([])
     const [maintenanceProviders, setMaintenanceProviders] = useState([])
     const [errors, setErrors] = useState([])
 
@@ -30,7 +24,7 @@ export const Equipments = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const [selectedEquipment, setSelectedEquipment] = useState({})
+    const [selectedMP, setSelectedMP] = useState({})
     const [action, setAction] = useState("")
 
     useEffect(() => {
@@ -38,37 +32,20 @@ export const Equipments = () => {
             try {
                 setIsLoading(true)
 
-                const equipmentsResponse = await getEquipments()
-                const usersResponse = await getUsers()
-                const categoriesResponse = await getCategories()
-                const maintenanceProvidersResponse = await getMaintenanceProviders()
+                const response = await getMaintenanceProviders()
+                const data = response.data
 
-                const data = equipmentsResponse.data
-                const usersData = usersResponse.data
-                const categoriesData = categoriesResponse.data
-                const maintenanceProvidersData = maintenanceProvidersResponse.data
-
-                if (data && usersData && categoriesData && maintenanceProvidersData) {
-                    const usersMap = new Map(usersData.map(u => [u.id, u.name]))
-                    const categoriesMap  = new Map(categoriesData.map(c => [c.id, c.name]))
-                    const maintenanceProvidersMap  = new Map(maintenanceProvidersData.map(c => [c.id, c.name]))
-
+                if (data) {
                     const dataCount = data.map((item, index) => ({
                         ...item,
                         n: index + 1,
                         status: item.status ? "activo" : "inactivo",
-                        assignedToName: usersMap.get(item.assignedToId) || '—',
-                        categoryName:   categoriesMap.get(item.equipmentCategoryId) || '—',
-                        maintenanceProviderName:   maintenanceProvidersMap.get(item.maintenanceProviderId) || '—',
                     }))
                     
                     startTransition(() => {
-                        setEquipments(dataCount)
-                        setUsers(usersData.filter(u  => u.status === true))
-                        setCategories(categoriesData.filter(u  => u.status === true))
-                        setMaintenanceProviders(maintenanceProvidersData.filter(u  => u.status === true))
+                        setMaintenanceProviders(dataCount)
 
-                        setSelectedEquipment(prev => {
+                        setSelectedMP(prev => {
                             if (!prev) return null
                             const updated = dataCount.find(u => u.id === prev.id)
                             return updated ?? prev
@@ -127,21 +104,21 @@ export const Equipments = () => {
     const hasSearchFilter = Boolean(searchValue)
     
     const filteredItems = React.useMemo(() => {
-        let filteredEquipments = [...equipments]
+        let filteredMaintenanceProviders = [...maintenanceProviders]
     
         if (hasSearchFilter) {
-            filteredEquipments = filteredEquipments.filter((equipment) =>
-                equipment.name.toLowerCase().includes(searchValue.toLowerCase()),
+            filteredMaintenanceProviders = filteredMaintenanceProviders.filter((maintenanceProvider) =>
+                maintenanceProvider.name.toLowerCase().includes(searchValue.toLowerCase()),
             )
         }
         if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-            filteredEquipments = filteredEquipments.filter((equipment) =>
-                Array.from(statusFilter).includes(equipment.status),
+            filteredMaintenanceProviders = filteredMaintenanceProviders.filter((maintenanceProvider) =>
+                Array.from(statusFilter).includes(maintenanceProvider.status),
             )
         }
     
-        return filteredEquipments
-    }, [equipments, searchValue, statusFilter])
+        return filteredMaintenanceProviders
+    }, [maintenanceProviders, searchValue, statusFilter])
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage)
     
@@ -163,8 +140,8 @@ export const Equipments = () => {
     }, [sortDescriptor, items])
 
     const paginatedSortedItems = React.useMemo(() => {
-        return sortedItems.map((equipment, idx) => ({
-            ...equipment,
+        return sortedItems.map((maintenanceProvider, idx) => ({
+            ...maintenanceProvider,
             pageIndex: idx,    // idx va de 0 a (rowsPerPage - 1)
         }))
     }, [sortedItems])
@@ -200,34 +177,34 @@ export const Equipments = () => {
             : null
     }
 
-    const handleReadEquipment= (equipment) => {
+    const handleReadMaintenanceProvider = (maintenanceProvider) => {
         setAction("")
-        setSelectedEquipment(equipment)
+        setSelectedMP(maintenanceProvider)
     }
 
-    const handleCreateEquipment = () => {
+    const handleCreateMaintenanceProvider = () => {
         setAction("create")
-        setSelectedEquipment(null)
+        setSelectedMP(null)
     }
 
-    const handleUpdateEquipment = (equipment) => {
+    const handleUpdateMaintenanceProvider = (maintenanceProvider) => {
         setAction("update")
-        setSelectedEquipment(equipment)
+        setSelectedMP(maintenanceProvider)
     }
 
-    const handleChangeStatusEquipment = (equipment) => {
-        setSelectedEquipment(equipment)
+    const handleChangeStatusMaintenanceProvider = (maintenanceProvider) => {
+        setSelectedMP(maintenanceProvider)
         setIsModalOpen(true)
     }
     
     const topContent = React.useMemo(() => {
         const sortOptions = [
             { key: "n", label: "Número" },
+            { key: "email", label: "Correo" },
             { key: "name", label: "Nombre" },
-            { key: "assignedToName", label: "Asignado a:" },
-            { key: "serialNumber", label: "N. de serie" },
-            { key: "code", label: "Código" },
-            { key: "categoryName", label: "Categoría" },
+            { key: "nif", label: "NIF" },
+            { key: "phone", label: "Teléfono" },
+            { key: "address", label: "Dirección" },
         ]
 
         const totalFiltered = filteredItems.length
@@ -237,7 +214,7 @@ export const Equipments = () => {
         return (
             <div className="flex justify-between gap-4 items-center px-1 n2">
                 <div className="flex flex-col n7">
-                    <p className="text-lg font-bold">Equipos</p>
+                    <p className="text-lg font-bold">Proveedores de servicio</p>
                     <span className="text-background-500 text-xs">
                         {totalFiltered === 0
                         ? "Sin resultados"
@@ -357,8 +334,8 @@ export const Equipments = () => {
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
-                        startContent={<SettingsFilled className="size-5 "/>}
-                        onPress={() => {handleCreateEquipment(); setIsDrawerOpen(true)}}
+                        startContent={<PersonAddFilled className="size-5 "/>}
+                        onPress={() => {handleCreateMaintenanceProvider(); setIsDrawerOpen(true)}}
                     />
                 </div>
             </div>
@@ -371,7 +348,7 @@ export const Equipments = () => {
         rowsPerPage,
         onRowsPerPageChange,
         page,
-        equipments.length,
+        maintenanceProviders.length,
         hasSearchFilter,
         sortDescriptor
     ])
@@ -384,7 +361,7 @@ export const Equipments = () => {
                         showControls
                         showShadow
                         className="-m-0 px-0 pt-2 pb-2.5 n4"
-                        aria-label="Paginación"
+                        aria-label="Pagination tabla"
                         radius="sm"
                         variant="light"
                         color="primary"
@@ -414,18 +391,18 @@ export const Equipments = () => {
                 "group-data-[last=true]/tr:first:before:rounded-none",
                 "group-data-[last=true]/tr:last:before:rounded-none",
             ],
-            wrapper: "rounded-[9px] n3 gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal
+            wrapper: "n3 rounded-[9px] gap-0 overflow-y-auto overflow-x-auto md:pt-0 md:pb-0 md:pl-2 md:pr-2 p-1 transition-colors duration-1000 bg-transparent [&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-primary", // Ajuste principal            base: "h-full",
             base: "h-full",
             table: "bg-transparent",
             emptyWrapper: "text-background-950 text-sm"
         }), [],
     )
-
+    
     return (
         <>
             {isLoading ? (
                 <div className="relative w-full h-full px-1">
-                    <p className="text-lg font-bold">Equipos</p>
+                    <p className="text-lg font-bold">Proveedores de servicio</p>
                     
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
@@ -438,7 +415,7 @@ export const Equipments = () => {
                 </div>
             ) : ( errors.length > 0 ? (
                 <div className="w-full h-full px-1">
-                    <p className="text-lg font-bold">Equipos</p>
+                    <p className="text-lg font-bold">Proveedores de servicio</p>
 
                     <div className="space-y-4 pt-4">
                         {errors.map((msg, i) => (
@@ -460,12 +437,12 @@ export const Equipments = () => {
                         ))}
                     </div>
                 </div>
-            ) : ( equipments.length > 0 ? (
+            ) : ( maintenanceProviders.length > 0 ? (
                 <Table
                     isHeaderSticky
                     radius="none"
                     shadow="none"
-                    aria-label="Tabla de equipos"
+                    aria-label="Tabla de Proveedores de servicio"
                     topContentPlacement="outside"
                     bottomContentPlacement="inside"
                     hideHeader={isIconOnlyMedium}
@@ -491,23 +468,19 @@ export const Equipments = () => {
                                         </div>
                                         
                                         <div className="flex-1 min-w-0 max-w-[30%] truncate">
-                                            Asignado a:
+                                            Correo electrónico
                                         </div>
                                         
-                                        <div className="w-36 flex-shrink-0">
-                                            Número de serie
-                                        </div>
-                                        
-                                        <div className="w-36 flex-shrink-0">
-                                            Código
-                                        </div>
-                                        
-                                        <div className="w-36 flex-shrink-0">
-                                            Categoría
+                                        <div className="w-48 flex-shrink-0">
+                                            NIF
                                         </div>
                                         
                                         <div className="w-40 flex-shrink-0 text-center">
                                             Fecha de modificación
+                                        </div>
+                                        
+                                        <div className="w-28 flex-shrink-0">
+                                            Teléfono
                                         </div>
                                         
                                         <div className="w-[68px] flex-shrink-0 mr-4">
@@ -543,7 +516,7 @@ export const Equipments = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.3, delay: item.pageIndex * 0.1 }}
                                     >
-                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadEquipment(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
+                                        <Card shadow="none" radius="sm" isPressable onPress={() => {handleReadMaintenanceProvider(item); setIsDrawerOpen(true)}} className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-small">
                                             <CardBody className="md:px-2 md:py-1 pl-4 md:pl-0 n5">
                                                 <div className={`absolute left-0 inset-y-4 w-1 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full md:inset-y-1`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
@@ -553,15 +526,15 @@ export const Equipments = () => {
                                                                 <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
                                                             </div>
                                                             <div className={`flex gap-1 text-xs items-start ${item.status === "activo" ? "text-primary" : "text-background-500"}`}>
-                                                                <p className="text-background-950">{item.code}</p>
+                                                                <p className="text-background-950">{item.nif}</p>
                                                                 <p>{item.status}</p>
                                                                 <p className="text-xs text-background-500 pb-[2px]">#{item.n}</p>
                                                             </div>
                                                         </div>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Asignado a: </span>{item.assignedToName}</p>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Número de serie: </span>{item.serialNumber}</p>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Categoría: </span>{item.categoryName}</p>
-                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Fecha de modificación: </span>{formatDateLiteral(item.updatedAt, true)}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Correo electrónico: </span>{item.email}</p>
+                                                        <p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Fecha de modificación: </span>{formatDateLiteral(item.lastModification, true)}</p>
+                                                        {item.phone && (<p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Teléfono: </span>{item.phone}</p>)}
+                                                        {item.address && (<p className="text-xs text-background-500 max-w-full break-all line-clamp-1"><span className="text-background-700 font-medium">Dirección: </span>{item.address}</p>)}
                                                     </div>
                                                     <div className="flex items-center pl-2">
                                                         <Dropdown placement="bottom-end" className="bg-background dark:bg-background-200 shadow-large transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
@@ -574,27 +547,27 @@ export const Equipments = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                        key="handleUpdateEquipment"
-                                                                        startContent={<EditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateEquipment(item); setIsDrawerOpen(true)}}
+                                                                        key="handleUpdateMaintenanceProvider"
+                                                                        startContent={<PersonEditFilled className="size-5"/>}
+                                                                        onPress={() => {handleUpdateMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar equipo
+                                                                        Actualizar proveedor de servicio
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                        key="handleReadEquipment"
-                                                                        startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadEquipment(item); setIsDrawerOpen(true)}}
+                                                                        key="handleReadMaintenanceProvider"
+                                                                        startContent={<PersonInfoFilled className="size-5"/>}
+                                                                        onPress={() => {handleReadMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                        key="handleChangeStatusEquipment"
-                                                                        startContent={item.status === "activo" ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
-                                                                        onPress={() => handleChangeStatusEquipment(item)}
+                                                                        key="handleChangeStatusMaintenanceProvider"
+                                                                        startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
+                                                                        onPress={() => handleChangeStatusMaintenanceProvider(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
                                                                     </DropdownItem>
@@ -619,31 +592,25 @@ export const Equipments = () => {
                                                     
                                                     <div className="flex-1 min-w-0 max-w-[30%]">
                                                         <p className="text-sm truncate">
-                                                            {item.assignedToName}
+                                                            {item.email}
                                                         </p>
                                                     </div>
 
-                                                    <div className="w-36 flex-shrink-0">
+                                                    <div className="w-48 flex-shrink-0">
                                                         <p className="text-sm truncate">
-                                                            {item.serialNumber}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="w-36 flex-shrink-0">
-                                                        <p className="text-sm truncate">
-                                                            {item.code}
-                                                        </p>
-                                                    </div>
-                                                    
-                                                    <div className="w-36 flex-shrink-0">
-                                                        <p className="text-sm truncate">
-                                                            {item.categoryName}
+                                                            {item.nif}
                                                         </p>
                                                     </div>
 
                                                     <div className="w-40 flex-shrink-0">
                                                         <p className="text-sm truncate text-center">
-                                                            {formatDateLiteral(item.updatedAt)}
+                                                            {formatDateLiteral(item.lastModification)}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="w-28 flex-shrink-0">
+                                                        <p className="text-sm truncate">
+                                                            {item.phone}
                                                         </p>
                                                     </div>
 
@@ -663,27 +630,27 @@ export const Equipments = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                        key="handleUpdateEquipment"
-                                                                        startContent={<EditFilled className="size-5"/>}
-                                                                        onPress={() => {handleUpdateEquipment(item); setIsDrawerOpen(true)}}
+                                                                        key="handleUpdateMaintenanceProvider"
+                                                                        startContent={<PersonEditFilled className="size-5"/>}
+                                                                        onPress={() => {handleUpdateMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar equipo
+                                                                        Actualizar proveedor de servicio
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                        key="handleReadEquipment"
-                                                                        startContent={<InfoFilled className="size-5"/>}
-                                                                        onPress={() => {handleReadEquipment(item); setIsDrawerOpen(true)}}
+                                                                        key="handleReadMaintenanceProvider"
+                                                                        startContent={<PersonInfoFilled className="size-5"/>}
+                                                                        onPress={() => {handleReadMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                        key="handleChangeStatusEquipment"
-                                                                        startContent={item.status === "activo" ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
-                                                                        onPress={() => handleChangeStatusEquipment(item)}
+                                                                        key="handleChangeStatusMaintenanceProvider"
+                                                                        startContent={item.status === "activo" ? <PersonSubtractFilled className="size-5"/> : <PersonAvailableFilled className="size-5"/>}
+                                                                        onPress={() => handleChangeStatusMaintenanceProvider(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
                                                                     </DropdownItem>
@@ -702,30 +669,29 @@ export const Equipments = () => {
                 </Table>) : (
                 <div className="flex flex-col w-full h-full px-1">
                     <div className="flex justify-between">
-                        <p className="text-lg font-bold">Equipos</p>
-            
+                        <p className="text-lg font-bold">Proveedores de servicio</p>
+
                         <PrimaryButton
                             tooltipPlacement="bottom"
-                            label="Registrar"
-                            startContent={<SettingsFilled className="size-5 "/>}
-                            onPress={() => {handleCreateEquipment(); setIsDrawerOpen(true)}}
+                            label="Registrar" MaintenanceProvider
+                            startContent={<PersonAddFilled className="size-5 "/>}
+                            onPress={() => {handleCreateMaintenanceProvider(); setIsDrawerOpen(true)}}
                         />
                     </div>
                     
-                                        
                     <div className="flex-1 flex items-center justify-center flex-col gap-4 -mt-10">
                         <div className="flex flex-col gap-3 max-w-[450px] px-6 sm:px-0">
                             <CloudDatabaseFilled className="size-10"/>
                     
-                            <p className="text-base sm:text-lg">Actualmente no hay equipos existentes en la aplicación</p>
-                            <p className="text-xs sm:text-sm">Aquí se mostraran los equipos existentes</p>
+                            <p className="text-base sm:text-lg">Actualmente no hay proveedores de servicio existentes en la aplicación</p>
+                            <p className="text-xs sm:text-sm">Aquí se mostraran los proveedores de servicio existentes</p>
                         </div>
                     </div>
                 </div>)
             ))}
-
-            <EquipmentsChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedEquipment} onRefresh={triggerRefresh}/>
-            <EquipmentsDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} data={selectedEquipment} action={action} onRefresh={triggerRefresh} users={users} categories={categories} maintenanceProviders={maintenanceProviders}/>
+            
+            <MaintenanceProvidersChangeStatusModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} data={selectedMP} onRefresh={triggerRefresh}/>
+            <MaintenanceProvidersDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} data={selectedMP} action={action} onRefresh={triggerRefresh}/>
         </>
     )
 }

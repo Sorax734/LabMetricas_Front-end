@@ -1,4 +1,4 @@
-import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, ScrollShadow, ButtonGroup, useDisclosure, useDraggable, Modal, ModalContent, ModalHeader, ModalBody, Form, Input, ModalFooter } from "@heroui/react"
+import { addToast, Spinner as SpinnerH, Button, Card, CardBody, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, Pagination, Popover, PopoverContent, PopoverTrigger, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, ScrollShadow, ButtonGroup, useDisclosure, useDraggable, Modal, ModalContent, ModalHeader, ModalBody, Form, Input, ModalFooter, Badge } from "@heroui/react"
 import { getUsers } from "../service/user"
 import { PrimaryButton } from "../components/PrimaryButton"
 import React, { useEffect, useRef, useState, useTransition } from "react"
@@ -11,28 +11,41 @@ import { createCategory, getCategories, updateCategory, changeStatus as changeSt
 import { createMaintenanceType, getMaintenanceTypes, updateMaintenanceType, changeStatus as changeStatusMaintenanceType } from "../service/maintenanceType"
 import { createMaintenanceProvider, getMaintenanceProviders, updateMaintenanceProvider, changeStatus as changeStatusMaintenanceProvider } from "../service/maintenanceProvider"
 import { getEquipments } from "../service/equipment"
-import { getMaintenances } from "../service/maintenanceCalibration"
+import { getAllMaintenancesToMe, getMaintenancesToMe } from "../service/maintenanceCalibration"
 import { getCustomers } from "../service/customer"
 import { EquipmentsDrawer } from "../components/equipments/EquipmentsDrawer"
 import { MaintenancesCalibrationsDrawer } from "../components/maintenancesCalibrations/MaintenancesCalibrationsDrawer"
 import { required } from "../js/validators"
 import { CloseButton } from "../components/CloseButton"
 import { CustomersDrawer } from "../components/customers/CustomersDrawer"
+import { Notifications } from "./Notifications"
+import { getNotifications } from "../service/notifications"
+import { MaintenanceProvidersDrawer } from "../components/maintenanceProviders/MaintenanceProvidersDrawer"
+import { useAuth } from "../hooks/useAuth"
 
 export const Home = () => {
     let navigate = useNavigate()
+    const {user} = useAuth()
 
     const [selectedOption, setSelectedOption] = React.useState(new Set(["category"]))
 
     const labelsMap = {
-        category: "Registrar categoría",
-        type: "Registrar tipo",
-        provider: "Registrar proveedor",
+        category: "Categoría de equipo",
+        type: "Tipo de servicio",
+        people: "Usuario",
+        equips: "Equipo",
+        services: "Servicio",
+        customer: "Cliente",
+        provider: "Proveedor de servicio",
     }
     
     const iconsMap = {
-        category: <TagAddFilled className="size-5"/>,
+        category: <TagFilled className="size-5"/>,
         type: <WrenchFilled className="size-5"/>,
+        people: <PeopleFilled className="size-5"/>,
+        equips: <SettingsCogMultipleFilled className="size-5"/>,
+        services: <WrenchSettingsFilled className="size-5"/>,
+        customer: <PeopleToolboxFilled className="size-5"/>,
         provider: <PersonWrenchFilled className="size-5"/>,
     }
 
@@ -42,7 +55,7 @@ export const Home = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
-    const { searchValue, setSearchValue, userName } = useOutletContext()
+    const { searchValue, setSearchValue, userName, id } = useOutletContext()
 
     const [cards, setCards] = useState([])
     const [isDUsersOpen, setIsDUsersOpen] = useState(false)
@@ -59,10 +72,11 @@ export const Home = () => {
 
     const [errors, setErrors] = useState([])
 
-    const isIconOnlyMedium = useIsIconOnlyMedium()
     const [, startTransition] = useTransition()
 
     const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure()
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+    const [isMPOpen, setIsMPOpen] = useState(false)
 
     const [selected, setSelected] = useState({})
     const [action, setAction] = useState("")
@@ -102,8 +116,11 @@ export const Home = () => {
 
                 const equipmentsResponse = await getEquipments()
                 const usersResponse = await getUsers()
-                const maintenancesResponse = await getMaintenances()
+                const maintenancesResponse = await getAllMaintenancesToMe()
                 const customersResponse = await getCustomers()
+
+                const notifications = await getNotifications()
+                const notificationsdata = notifications.data
 
                 const categoriesData = categoriesResponse.data
                 const maintenanceTypesData = maintenanceTypesResponse.data
@@ -125,40 +142,40 @@ export const Home = () => {
                             itemsLength: usersData.length,
                             items: usersData,
                             icon:        <PeopleFilled className="size-5" />,
-                            startContent:<PersonAddFilled className="size-5" />,
-                            buttonLabel: 'Registrar',
                             onPress:     () => navigate("/App/Users"),
-                            onButtonPress: () => setIsDUsersOpen(true)
                         },
                         {
                             title:       'Equipos',
                             itemsLength: equipmentsData.length,
                             items: equipmentsData,
                             icon:        <SettingsCogMultipleFilled className="size-5" />,
-                            startContent:<SettingsFilled className="size-5" />,
-                            buttonLabel: 'Registrar',
                             onPress:     () => navigate("/App/Equipments"),
-                            onButtonPress: () => setIsDEquipmentsOpen(true)
                         },
                         {
-                            title:       'Mantenimientos',
+                            title:       'Servicios',
                             itemsLength: maintenancesData.length,
                             items: maintenancesData,
                             icon:        <WrenchSettingsFilled className="size-5" />,
-                            startContent:<WrenchScrewdriverFilled className="size-5" />,
-                            buttonLabel: 'Solicitar',
-                            onPress:     () => navigate("/App/Maintenance-Calibration"),
-                            onButtonPress: () => setIsDMaintenancesOpen(true)
+                            onPress:     () => navigate("/App/Services"),
                         },
                         {
                             title:       'Clientes',
                             itemsLength: customersData.length,
                             items: customersData,
                             icon:        <PeopleToolboxFilled className="size-5" />,
-                            startContent:<PersonAddFilled className="size-5" />,
-                            buttonLabel: 'Registrar',
                             onPress:     () => navigate("/App/Customers"),
-                            onButtonPress: () => setIsDCustomersOpen(true)
+                        },
+                        {
+                            title:       'Proveedores',
+                            itemsLength: maintenanceProvidersData.length,
+                            items: maintenanceProvidersData,
+                            icon:        <PersonWrenchFilled className="size-5" />,
+                            onPress:     () => navigate("/App/ServiceProviders"),
+                        },
+                        {
+                            title:       'Notificaciones',
+                            itemsLength: notificationsdata.length,
+                            onPress:     () => setIsNotificationsOpen(true),
                         },
                     ]
 
@@ -211,21 +228,6 @@ export const Home = () => {
         fetchData()
     }, [refreshTrigger])
 
-    const notis = [
-        {
-            title: "Tiene pendiente el servicio con código: 11072025-CALI-001-P por realizar para el día 12 de julio de 2025 al equipo: Thermal Imaging Camera.",
-            description: "María Rodríguez le ha asignado a usted como responsable de este servicio."
-        },
-        {
-            title: "Carlos López le ha asignado a usted como responsable de un nuevo servicio.",
-            description: "Código del nuevo servicio: 12062025-CALI-002-P para el día 18 de julio de 2025 al equipo: Safety Shower Station."
-        },
-        {
-            title: "Tiene pendiente el servicio con código: 19082025-CALI-001-NP por realizar para el día 26 de agosto de 2025 al equipo: CNC Milling Machine.",
-            description: "Roberto Díaz le ha asignado a usted como responsable de este servicio."
-        },
-    ]
-
     const handleRead = (item, entity) => {
         setAction("read")
         setModalEntity(entity)
@@ -233,10 +235,30 @@ export const Home = () => {
     }
 
     const handleCreate = () => {
-        setAction("create")
-        setModalEntity(selectedOptionValue)
-        setSelected(null)
-        onModalOpen()
+        if (selectedOptionValue === "category" || selectedOptionValue === "type"){
+            setAction("create")
+            setModalEntity(selectedOptionValue)
+            setSelected(null)
+            onModalOpen()
+        } else {
+            switch (selectedOptionValue) {
+                case "people":
+                    setIsDUsersOpen(true)
+                    break
+                case "equips":
+                    setIsDEquipmentsOpen(true)
+                    break
+                case "services":
+                    setIsDMaintenancesOpen(true)
+                    break
+                case "customer":
+                    setIsDCustomersOpen(true)
+                    break
+                default:
+                    setIsMPOpen(true)
+                    break
+            }
+        }
     }
 
     const handleUpdate = (item, entity) => {
@@ -252,21 +274,26 @@ export const Home = () => {
         onModalOpen()
     }
     
-    const lengthCard = (onPress, onButtonPress, title, itemsLength, icon, startContent, buttonLabel) => {
+    const lengthCard = (onPress, title, itemsLength, icon) => {
         return (
             <Card shadow="none" radius="sm" isPressable onPress={onPress} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
                 <CardBody className="px-4 py-2">
+                    <div className={`absolute left-0 inset-y-4 w-1 bg-primary rounded-full`}></div>
                     <div className="p-2">
                         <div className="flex flex-col items-center">
                             <p className="text-sm">{title}</p>
                             <div className="flex items-center gap-2 pb-2">
-                                <p className="text-4xl font-bold">{itemsLength}</p>
+                                <p className="text-4xl font-bold">{title === "Notificaciones" ? undefined : itemsLength}</p>
                                 {icon}
+
+                                {title === "Notificaciones" && 
+                                    <div className="pt-[2px]">
+                                        <Badge color="primary" content={itemsLength} shape="circle" placement="bottom-right">
+                                            <AlertFilled className="size-8"/>
+                                        </Badge>
+                                    </div>
+                                }
                             </div>
-                            
-                            <Button startContent={startContent} color="primary" variant="shadow" className="font-medium tracking-wide data-[hover=true]:-translate-y-1" size="md" radius="sm" as="a" onPress={onButtonPress}>
-                                {buttonLabel}
-                            </Button>
                         </div>
                     </div>
                 </CardBody>
@@ -278,6 +305,7 @@ export const Home = () => {
         return (
             <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
                 <CardBody className="px-4 py-2">
+                    <div className={`absolute left-0 inset-y-2 w-1 bg-primary rounded-full`}></div>
                     <div className="p-2">
                         <div className="flex justify-between">
                             <div className="flex flex-col justify-center">
@@ -300,7 +328,7 @@ export const Home = () => {
         <>
             {isLoading ? (
                 <div className="relative w-full h-full">
-                    <p className="text-lg font-bold hidden sm:block">Inicio</p>
+                    <p className="text-lg font-bold hidden sm:block">¡Hola, {userName}!</p>
 
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <SpinnerH
@@ -314,7 +342,7 @@ export const Home = () => {
 
             ) : ( errors.length > 0 ? (
                 <div className="w-full h-full">
-                    <p className="text-lg font-bold hidden sm:flex">Inicio</p>
+                    <p className="text-lg font-bold hidden sm:flex">¡Hola, {userName}!</p>
 
                     <div className="space-y-4 pt-4">
                         {errors.map((msg, i) => (
@@ -338,21 +366,17 @@ export const Home = () => {
                 </div>
             ) : ( categories.length > 0 && maintenanceTypes.length > 0 && maintenanceProviders.length > 0 && (
                 <div className="w-full h-full flex flex-col">
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-7 pb-4 sm:py-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:py-0 n2">
                         <div className="w-full">
-                            <div className="flex flex-col">
-                                <p className="text-lg font-bold hidden sm:flex">Inicio</p>
-                                <span className="text-background-500 text-sm line-clamp-2 hidden sm:flex">Mostrando categorías, tipos y proveedores</span>
+                            <div className="flex flex-col max-sm:text-center">
+                                <p className="text-lg font-bold">¡Hola, {userName}!</p>
+                                <span className="text-background-500 text-xs line-clamp-2">Mostrando categorías de equipos y tipos de servicios</span>
                             </div>
                         </div>
-                        <div className="w-full row-start-2 sm:row-start-2 sm:col-span-2 -mt-4 sm:-mt-0">
-                            <p className="font-bold text-2xl pb-0 sm:pb-6 text-center sm:text-start">¡Hola, {userName}!</p>
-                        </div>
-                        <div className="w-full flex row-start-3 sm:row-start-1 sm:col-start-2 sm:justify-end justify-center pb-10 sm:pb-0">
-                            <ButtonGroup variant="flat">
+                        <div className="w-full flex row-start-3 sm:row-start-1 sm:col-start-2 sm:justify-end justify-center sm:pb-0">
+                            <ButtonGroup variant="flat" className="n9">
                                 <Button startContent={iconsMap[selectedOptionValue]} onPress={handleCreate} color="primary" variant="shadow" className="font-medium tracking-wide" size="md" radius="sm">
-                                    {labelsMap[selectedOptionValue]}
+                                    <span>{selectedOptionValue === "services" ? "Solicitar " : "Registrar "} <span className="lowercase">{labelsMap[selectedOptionValue]}</span></span>
                                 </Button>
                                 <Dropdown placement="bottom-end" className="bg-background-100 w-52 transition-colors duration-1000 ease-in-out" shadow="lg" radius="sm" >
                                     <DropdownTrigger>
@@ -384,6 +408,34 @@ export const Home = () => {
                                             {labelsMap["type"]}
                                         </DropdownItem>
                                         <DropdownItem 
+                                            key="people" 
+                                            className="rounded-md transition-all !duration-1000 ease-in-out"
+                                            startContent={iconsMap["people"]}
+                                        >
+                                            {labelsMap["people"]}
+                                        </DropdownItem>
+                                        <DropdownItem 
+                                            key="equips" 
+                                            className="rounded-md transition-all !duration-1000 ease-in-out"
+                                            startContent={iconsMap["equips"]}
+                                        >
+                                            {labelsMap["equips"]}
+                                        </DropdownItem>
+                                        <DropdownItem 
+                                            key="services" 
+                                            className="rounded-md transition-all !duration-1000 ease-in-out"
+                                            startContent={iconsMap["services"]}
+                                        >
+                                            {labelsMap["services"]}
+                                        </DropdownItem>
+                                        <DropdownItem 
+                                            key="customer" 
+                                            className="rounded-md transition-all !duration-1000 ease-in-out"
+                                            startContent={iconsMap["customer"]}
+                                        >
+                                            {labelsMap["customer"]}
+                                        </DropdownItem>
+                                        <DropdownItem 
                                             key="provider" 
                                             className="rounded-md transition-all !duration-1000 ease-in-out"
                                             startContent={iconsMap["provider"]}
@@ -396,7 +448,7 @@ export const Home = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4 gap-4 pb-8 sm:-m-2">
+                    <div className="grid grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-3 xl:grid-cols-6 gap-4 pb-8 mt-6">
                         {cards.map((c, i) => (
                             <motion.div
                                 key={c.title}
@@ -406,85 +458,17 @@ export const Home = () => {
                             >
                                 {lengthCard(
                                     c.onPress,
-                                    c.onButtonPress,
                                     c.title,
                                     c.itemsLength,
                                     c.icon,
-                                    c.startContent,
-                                    c.buttonLabel
                                 )}
                             </motion.div>
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-12 sm:-m-4 -m-2 xl:gap-0 gap-4">
-                        <div className="xl:col-span-4 col-span-12">
-                            <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2
-                            [&::-webkit-scrollbar]:h-1
-                            [&::-webkit-scrollbar]:w-1
-                            [&::-webkit-scrollbar-track]:rounded-full
-                            [&::-webkit-scrollbar-track]:bg-transparent
-                            [&::-webkit-scrollbar-thumb]:rounded-full
-                            [&::-webkit-scrollbar-thumb]:bg-transparent">
-                                <div>
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.3, delay: 0.4 }}
-                                    >
-                                        {miniCard("Notificaciones", notis.length, <AlertFilled className="size-5"/>)}
-                                    </motion.div>
-                                </div>
-
-                                {notis.map((item, n) => (
-                                    <motion.div
-                                        key={item.title}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.3, delay: n * 0.1 + 0.4 }}
-                                    >
-                                        <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
-                                            <CardBody className="px-4 py-2">
-                                                <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 xl:h-14 h-12 sm:14 md:h-12 lg:10 bg-primary rounded-full`}></div>
-                                                <div className="w-full h-full flex justify-between">
-                                                    <div>
-                                                        <div className="flex gap-1 pb-1 items-end">
-                                                            <p className="text-sm font-medium break-words">{item.title}</p>
-                                                        </div>
-                                                        <div className={`flex gap-1 text-xs items-start`}>
-                                                            <p className="text-xs text-background-500 pb-[2px]">{item.description}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center pl-2">
-                                                        <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
-                                                            <DropdownTrigger>
-                                                                <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
-                                                                    <MoreVerticalFilled className="size-5"/>
-                                                                </Button>
-                                                            </DropdownTrigger>
-                                                            <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
-                                                                <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
-                                                                    <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                        key="handleRead"
-                                                                        startContent={<InfoFilled className="size-5"/>}
-                                                                    >
-                                                                        Ver más detalles
-                                                                    </DropdownItem>
-                                                                </DropdownSection>
-                                                            </DropdownMenu>
-                                                        </Dropdown>
-                                                    </div>
-                                                </div>
-                                            </CardBody>
-                                        </Card>
-                                    </motion.div>
-                                ))}
-                            </ScrollShadow>
-                        </div>
-                        <div className="xl:col-span-8 col-span-12">
-                            <div className="w-full grid md:grid-cols-6 grid-cols-1 md:gap-0 gap-4">
-                                <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2 md:col-span-3 xl:col-span-2
+                    <div className="sm:-m-2 -m-2 xl:gap-0 gap-4 n3">
+                            <div className="w-full grid md:grid-cols-2 grid-cols-1 md:gap-0 gap-4">
+                                <ScrollShadow className="bg-transparent flex flex-col gap-2 p-2
                                 [&::-webkit-scrollbar]:h-1
                                 [&::-webkit-scrollbar]:w-1
                                 [&::-webkit-scrollbar-track]:rounded-full
@@ -510,7 +494,7 @@ export const Home = () => {
                                         >
                                             <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "category"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
                                                 <CardBody className="px-4 py-2">
-                                                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                    <div className={`absolute left-0 inset-y-2 w-1 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                     <div className="w-full h-full flex justify-between">
                                                         <div>
                                                             <div className="flex gap-1 pb-1 items-end">
@@ -567,7 +551,7 @@ export const Home = () => {
                                     ))}
                                 </ScrollShadow>
 
-                                <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2 md:col-span-3 xl:col-span-2
+                                <ScrollShadow className="bg-transparent flex flex-col gap-2 p-2
                                 [&::-webkit-scrollbar]:h-1
                                 [&::-webkit-scrollbar]:w-1
                                 [&::-webkit-scrollbar-track]:rounded-full
@@ -580,7 +564,7 @@ export const Home = () => {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.3, delay: 2 * 0.1 }}
                                         >
-                                            {miniCard("Tipos de mantenimiento", maintenanceTypes.length, <WrenchFilled className="size-5"/>)}
+                                            {miniCard("Tipos de servicio", maintenanceTypes.length, <WrenchFilled className="size-5"/>)}
                                         </motion.div>
                                     </div>
 
@@ -593,7 +577,7 @@ export const Home = () => {
                                         >
                                             <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "type"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
                                                 <CardBody className="px-4 py-2">
-                                                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
+                                                    <div className={`absolute left-0 inset-y-2 w-1 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
                                                     <div className="w-full h-full flex justify-between">
                                                         <div>
                                                             <div className="flex gap-1 pb-1 items-end">
@@ -649,91 +633,7 @@ export const Home = () => {
                                         </motion.div>
                                     ))}
                                 </ScrollShadow>
-
-                                <ScrollShadow className="max-h-[380px] bg-transparent flex flex-col gap-2 p-2 md:col-span-6 xl:col-span-2 md:pt-6 xl:pt-2
-                                [&::-webkit-scrollbar]:h-1
-                                [&::-webkit-scrollbar]:w-1
-                                [&::-webkit-scrollbar-track]:rounded-full
-                                [&::-webkit-scrollbar-track]:bg-transparent
-                                [&::-webkit-scrollbar-thumb]:rounded-full
-                                [&::-webkit-scrollbar-thumb]:bg-transparent">
-                                    <div>
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: 3 * 0.1 }}
-                                        >
-                                            {miniCard("Proveedores de mantenimiento", maintenanceProviders.length, <PersonWrenchFilled className="size-5"/>)}
-                                        </motion.div>
-                                    </div>
-
-                                    {filteredMaintenanceProviders.map((item) => (
-                                        <motion.div
-                                            key={item.id}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3, delay: item.n * 0.1 }}
-                                        >
-                                            <Card shadow="none" radius="sm" isPressable onPress={() => {handleRead(item, "provider"); onModalOpen()}} className="w-full transition-colors !duration-1000 ease-in-out bg-background dark:bg-background-100 shadow-small">
-                                                <CardBody className="px-4 py-2">
-                                                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 h-10 ${item.status ? "bg-primary" : "bg-background-500"} rounded-full`}></div>
-                                                    <div className="w-full h-full flex justify-between">
-                                                        <div>
-                                                            <div className="flex gap-1 pb-1 items-end">
-                                                                <p className="text-sm font-medium break-all line-clamp-1">{item.name}</p>
-                                                            </div>
-                                                            <div className={`flex gap-1 text-xs items-start ${item.status ? "text-primary" : "text-background-500"}`}>
-                                                                <p className="text-xs text-background-950 pb-[2px]">#{item.n}</p>
-                                                                <p>{item.status ? "Activo" : "Inactivo"}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center pl-2">
-                                                            <Dropdown placement="bottom-end" className="bg-background-100 transition-colors duration-1000 ease-in-out" offset={28} shadow="lg" radius="sm" classNames={{content: "min-w-44"}}>
-                                                                <DropdownTrigger>
-                                                                    <Button className="bg-transparent" size="sm" radius="sm" isIconOnly as="a">
-                                                                        <MoreVerticalFilled className="size-5"/>
-                                                                    </Button>
-                                                                </DropdownTrigger>
-                                                                <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
-                                                                    <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
-                                                                        <DropdownItem 
-                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40"
-                                                                            key="handleUpdate"
-                                                                            startContent={<EditFilled className="size-5"/>}
-                                                                            onPress={() => {handleUpdate(item, "provider"); onModalOpen()}}
-                                                                        >
-                                                                            Actualizar
-                                                                        </DropdownItem>
-
-                                                                        <DropdownItem 
-                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
-                                                                            key="handleRead"
-                                                                            startContent={<InfoFilled className="size-5"/>}
-                                                                            onPress={() => {handleRead(item, "provider"); onModalOpen()}}
-                                                                        >
-                                                                            Ver más detalles
-                                                                        </DropdownItem>
-
-                                                                        <DropdownItem 
-                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
-                                                                            key="handleChangeStatus"
-                                                                            startContent={item.status ? <SubtractCircleFilled className="size-5"/> : <CheckmarkCircleFilled className="size-5"/>}
-                                                                            onPress={() => handleChangeStatus(item, "provider")}
-                                                                        >
-                                                                            {item.status ? "Inhabilitar" : "Habilitar"}
-                                                                        </DropdownItem>
-                                                                    </DropdownSection>
-                                                                </DropdownMenu>
-                                                            </Dropdown>
-                                                        </div>
-                                                    </div>
-                                                </CardBody>
-                                            </Card>
-                                        </motion.div>
-                                    ))}
-                                </ScrollShadow>
                             </div>
-                        </div>
                     </div>
                 </div>)
             ))}
@@ -742,7 +642,9 @@ export const Home = () => {
             <UsersDrawer isOpen={isDUsersOpen} onOpenChange={setIsDUsersOpen} data={null} action={"create"} onRefresh={triggerRefresh}/>
             <EquipmentsDrawer isOpen={isDEquipmentsOpen} onOpenChange={setIsDEquipmentsOpen} data={null} action={"create"} onRefresh={triggerRefresh} users={users.filter(u => u.status)} categories={categories.filter(u => u.status)} maintenanceProviders={maintenanceProviders.filter(u => u.status)}/>
             <CustomersDrawer isOpen={isDCustomersOpen} onOpenChange={setIsDCustomersOpen} data={null} action={"create"} onRefresh={triggerRefresh}/>
+            <MaintenanceProvidersDrawer isOpen={isMPOpen} onOpenChange={setIsMPOpen} data={null} action={"create"} onRefresh={triggerRefresh}/>
             <CRUDModal isOpen={isModalOpen} onOpenChange={onModalOpenChange} data={selected} action={action} onRefresh={triggerRefresh} entity={modalEntity}/>
+            <Notifications isOpen={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}/>
         </>
     )
 }
@@ -759,6 +661,8 @@ export const CRUDModal = ({isOpen, onOpenChange, data, action, onRefresh, entity
     const [multiObjectErrors, setMultiObjectErrors] = useState({ 
         name: [],
     })
+
+    if (action !== "create" && action !== "update") console.log(data)
 
     useEffect(() => {
         setMultiObject({
@@ -888,13 +792,13 @@ export const CRUDModal = ({isOpen, onOpenChange, data, action, onRefresh, entity
             pronoun:  'a'
         },
         type: { 
-            singular: 'tipo de mantenimiento',
-            article:  'el tipo de mantenimiento',
+            singular: 'tipo de servicio',
+            article:  'el tipo de servicio',
             pronoun:  'o'
         },
         provider: { 
-            singular: 'proveedor de mantenimiento',
-            article:  'el proveedor de mantenimiento',
+            singular: 'proveedor de servicio',
+            article:  'el proveedor de servicio',
             pronoun:  'o'
         }
     }
@@ -935,7 +839,7 @@ export const CRUDModal = ({isOpen, onOpenChange, data, action, onRefresh, entity
         switch (action){
             case "create": verb = "registró"; break
             case "update": verb = "actualizó"; break
-            default: verb = formData.status ? "inhabilitó" : "habilitó"; break
+            default: verb = data.status ? "inhabilitó" : "habilitó"; break
         }
 
         try {
@@ -1000,6 +904,7 @@ export const CRUDModal = ({isOpen, onOpenChange, data, action, onRefresh, entity
                 hideCloseButton
                 size="md"
                 radius="lg"
+                className="my-0"
                 isKeyboardDismissDisabled
                 isDismissable={!(action === "create" || action === "update")}
                 isOpen={isOpen}
@@ -1057,11 +962,11 @@ export const CRUDModal = ({isOpen, onOpenChange, data, action, onRefresh, entity
                                 />
                             </Form>
                         </ModalBody>
-                        <ModalFooter className="flex justify-center pt-4 pb-8">
+                        <ModalFooter className="flex justify-center pt-4 pb-8 sm:gap-4 gap-2">
                             {action !== "read" && (
                                 <>
                                 <Button
-                                    className="bg-transparent"
+                                    className="bg-transparent dark:bg-background-100"
                                     radius="sm"
                                     startContent={<DismissFilled className="size-5"/>}
                                     onPress={() => {onClose(); resetForm()}}

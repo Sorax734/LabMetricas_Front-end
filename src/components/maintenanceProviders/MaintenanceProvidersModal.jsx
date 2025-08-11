@@ -4,16 +4,15 @@ import { CloseButton } from "../CloseButton"
 import { ArrowHookUpLeftFilled, ArrowHookUpRightFilled, CheckmarkCircleFilled, DismissCircleFilled, DismissFilled, PersonAddFilled, PersonEditFilled } from "@fluentui/react-icons"
 import { PrimaryButton } from "../PrimaryButton"
 import { Tooltip } from "../Tooltip"
-import { createUser, updateUser } from "../../service/user"
-import { createCustomer, updateCustomer } from "../../service/customer"
+import { createMaintenanceProvider, updateMaintenanceProvider } from "../../service/maintenanceProvider"
 
-export const CustomersModal = ({isOpen, onOpenChange, data, initialData, action, onRefresh, closeDrawer}) => {
+export const MaintenanceProvidersModal = ({isOpen, onOpenChange, data, initialData, action, onRefresh, closeDrawer}) => {
     const targetRef = useRef(null)
     const {moveProps} = useDraggable({targetRef, isDisabled: !isOpen})
 
     const [showBefore, setShowBefore] = useState(false)
     const description = action === "create"
-    ? "Una vez registrado, el cliente estará disponible para cualquier proceso."
+    ? "Una vez registrado, el proveedor de servicio estará disponible para cualquier proceso."
     : "Por favor, verifique que todos los datos sean correctos antes de continuar."
 
     const [isLoading, setIsLoading] = useState(false)
@@ -25,8 +24,8 @@ export const CustomersModal = ({isOpen, onOpenChange, data, initialData, action,
             setIsLoading(true)
             
             const response = action === "create"
-                ? await createCustomer(data)
-                : await updateCustomer(data, initialData.email)
+                ? await createMaintenanceProvider(data)
+                : await updateMaintenanceProvider(data)
 
             const success = response.type === "SUCCESS"
             
@@ -55,7 +54,7 @@ export const CustomersModal = ({isOpen, onOpenChange, data, initialData, action,
         }
     }
 
-    const customerDetails = (customer) => {
+    const maintenanceProviderDetails = (maintenanceProvider) => {
         return (
             <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-large">
 
@@ -64,7 +63,7 @@ export const CustomersModal = ({isOpen, onOpenChange, data, initialData, action,
                     
                     <div className="w-full flex flex-col gap-1">
                         <div className="w-full flex justify-between">
-                            <p className="font-semibold break-all line-clamp-2 pr-4">{customer.name}</p>
+                            <p className="font-semibold break-all line-clamp-2 pr-4">{maintenanceProvider.name}</p>
                             {action !== "create" && (
                                 <Tooltip
                                     tooltipContent={showBefore ? "Ver después" : "Ver antes"}
@@ -76,10 +75,10 @@ export const CustomersModal = ({isOpen, onOpenChange, data, initialData, action,
                                 </Tooltip>
                             )}
                         </div>
-                        <p className="text-sm line-clamp-2 break-all"><span className="font-medium">Correo electrónico: </span>{customer.email}</p>
-                        <p className="text-sm"><span className="font-medium">NIF: </span>{customer.nif}</p>
-                        {customer.address && (<p className="text-sm"><span className="font-medium">Dirección: </span>{customer.address}</p>)}
-                        {customer.phone && (<p className="text-sm"><span className="font-medium">Teléfono: </span>{customer.phone}</p>)}
+                        <p className="text-sm line-clamp-2 break-all"><span className="font-medium">Correo electrónico: </span>{maintenanceProvider.email}</p>
+                        <p className="text-sm"><span className="font-medium">NIF: </span>{maintenanceProvider.nif}</p>
+                        {maintenanceProvider.address && (<p className="text-sm"><span className="font-medium">Dirección: </span>{maintenanceProvider.address}</p>)}
+                        {maintenanceProvider.phone && (<p className="text-sm"><span className="font-medium">Teléfono: </span>{maintenanceProvider.phone}</p>)}
                     </div>
                 </CardBody>
             </Card>
@@ -107,15 +106,15 @@ export const CustomersModal = ({isOpen, onOpenChange, data, initialData, action,
                             <div className="w-full flex justify-end">
                                 <CloseButton onPress={onClose}/>     
                             </div>
-                            <p className="text-lg font-bold text-center">¿Desea {action === "create" ? "registrar" : "actualizar"} al siguiente cliente?</p>
+                            <p className="text-lg font-bold text-center">¿Desea {action === "create" ? "registrar" : "actualizar"} al siguiente proveedor de servicio?</p>
                         </ModalHeader>
                         <ModalBody className="py-0 gap-0">
                             <p className="text-sm font-normal pb-4 text-center">{description}</p>
 
                             {action === "create" ? 
-                                customerDetails(data)
+                                maintenanceProviderDetails(data)
                             :
-                                !showBefore ? customerDetails(data) : customerDetails(initialData)
+                                !showBefore ? maintenanceProviderDetails(data) : maintenanceProviderDetails(initialData)
                             }
                         </ModalBody>
                         <ModalFooter className="flex justify-center pt-4 pb-8 sm:gap-4 gap-2">

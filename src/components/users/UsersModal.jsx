@@ -59,7 +59,7 @@ export const UsersModal = ({isOpen, onOpenChange, data, initialData, action, onR
             <Card shadow="none" radius="sm" className="w-full transition-colors !duration-1000 ease-in-out bg-transparent dark:bg-background-100 shadow-large">
 
                 <CardBody className="pl-4">
-                    <div className={`absolute top-1/2 left-0 transform -translate-y-1/2 w-1 ${ user.phone ? "h-28" : "h-24"} bg-primary rounded-full`}></div>
+                    <div className="absolute left-0 inset-y-4 w-1 bg-primary rounded-full"></div>
                     
                     <div className="w-full flex flex-col gap-1">
                         <div className="w-full flex justify-between">
@@ -91,6 +91,7 @@ export const UsersModal = ({isOpen, onOpenChange, data, initialData, action, onR
                 hideCloseButton
                 size="lg"
                 radius="lg"
+                className="my-0"
                 isKeyboardDismissDisabled
                 isDismissable={false}
                 isOpen={isOpen}
@@ -116,9 +117,9 @@ export const UsersModal = ({isOpen, onOpenChange, data, initialData, action, onR
                                 !showBefore ? userDetails(data) : userDetails(initialData)
                             }
                         </ModalBody>
-                        <ModalFooter className="flex justify-center pt-4 pb-8">
+                        <ModalFooter className="flex justify-center pt-4 pb-8 sm:gap-4 gap-2">
                             <Button
-                                className="bg-transparent"
+                                className="bg-transparent dark:bg-background-100"
                                 radius="sm"
                                 startContent={<DismissFilled className="size-5"/>}
                                 onPress={onClose}
