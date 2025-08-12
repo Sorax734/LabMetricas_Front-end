@@ -9,8 +9,10 @@ import { formatDateLiteral } from "../js/utils"
 import { getMaintenanceProviders } from "../service/maintenanceProvider"
 import { MaintenanceProvidersChangeStatusModal } from "../components/maintenanceProviders/MaintenanceProvidersChangeStatusModal"
 import { MaintenanceProvidersDrawer } from "../components/maintenanceProviders/MaintenanceProvidersDrawer"
+import { useAuth } from "../hooks/useAuth"
 
 export const MaintenanceProviders = () => {
+    const {user} = useAuth()
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
@@ -331,12 +333,13 @@ export const MaintenanceProviders = () => {
                         </PopoverContent>
                     </Popover>
 
+                    {user.role === "ADMIN" &&
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<PersonAddFilled className="size-5 "/>}
                         onPress={() => {handleCreateMaintenanceProvider(); setIsDrawerOpen(true)}}
-                    />
+                    />}
                 </div>
             </div>
         )
@@ -545,6 +548,7 @@ export const MaintenanceProviders = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateMaintenanceProvider"
@@ -552,7 +556,7 @@ export const MaintenanceProviders = () => {
                                                                         onPress={() => {handleUpdateMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar proveedor de servicio
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -563,6 +567,7 @@ export const MaintenanceProviders = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
                                                                         key="handleChangeStatusMaintenanceProvider"
@@ -570,7 +575,7 @@ export const MaintenanceProviders = () => {
                                                                         onPress={() => handleChangeStatusMaintenanceProvider(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>
@@ -628,6 +633,7 @@ export const MaintenanceProviders = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateMaintenanceProvider"
@@ -635,7 +641,7 @@ export const MaintenanceProviders = () => {
                                                                         onPress={() => {handleUpdateMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar proveedor de servicio
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -646,6 +652,7 @@ export const MaintenanceProviders = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
                                                                         key="handleChangeStatusMaintenanceProvider"
@@ -653,7 +660,7 @@ export const MaintenanceProviders = () => {
                                                                         onPress={() => handleChangeStatusMaintenanceProvider(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>

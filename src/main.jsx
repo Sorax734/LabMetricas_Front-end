@@ -268,7 +268,7 @@ createRoot(document.getElementById('root')).render(
 									<Route
 										path='Users'
 										element={
-											<ProtectedRoute allowedRoles={['ADMIN']}>
+											<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR']}>
 												<Users />
 											</ProtectedRoute>
 										}
@@ -300,7 +300,7 @@ createRoot(document.getElementById('root')).render(
 									<Route
 										path='ServiceProviders'
 										element={
-											<ProtectedRoute allowedRoles={['ADMIN']}>
+											<ProtectedRoute allowedRoles={['ADMIN', 'SUPERVISOR']}>
 												<MaintenanceProviders />
 											</ProtectedRoute>
 										}

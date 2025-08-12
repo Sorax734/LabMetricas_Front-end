@@ -62,7 +62,6 @@ export const Notifications = ({isOpen, onOpenChange}) => {
                         ...item,
                         n: index + 1
                     }))
-                    console.log(dataCount)
 
                     startTransition(() => {
                         setNotis(dataCount)

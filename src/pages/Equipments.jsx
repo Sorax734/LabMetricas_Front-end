@@ -12,8 +12,10 @@ import { getMaintenanceProviders } from "../service/maintenanceProvider"
 import { EquipmentsDrawer } from "../components/equipments/EquipmentsDrawer"
 import { EquipmentsChangeStatusModal } from "../components/equipments/EquipmentsChangeStatusModal"
 import { formatDateLiteral } from "../js/utils"
+import { useAuth } from "../hooks/useAuth"
 
 export const Equipments = () => {
+    const {user} = useAuth()
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
@@ -354,12 +356,13 @@ export const Equipments = () => {
                         </PopoverContent>
                     </Popover>
 
+                    {user.role !== "OPERADOR" &&
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<SettingsFilled className="size-5 "/>}
                         onPress={() => {handleCreateEquipment(); setIsDrawerOpen(true)}}
-                    />
+                    />}
                 </div>
             </div>
         )
@@ -572,6 +575,7 @@ export const Equipments = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role !== "OPERADOR" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateEquipment"
@@ -579,7 +583,7 @@ export const Equipments = () => {
                                                                         onPress={() => {handleUpdateEquipment(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar equipo
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -590,6 +594,7 @@ export const Equipments = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role !== "OPERADOR" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
                                                                         key="handleChangeStatusEquipment"
@@ -597,7 +602,7 @@ export const Equipments = () => {
                                                                         onPress={() => handleChangeStatusEquipment(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>
@@ -661,6 +666,7 @@ export const Equipments = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role !== "OPERADOR" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateEquipment"
@@ -668,7 +674,7 @@ export const Equipments = () => {
                                                                         onPress={() => {handleUpdateEquipment(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar equipo
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -679,6 +685,7 @@ export const Equipments = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role !== "OPERADOR" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
                                                                         key="handleChangeStatusEquipment"
@@ -686,7 +693,7 @@ export const Equipments = () => {
                                                                         onPress={() => handleChangeStatusEquipment(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>

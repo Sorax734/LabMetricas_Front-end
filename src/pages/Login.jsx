@@ -34,8 +34,6 @@ export const Login = () => {
                 credentials: "include"
             });
             const result = await response.json()
-            console.log("Respuesta del backend:", result)
-            console.log("Datos del usuario recibidos:", result.data)
             
             if (result && result.data && result.data.roles && result.data.roles.length > 0) {
                 // Extraer el rol del array de roles

@@ -14,8 +14,10 @@ import { getMaintenanceTypes } from "../service/maintenanceType"
 import { MaintenancesCalibrationsDrawer } from "../components/maintenancesCalibrations/MaintenancesCalibrationsDrawer"
 import { formatDateLiteral } from "../js/utils"
 import { ReviewModal } from "../components/maintenancesCalibrations/ReviewModal"
+import { useAuth } from "../hooks/useAuth"
 
 export const MaintenanceCalibration = () => {
+    const {user} = useAuth()
     let navigate = useNavigate()
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
@@ -103,7 +105,6 @@ export const MaintenanceCalibration = () => {
                         priorityName: priorityLabels[item.priority] || '-',
                         isScheduled: false
                     }))
-                    console.log(dataCount)
                     const dataCountS = data3.map((item, index) => ({
                         ...item,
                         n: index + 1,
@@ -111,7 +112,6 @@ export const MaintenanceCalibration = () => {
                         priorityName: priorityLabels[item.priority] || '-',
                         isScheduled: true
                     }))
-                    console.log(dataCountS)
                     const dataCountByMe = data2.map((item, index) => ({
                         ...item,
                         n: index + 1,
@@ -119,7 +119,6 @@ export const MaintenanceCalibration = () => {
                         priorityName: priorityLabels[item.priority] || '-',
                         isScheduled: false
                     }))
-                    console.log(dataCountByMe)
 
                     const dataCountSByMe = data4.map((item, index) => ({
                         ...item,
@@ -128,7 +127,6 @@ export const MaintenanceCalibration = () => {
                         priorityName: priorityLabels[item.priority] || '-',
                         isScheduled: true
                     }))
-                    console.log(dataCountSByMe)
 
                     startTransition(() => {
                         setMaintenances(dataCount)
@@ -481,6 +479,7 @@ export const MaintenanceCalibration = () => {
                                     ))}
                                 </Select>
 
+                                {user.role !== "OPERADOR" &&
                                 <Select
                                     disallowEmptySelection
                                     className="w-28 flex-none"
@@ -507,17 +506,18 @@ export const MaintenanceCalibration = () => {
                                     <SelectItem key="Anyone">
                                         Asignado
                                     </SelectItem>
-                                </Select>
+                                </Select> }
                             </div>
                         </PopoverContent>
                     </Popover>
-
+                    
+                    {user.role !== "OPERADOR" &&
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Solicitar"
                         startContent={<WrenchScrewdriverFilled className="size-5 "/>}
                         onPress={() => {handleCreateMaintenance(); setIsDrawerOpen(true)}}
-                    />
+                    /> }
                 </div>
             </div>
 

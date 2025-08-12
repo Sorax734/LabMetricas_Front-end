@@ -416,15 +416,15 @@ export const AppLayout = () => {
 
     const operadorNavigation = [
         ...navigation,
-        {
-            label: "Historial",
-            icon: <ClockIcon className='size-5' />,
-            path: "/App/History"
-        }
     ]
 
     const supervisorNavigation = [
         ...navigation,
+        {
+            label: "Usuarios",
+            icon: <PeopleFilled className='sm:size-5 size-6' />,
+            path: "/App/Users"
+        },
         {
             label: "Proveedores de servicio",
             icon: <PersonWrenchFilled className='size-5' />,

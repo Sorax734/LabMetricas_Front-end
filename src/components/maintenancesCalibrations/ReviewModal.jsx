@@ -77,8 +77,6 @@ export const ReviewModal = ({isOpen, onOpenChange, data, action, onRefresh}) => 
                     const objectId = {
                         maintenanceId: data.id
                     }
-                    console.log(data)
-                    console.log(objectId)
                     response = await submitMaintenanceForReview(objectId)
                     break
                 case "APPROVED": 
@@ -101,9 +99,6 @@ export const ReviewModal = ({isOpen, onOpenChange, data, action, onRefresh}) => 
 
             if (success){onRefresh()}
         } catch (error){
-            console.log(error)
-            console.log(error.response)
-            console.log(error.response.data)
             addToast({
                 title: `No se ${verb} el servicio`,
                 description: error.response.data.message,
@@ -165,8 +160,6 @@ export const ReviewModal = ({isOpen, onOpenChange, data, action, onRefresh}) => 
             setIsLoading(true)
             
             const response = await rejectMaintenance(data.id, formEntries)
-            console.log(formEntries)
-            console.log(response)
             const success = response.type === "SUCCESS"
             
             addToast({

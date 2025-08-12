@@ -9,9 +9,11 @@ import { useNavigate, useOutletContext } from "react-router-dom"
 import { UsersDrawer } from "../components/users/UsersDrawer"
 import { UsersChangeStatusModal } from "../components/users/UsersChangeStatusModal"
 import { formatDateLiteral } from "../js/utils"
+import { useAuth } from "../hooks/useAuth"
 
 export const Users = () => {
     let navigate = useNavigate()
+    const {user} = useAuth()
 
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
@@ -333,12 +335,13 @@ export const Users = () => {
                         </PopoverContent>
                     </Popover>
 
+                    {user.role === "ADMIN" &&
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<PersonAddFilled className="size-5 "/>}
                         onPress={() => {handleCreateUser(); setIsDrawerOpen(true)}}
-                    />
+                    />}
                 </div>
             </div>
         )
@@ -551,6 +554,7 @@ export const Users = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
@@ -558,7 +562,7 @@ export const Users = () => {
                                                                         onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar usuario
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -569,6 +573,7 @@ export const Users = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusUser"
@@ -576,8 +581,9 @@ export const Users = () => {
                                                                         onPress={() => handleChangeStatusUser(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                     
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
                                                                         key="logs"
@@ -585,7 +591,7 @@ export const Users = () => {
                                                                         onPress={() => {navigate("/App/Logs"); setSearchValue(item.name)}}
                                                                     >
                                                                         Ver sus logs
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>
@@ -649,6 +655,7 @@ export const Users = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateUser"
@@ -656,7 +663,7 @@ export const Users = () => {
                                                                         onPress={() => {handleUpdateUser(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar usuario
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -667,6 +674,7 @@ export const Users = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role === "ADMIN" && <>
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
                                                                         key="handleChangeStatusUser"
@@ -683,7 +691,7 @@ export const Users = () => {
                                                                         onPress={() => {navigate("/App/Logs"); setSearchValue(item.name)}}
                                                                     >
                                                                         Ver sus logs
-                                                                    </DropdownItem>
+                                                                    </DropdownItem> </>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>

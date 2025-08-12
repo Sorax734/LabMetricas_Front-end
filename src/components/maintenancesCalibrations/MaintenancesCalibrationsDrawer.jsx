@@ -18,7 +18,7 @@ export const MaintenancesCalibrationsDrawer = ({isOpen, onOpenChange, data, acti
         maintenanceType: "",
         responsible: ""
     })
-console.log(data)
+
     const [maintenance, setMaintenance] = useState({
         id: data?.id || "",
         equipmentId: data?.equipmentId || "",
