@@ -27,7 +27,7 @@ export const Page404 = () => {
 					<PrimaryButton
 						label={!user ? "Iniciar sesión" : "Ir al inicio"}
 						startContent={!user ? <DoorFilled className="size-5"/> : <HomeIcon className="size-5"/>}
-						onPress={() => !user ? navigate("/Login") : navigate("/App")}
+						onPress={() => !user ? navigate("/") : navigate("/App")}
 					/>
 				</div>
 			</div>

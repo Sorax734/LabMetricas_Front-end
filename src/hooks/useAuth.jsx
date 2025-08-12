@@ -111,7 +111,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/Login");
+    navigate("/");
     setIsOpen(false)
     setIsLoading(false)
   };

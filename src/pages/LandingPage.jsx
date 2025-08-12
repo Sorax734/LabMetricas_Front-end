@@ -524,7 +524,7 @@ export const LandingPage = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button 
-                  onPress={() => {navigate("/Login")}}
+                  onPress={() => {navigate("/")}}
                   color="background" 
                   size="xl"
                   className="bg-white text-primary-700 px-12 py-6 rounded-2xl shadow-xl"

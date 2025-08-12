@@ -26,7 +26,7 @@ function ProtectedRoute({ allowedRoles = [], children }) {
 	const { user } = useAuth()
 	
 	if (!user) {
-		return <Navigate to="/Login" replace/>
+		return <Navigate to="/" replace/>
 	}
 	
 	if (allowedRoles.length === 0) {
