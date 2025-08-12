@@ -234,8 +234,7 @@ createRoot(document.getElementById('root')).render(
 						/>
 						<Routes>
 							<Route path='/' element={ <Outlet/> } >
-								<Route index element={ <LandingPage/> } />
-								<Route path='Login' element={ <Login/> } />
+								<Route index element={ <Login/> } />
 								<Route path='ForgotPassword'>
 									<Route index element={<ForgotPassword/>} />
 									<Route path=':token' element={<ForgotPassword/>} />
