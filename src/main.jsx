@@ -17,7 +17,7 @@ import { MaintenanceCalibration } from './pages/MaintenanceCalibration.jsx';
 import { Logs } from './pages/Logs.jsx';
 import { Equipments } from './pages/Equipments.jsx';
 import { Customers } from './pages/Customers.jsx';
-import { Page404 } from './pages/page404.jsx';
+import { Page404 } from './pages/Page404.jsx';
 import { TourProvider, useTour } from '@reactour/tour';
 import { MaintenanceProviders } from './pages/MaintenanceProviders.jsx';
 import { ForgotPassword } from './pages/ForgotPassword.jsx';
