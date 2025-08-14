@@ -196,7 +196,7 @@ export const MaintenanceCalibration = () => {
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]))
 
-    const [statusFilter, setStatusFilter] = React.useState("all")
+    const [statusFilter, setStatusFilter] = React.useState(new Set(["activo"]))
 
     const [rowsPerPage, setRowsPerPage] = React.useState(10)
 
@@ -664,7 +664,7 @@ export const MaintenanceCalibration = () => {
                                             #
                                         </div>
                                         
-                                        <div className="w-36 flex-shrink-0">
+                                        <div className="w-44 flex-shrink-0">
                                             Código
                                         </div>
                                         
@@ -726,7 +726,7 @@ export const MaintenanceCalibration = () => {
                                                 <div className={`absolute left-0 inset-y-4 w-1 ${item.status === "activo" ? "bg-primary" : "bg-background-500"} rounded-full md:inset-y-1`}></div>
                                                 <div className="md:hidden w-full h-full flex justify-between">
                                                     <div>
-                                                        <div className="xs:flex xs:items-center xs:gap-2 pb-2">
+                                                        <div className="pb-2">
                                                             <div className="flex gap-1 pb-1 items-end">
                                                                 <p className="text-sm font-medium break-all line-clamp-1">{item.code}</p>
                                                                 {(() => {
@@ -734,6 +734,7 @@ export const MaintenanceCalibration = () => {
                                                                     return (
                                                                         <div className={"flex items-center gap-1 " + statusInfo.colorClassName}>
                                                                             {statusInfo.icon}
+                                                                            <span className="text-xs truncate">{statusInfo.label}</span>
                                                                         </div>
                                                                     )
                                                                 })()}
@@ -759,12 +760,12 @@ export const MaintenanceCalibration = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     { selectedKeyBy === "Me" &&
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out"
                                                                         key="handleUpdateMaintenance"
                                                                         startContent={<EditFilled className="size-5"/>}
                                                                         onPress={() => {handleUpdateMaintenance(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar
+                                                                        Actualizar servicio
                                                                     </DropdownItem> }
 
                                                                     <DropdownItem 
@@ -779,7 +780,7 @@ export const MaintenanceCalibration = () => {
                                                                     { selectedKeyBy === "Me" ? item.reviewStatus === "PENDING" &&
                                                                         <>
                                                                         <DropdownItem 
-                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out -mt-1"
                                                                             key="APPROVED"
                                                                             startContent={<CheckmarkCircleFilled className="size-5"/>}
                                                                             onPress={() => handleReviewModal(item, "APPROVED")}
@@ -788,7 +789,7 @@ export const MaintenanceCalibration = () => {
                                                                         </DropdownItem>
 
                                                                         <DropdownItem 
-                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out -mt-1"
                                                                             key="REJECTED"
                                                                             startContent={<DismissCircleFilled className="size-5"/>}
                                                                             onPress={() => handleReviewModal(item, "REJECTED")}
@@ -838,7 +839,7 @@ export const MaintenanceCalibration = () => {
                                                         </p>
                                                     </div>
                                                      
-                                                    <div className="w-36 flex-shrink-0">
+                                                    <div className="w-44 flex-shrink-0">
                                                         <p className="text-sm truncate">
                                                             {item.code}
                                                         </p>
@@ -896,12 +897,12 @@ export const MaintenanceCalibration = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     { selectedKeyBy === "Me" &&
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out"
                                                                         key="handleUpdateMaintenance"
                                                                         startContent={<EditFilled className="size-5"/>}
                                                                         onPress={() => {handleUpdateMaintenance(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar
+                                                                        Actualizar servicio
                                                                     </DropdownItem>}
 
                                                                     <DropdownItem 
@@ -916,7 +917,7 @@ export const MaintenanceCalibration = () => {
                                                                     { selectedKeyBy === "Me" ? item.reviewStatus === "PENDING" &&
                                                                         <>
                                                                         <DropdownItem 
-                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out -mt-1"
                                                                             key="APPROVED"
                                                                             startContent={<CheckmarkCircleFilled className="size-5"/>}
                                                                             onPress={() => handleReviewModal(item, "APPROVED")}
@@ -925,7 +926,7 @@ export const MaintenanceCalibration = () => {
                                                                         </DropdownItem>
 
                                                                         <DropdownItem 
-                                                                            className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
+                                                                            className="rounded-md transition-all !duration-1000 ease-in-out -mt-1"
                                                                             key="REJECTED"
                                                                             startContent={<DismissCircleFilled className="size-5"/>}
                                                                             onPress={() => handleReviewModal(item, "REJECTED")}
@@ -978,13 +979,14 @@ export const MaintenanceCalibration = () => {
                 <div className="flex flex-col w-full h-full px-1">
                     <div className="flex justify-between">
                         <p className="text-lg font-bold">Servicios</p>
-            
+                        
+                        {user.role !== "OPERADOR" &&
                         <PrimaryButton
                             tooltipPlacement="bottom"
                             label="Solicitar"
                             startContent={<WrenchScrewdriverFilled className="size-5 "/>}
                             onPress={() => {handleCreateMaintenance(); setIsDrawerOpen(true)}}
-                        />
+                        />}
                     </div>
                                         
                     <div className="flex-1 flex items-center justify-center flex-col gap-4 -mt-10">

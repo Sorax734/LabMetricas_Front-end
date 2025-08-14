@@ -9,8 +9,10 @@ import { getCustomers } from "../service/customer"
 import { CustomersChangeStatusModal } from "../components/customers/CustomersChangeStatusModal"
 import { CustomersDrawer } from "../components/customers/CustomersDrawer"
 import { formatDateLiteral } from "../js/utils"
+import { useAuth } from "../hooks/useAuth"
 
 export const Customers = () => {
+    const {user} = useAuth()
     const [isLoading, setIsLoading] = useState(true)
     const [refreshTrigger, setRefreshTrigger] = useState(false)
     const triggerRefresh = () => setRefreshTrigger(prev => !prev)
@@ -86,7 +88,7 @@ export const Customers = () => {
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]))
 
-    const [statusFilter, setStatusFilter] = React.useState("all")
+    const [statusFilter, setStatusFilter] = React.useState(new Set(["activo"]))
 
     const [rowsPerPage, setRowsPerPage] = React.useState(10)
 
@@ -202,7 +204,7 @@ export const Customers = () => {
             { key: "n", label: "Número" },
             { key: "email", label: "Correo" },
             { key: "name", label: "Nombre" },
-            { key: "nif", label: "NIF" },
+            { key: "nif", label: "RFC" },
             { key: "phone", label: "Teléfono" },
             { key: "address", label: "Dirección" },
         ]
@@ -331,12 +333,13 @@ export const Customers = () => {
                         </PopoverContent>
                     </Popover>
 
+                    {user.role === "ADMIN" &&
                     <PrimaryButton
                         tooltipPlacement="bottom"
                         label="Registrar"
                         startContent={<PersonAddFilled className="size-5 "/>}
                         onPress={() => {handleCreateCustomer(); setIsDrawerOpen(true)}}
-                    />
+                    />}
                 </div>
             </div>
         )
@@ -472,7 +475,7 @@ export const Customers = () => {
                                         </div>
                                         
                                         <div className="w-48 flex-shrink-0">
-                                            NIF
+                                            RFC
                                         </div>
                                         
                                         <div className="w-40 flex-shrink-0 text-center">
@@ -545,6 +548,7 @@ export const Customers = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateCustomer"
@@ -552,7 +556,7 @@ export const Customers = () => {
                                                                         onPress={() => {handleUpdateCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar cliente
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -563,6 +567,7 @@ export const Customers = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
                                                                         key="handleChangeStatusCustomer"
@@ -570,7 +575,7 @@ export const Customers = () => {
                                                                         onPress={() => handleChangeStatusCustomer(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>
@@ -628,6 +633,7 @@ export const Customers = () => {
                                                             </DropdownTrigger>
                                                             <DropdownMenu aria-label="Acciones" variant="light" itemClasses={{base:"mt-1 mb-2"}}>
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40"
                                                                         key="handleUpdateCustomer"
@@ -635,7 +641,7 @@ export const Customers = () => {
                                                                         onPress={() => {handleUpdateCustomer(item); setIsDrawerOpen(true)}}
                                                                     >
                                                                         Actualizar cliente
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
 
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mt-1"
@@ -646,6 +652,7 @@ export const Customers = () => {
                                                                         Ver más detalles
                                                                     </DropdownItem>
 
+                                                                    {user.role === "ADMIN" &&
                                                                     <DropdownItem 
                                                                         className="rounded-md transition-all !duration-1000 ease-in-out w-40 -mb-1"
                                                                         key="handleChangeStatusCustomer"
@@ -653,7 +660,7 @@ export const Customers = () => {
                                                                         onPress={() => handleChangeStatusCustomer(item)}
                                                                     >
                                                                         {item.status === "activo" ? "Inhabilitar" : "Habilitar"}
-                                                                    </DropdownItem>
+                                                                    </DropdownItem>}
                                                                 </DropdownSection>
                                                             </DropdownMenu>
                                                         </Dropdown>
@@ -671,12 +678,13 @@ export const Customers = () => {
                     <div className="flex justify-between">
                         <p className="text-lg font-bold">Clientes</p>
 
+                        {user.role === "ADMIN" &&
                         <PrimaryButton
                             tooltipPlacement="bottom"
                             label="Registrar"
                             startContent={<PersonAddFilled className="size-5 "/>}
                             onPress={() => {handleCreateCustomer(); setIsDrawerOpen(true)}}
-                        />
+                        />}
                     </div>
                     
                     <div className="flex-1 flex items-center justify-center flex-col gap-4 -mt-10">

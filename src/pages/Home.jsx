@@ -682,7 +682,7 @@ export const Home = () => {
                                 <p className="text-sm sm:text-base"><CircleFilled className="size-2 text-primary mr-2"/> Evaluar efectividad de sus servicios creados</p>
                                 <p className="text-sm sm:text-base"><CircleFilled className="size-2 text-primary mr-2"/> Realizar seguimiento de sus servicios asignados</p>
                             </div>
-                         :  <div className="flex flex-col gap-2 max-w-[450px] px-6 sm:px-0">
+                         :  <div className="flex flex-col gap-2 max-w-[450px] px-6 sm:px-0 text-center -mt-10 sm:-mt-0">
                                 <p className="text-lg sm:text-xl pb-2">Como operador, usted puede:</p>
                         
                                 <p className="text-sm sm:text-base"><CircleFilled className="size-2 text-primary mr-2"/> Consultar sus servicios asignados</p>
@@ -963,7 +963,7 @@ export const CRUDModal = ({isOpen, onOpenChange, data, action, onRefresh, entity
                 isDismissable={!(action === "create" || action === "update")}
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
-                classNames={{wrapper: "overflow-hidden", backdrop: "bg-black/20"}}
+                classNames={{wrapper: "overflow-hidden", backdrop: "bg-black/30"}}
                 ref={targetRef} 
             >
                 <ModalContent className="bg-background">

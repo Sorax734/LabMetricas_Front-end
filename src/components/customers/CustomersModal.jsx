@@ -77,7 +77,7 @@ export const CustomersModal = ({isOpen, onOpenChange, data, initialData, action,
                             )}
                         </div>
                         <p className="text-sm line-clamp-2 break-all"><span className="font-medium">Correo electrónico: </span>{customer.email}</p>
-                        <p className="text-sm"><span className="font-medium">NIF: </span>{customer.nif}</p>
+                        <p className="text-sm"><span className="font-medium">RFC: </span>{customer.nif}</p>
                         {customer.address && (<p className="text-sm"><span className="font-medium">Dirección: </span>{customer.address}</p>)}
                         {customer.phone && (<p className="text-sm"><span className="font-medium">Teléfono: </span>{customer.phone}</p>)}
                     </div>

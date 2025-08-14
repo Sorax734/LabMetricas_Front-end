@@ -113,12 +113,12 @@ export const MaintenanceProvidersDrawer = ({isOpen, onOpenChange, data, action, 
 
             if (action === "create") {
                 if (exists) newErrors.email.push("El correo electrónico ingresado ya está en uso.");
-                if (existsNIF) newErrors.nif.push("El NIF ingresado ya está en uso.");
+                if (existsNIF) newErrors.nif.push("El RFC ingresado ya está en uso.");
             }
 
             if (action === "update") {
                 if (exists && exists.id !== formData.id) newErrors.email.push("El correo electrónico ingresado ya está en uso.")
-                if (existsNIF && existsNIF.id !== formData.id) newErrors.nif.push("El NIF ingresado ya está en uso.")
+                if (existsNIF && existsNIF.id !== formData.id) newErrors.nif.push("El RFC ingresado ya está en uso.")
             }
 
             if (newErrors.email.length > 0 || newErrors.nif.length > 0) {
@@ -136,7 +136,7 @@ export const MaintenanceProvidersDrawer = ({isOpen, onOpenChange, data, action, 
         } catch (error) {
         console.log(error)
             addToast({
-                title: `No se pudo verificar el correo ni el nif. Intenta de nuevo.`,
+                title: `No se pudo verificar el correo ni el RFC. Intenta de nuevo.`,
                 description: error.response.data.message,
                 color: "danger",
                 icon: <DismissCircleFilled className="size-5"/>
@@ -287,10 +287,10 @@ export const MaintenanceProvidersDrawer = ({isOpen, onOpenChange, data, action, 
                                     label={
                                         <div className="flex justify-between">
                                             <div className="flex items-center gap-1">
-                                                <p className="font-medium text-sm">NIF</p>
+                                                <p className="font-medium text-sm">RFC</p>
                                                 <TextAsteriskFilled className="size-3 text-background-500 group-data-[focus=true]:text-primary group-data-[invalid=true]:!text-danger"/>
                                             </div>
-                                            <p className="!text-background-500 text-xs font-normal">{maintenanceProvider.nif.length + " / 20"}</p>
+                                            <p className="!text-background-500 text-xs font-normal">{maintenanceProvider.nif.length + " / 13"}</p>
                                         </div>
                                     }
                                     classNames={{ label: "w-full font-medium !text-current transition-colors !duration-1000 ease-in-out", input: "transition-colors !duration-1000 ease-in-out group-data-[invalid=true]:!text-current font-medium !placeholder-background-500 placeholder:!font-normal",  mainWrapper: "group-data-[invalid=true]:animate-shake", inputWrapper: "transition-colors !duration-1000 ease-in-out caret-primary group-data-[invalid=true]:caret-danger bg-background-100 group-data-[hover=true]:border-background-200 group-data-[focus=true]:!border-primary group-data-[invalid=true]:!border-danger border-transparent text-current" }}
@@ -302,9 +302,9 @@ export const MaintenanceProvidersDrawer = ({isOpen, onOpenChange, data, action, 
                                     radius="sm"
                                     size="md"
                                     variant="bordered"
-                                    maxLength={20}
+                                    maxLength={13}
                                     isReadOnly={action !== 'create' && action !== 'update'}
-                                    placeholder={action === "create" ? "Ingrese el NIF del proveedor de servicio" : data.nif}
+                                    placeholder={action === "create" ? "Ingrese el RFC del proveedor de servicio" : data.nif}
                                     value={maintenanceProvider.nif}
                                     onValueChange={(value) => handleInputChange('nif', value)}
                                     isInvalid={maintenanceProviderErrors.nif.length > 0}

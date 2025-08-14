@@ -76,7 +76,7 @@ export const MaintenanceProvidersModal = ({isOpen, onOpenChange, data, initialDa
                             )}
                         </div>
                         <p className="text-sm line-clamp-2 break-all"><span className="font-medium">Correo electrónico: </span>{maintenanceProvider.email}</p>
-                        <p className="text-sm"><span className="font-medium">NIF: </span>{maintenanceProvider.nif}</p>
+                        <p className="text-sm"><span className="font-medium">RFC: </span>{maintenanceProvider.nif}</p>
                         {maintenanceProvider.address && (<p className="text-sm"><span className="font-medium">Dirección: </span>{maintenanceProvider.address}</p>)}
                         {maintenanceProvider.phone && (<p className="text-sm"><span className="font-medium">Teléfono: </span>{maintenanceProvider.phone}</p>)}
                     </div>

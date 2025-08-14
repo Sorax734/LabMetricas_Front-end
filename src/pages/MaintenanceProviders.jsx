@@ -88,7 +88,7 @@ export const MaintenanceProviders = () => {
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]))
 
-    const [statusFilter, setStatusFilter] = React.useState("all")
+    const [statusFilter, setStatusFilter] = React.useState(new Set(["activo"]))
 
     const [rowsPerPage, setRowsPerPage] = React.useState(10)
 
@@ -204,7 +204,7 @@ export const MaintenanceProviders = () => {
             { key: "n", label: "Número" },
             { key: "email", label: "Correo" },
             { key: "name", label: "Nombre" },
-            { key: "nif", label: "NIF" },
+            { key: "nif", label: "RFC" },
             { key: "phone", label: "Teléfono" },
             { key: "address", label: "Dirección" },
         ]
@@ -475,7 +475,7 @@ export const MaintenanceProviders = () => {
                                         </div>
                                         
                                         <div className="w-48 flex-shrink-0">
-                                            NIF
+                                            RFC
                                         </div>
                                         
                                         <div className="w-40 flex-shrink-0 text-center">
@@ -550,12 +550,12 @@ export const MaintenanceProviders = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     {user.role === "ADMIN" &&
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out"
                                                                         key="handleUpdateMaintenanceProvider"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
                                                                         onPress={() => {handleUpdateMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar proveedor de servicio
+                                                                        Actualizar proveedor
                                                                     </DropdownItem>}
 
                                                                     <DropdownItem 
@@ -635,12 +635,12 @@ export const MaintenanceProviders = () => {
                                                                 <DropdownSection title="Acciones" classNames={{ heading: "text-background-500 font-normal"}}>
                                                                     {user.role === "ADMIN" &&
                                                                     <DropdownItem 
-                                                                        className="rounded-md transition-all !duration-1000 ease-in-out w-40"
+                                                                        className="rounded-md transition-all !duration-1000 ease-in-out"
                                                                         key="handleUpdateMaintenanceProvider"
                                                                         startContent={<PersonEditFilled className="size-5"/>}
                                                                         onPress={() => {handleUpdateMaintenanceProvider(item); setIsDrawerOpen(true)}}
                                                                     >
-                                                                        Actualizar proveedor de servicio
+                                                                        Actualizar proveedor
                                                                     </DropdownItem>}
 
                                                                     <DropdownItem 
@@ -678,12 +678,13 @@ export const MaintenanceProviders = () => {
                     <div className="flex justify-between">
                         <p className="text-lg font-bold">Proveedores de servicio</p>
 
+                        {user.role === "ADMIN" &&
                         <PrimaryButton
                             tooltipPlacement="bottom"
                             label="Registrar" MaintenanceProvider
                             startContent={<PersonAddFilled className="size-5 "/>}
                             onPress={() => {handleCreateMaintenanceProvider(); setIsDrawerOpen(true)}}
-                        />
+                        />}
                     </div>
                     
                     <div className="flex-1 flex items-center justify-center flex-col gap-4 -mt-10">

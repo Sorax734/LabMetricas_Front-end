@@ -321,7 +321,7 @@ export const ReviewModal = ({isOpen, onOpenChange, data, action, onRefresh}) => 
                                 variant="shadow"
                                 color="primary"
                                 type="submit"
-                                startContent={icon}
+                                startContent={isLoading ? undefined : icon}
                                 isLoading={isLoading}
                                 isDisabled={rejectionReason === "" || rejectionReasonError.length > 0}
                             >

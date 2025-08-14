@@ -111,7 +111,7 @@ export const Equipments = () => {
 
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]))
 
-    const [statusFilter, setStatusFilter] = React.useState("all")
+    const [statusFilter, setStatusFilter] = React.useState(new Set(["activo"]))
 
     const [rowsPerPage, setRowsPerPage] = React.useState(10)
 
@@ -711,12 +711,13 @@ export const Equipments = () => {
                     <div className="flex justify-between">
                         <p className="text-lg font-bold">Equipos</p>
             
+                        {user.role !== "OPERADOR" &&
                         <PrimaryButton
                             tooltipPlacement="bottom"
                             label="Registrar"
                             startContent={<SettingsFilled className="size-5 "/>}
                             onPress={() => {handleCreateEquipment(); setIsDrawerOpen(true)}}
-                        />
+                        />}
                     </div>
                     
                                         

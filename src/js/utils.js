@@ -1,6 +1,10 @@
 import { CalendarDateTime } from '@internationalized/date'
 
 export function formatDateLiteral(isoString, withTime = false) {
+    if (isoString === null || isoString === undefined || isoString === "") {
+        return "Sin modificar"
+    }
+
     const date = new Date(isoString)
 
     const day = String(date.getDate()).padStart(2, '0')
