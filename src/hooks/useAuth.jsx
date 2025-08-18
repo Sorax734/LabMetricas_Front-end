@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoading(true)
 
-      const response = await fetch("http://localhost:8080/api/auth/login", {
+      const response = await fetch("https://labmetricas-backend.onrender.com/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('user');
     // Si tu backend tiene endpoint de logout, descomenta:
-    // await fetch('http://localhost:8081/api/auth/logout', { method: 'POST', credentials: 'include' });
+    // await fetch('https://labmetricas-backend.onrender.com/api/auth/logout', { method: 'POST', credentials: 'include' });
   };
 
   const handleLogout = async () => {

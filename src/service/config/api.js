@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const api = axios.create({
     credentials: "include",
-    baseURL: 'http://localhost:8080/api',
+    baseURL: 'https://labmetricas-backend.onrender.com/api',
     timeout: 60000, //60 segundos
     headers: {
 		"Content-Type": 'application/json',
